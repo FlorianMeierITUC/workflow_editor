@@ -61,6 +61,7 @@ import 'Frontend/generated/jar-resources/tooltip.ts';
 import '@vaadin/side-nav/theme/lumo/vaadin-side-nav.js';
 import '@vaadin/side-nav/theme/lumo/vaadin-side-nav-item.js';
 import '@vaadin/split-layout/theme/lumo/vaadin-split-layout.js';
+import '@vaadin-component-factory/vcf-svg/src/vcf-svg.js';
 import '@vaadin/tabs/theme/lumo/vaadin-tab.js';
 import '@vaadin/tabsheet/theme/lumo/vaadin-tabsheet.js';
 import '@vaadin/tabs/theme/lumo/vaadin-tabs.js';

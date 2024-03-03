@@ -5,11 +5,13 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.ArrayList;
+
 @Document
-public class Workflow {
+public class WorkflowNode {
     @EqualsAndHashCode.Include
     @Id
     @Getter
@@ -19,25 +21,33 @@ public class Workflow {
 
     @Getter
     @Setter
-    @Indexed(unique = true)
-    @EqualsAndHashCode.Include
     @NonNull
-    String name;
+    String idWorkflow;
 
     @Getter
     @Setter
-    String description;
+    @NonNull
+    String title;
 
     @Getter
     @Setter
-    boolean active;
+    @NonNull
+    String type;
 
     @Getter
     @Setter
-    String createdBy;
+    String executorClass;
 
     @Getter
     @Setter
-    Long schedule;
+    String responsible;
+
+    @Getter
+    @Setter
+    ArrayList<String> precessorNodes;
+
+    @Getter
+    @Setter
+    ArrayList<String> successorNodes;
 
 }

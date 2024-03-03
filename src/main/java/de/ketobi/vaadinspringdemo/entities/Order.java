@@ -5,24 +5,22 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document
-public class Workflow {
-    @EqualsAndHashCode.Include
-    @Id
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+public class Order extends WorkflowItem{
     @Getter
     @Setter
+    @Id
+    @EqualsAndHashCode.Include
     @NonNull
     String id;
 
     @Getter
     @Setter
-    @Indexed(unique = true)
-    @EqualsAndHashCode.Include
     @NonNull
-    String name;
+    String item;
 
     @Getter
     @Setter
@@ -30,14 +28,25 @@ public class Workflow {
 
     @Getter
     @Setter
-    boolean active;
+    String reason;
+
+    @Getter
+    @Setter
+    String supplier;
+
+    @Getter
+    @Setter
+    BigDecimal price;
+
+    @Getter
+    @Setter
+    boolean deleted;
+
+    @Getter
+    @Setter
+    LocalDateTime createdAt;
 
     @Getter
     @Setter
     String createdBy;
-
-    @Getter
-    @Setter
-    Long schedule;
-
 }
