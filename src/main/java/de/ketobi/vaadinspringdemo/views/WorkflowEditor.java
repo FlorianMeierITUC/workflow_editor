@@ -1,26 +1,22 @@
 package de.ketobi.vaadinspringdemo.views;
 
 import com.vaadin.flow.component.Html;
-import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Paragraph;
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.svg.Svg;
-import com.vaadin.flow.component.svg.elements.Circle;
-import com.vaadin.flow.component.svg.elements.Rect;
-import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.router.*;
+import com.vaadin.flow.router.BeforeEvent;
+import com.vaadin.flow.router.HasUrlParameter;
+import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.Route;
 import de.ketobi.vaadinspringdemo.entities.Workflow;
 import de.ketobi.vaadinspringdemo.entities.WorkflowNode;
 import de.ketobi.vaadinspringdemo.repositories.WorkflowNodeRepository;
 import de.ketobi.vaadinspringdemo.repositories.WorkflowRepository;
 import de.ketobi.vaadinspringdemo.views.components.workflow.CreateWorkflowNodeDiv;
+import de.ketobi.vaadinspringdemo.views.components.workflow.viewer.Canvas;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.ArrayList;
+import java.util.List;
 
 @Route(value = "workfloweditor", layout = MainLayout.class)
 @PageTitle("Workflow editor")
@@ -31,12 +27,6 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
     private WorkflowNodeRepository wfNodeRepository;
     private Div nodeDiv = new Div();
     private Div treeDiv = new Div();
-    private TextField title = new TextField("Title");
-    private TextField type = new TextField("Type");
-    private TextField executorClass = new TextField("Class");
-    private TextField responsible = new TextField("Responsible");
-    private TextField predecessor = new TextField("Predecessor node", "START");
-    private TextField successor = new TextField("Successor node", "END");
 
     @Autowired
     public WorkflowEditor(WorkflowRepository wfRepository, WorkflowNodeRepository wfNodeRepository){
@@ -62,7 +52,7 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
         nodeDiv.add(new Paragraph("Select here if the workflow is scheduled or event driven: "+workFlow.getName()));
         nodeDiv.add(new Paragraph("Nodes:"));
         for (WorkflowNode node : wfNodeRepository.findByIdWorkflow(workFlow.getId())){
-            nodeDiv.add(new Paragraph(node.getTitle()));
+            nodeDiv.add(new Paragraph(node.getTitle() + " - " + node.getType()));
         }
         nodeDiv.add(new Html("<HR>"));
         nodeDiv.add(new CreateWorkflowNodeDiv(workFlow, wfNodeRepository));
@@ -70,20 +60,8 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
 
     private void drawWorkflow(){
         treeDiv.removeAll();
-        Svg draw = new Svg();
-        Rect rect = new Rect("rect", 100, 100);
-        Circle circle = new Circle("circle", 50);
-
-        rect.move(75, 0);
-        rect.size(150, 150);
-
-        circle.center(150, 75);
-        circle.setRadius(75);
-        circle.setFillColor("#396");
-
-        draw.add(rect);
-        draw.add(circle);
-        treeDiv.add(draw);
+        List<WorkflowNode> nodes = wfNodeRepository.findByIdWorkflow(workFlow.getId());
+        Canvas workflowView = new Canvas(nodes);
+        treeDiv.add(workflowView);
     }
-
 }

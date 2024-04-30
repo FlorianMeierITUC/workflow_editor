@@ -47,11 +47,17 @@ public class CreateWorkflowNodeDiv extends Div{
 
         type.setLabel("Type *");
         type.setItems(Arrays.stream(WorkflowNodeTypes.values())
-                .filter(e -> e != WorkflowNodeTypes.START && e != WorkflowNodeTypes.END)
+                .filter(e -> e != WorkflowNodeTypes.START)
                 .collect(Collectors.toList()));
         type.addValueChangeListener(event -> {
             WorkflowNodeTypes selectedType = event.getValue();
             switch (selectedType) {
+                case END:
+                    executorClass.setVisible(false);
+                    responsible.setVisible(false);
+                    predecessor.setVisible(true);
+                    successor.setVisible(false);
+                    break;
                 case OR:
                 case AND:
                 case UNION:
@@ -103,7 +109,7 @@ public class CreateWorkflowNodeDiv extends Div{
                 node.setResponsible(responsible.getValue());
                 ArrayList<ObjectId> predecessors = new ArrayList<>();
                 predecessors.add(predecessor.getValue().getId());
-                node.setPrecessorNodes(predecessors);
+                node.setPredecessorNodes(predecessors);
                 ArrayList<ObjectId> successors = new ArrayList<>();
                 successors.add(successor.getValue().getId());
                 node.setSuccessorNodes(successors);

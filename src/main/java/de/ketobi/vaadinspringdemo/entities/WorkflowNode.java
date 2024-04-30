@@ -30,11 +30,7 @@ public class WorkflowNode {
 
     String responsible;
 
-    ArrayList<ObjectId> precessorNodes;
+    ArrayList<ObjectId> predecessorNodes;
 
     ArrayList<ObjectId> successorNodes;
-
-    public void setPredecessorNodes(ArrayList<ObjectId> predecessors) {
-        this.precessorNodes = predecessors;
-    }
 }
