@@ -21,7 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 
-@Route(value = "workfloweditor")
+@Route(value = "workfloweditor", layout = MainLayout.class)
 @PageTitle("Workflow editor")
 public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<String> {
     private Workflow workFlow;
@@ -86,7 +86,7 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
         draw.add(circle);
         treeDiv.add(draw);
     }
-    private class SaveNodeButton extends Button{
+    class SaveNodeButton extends Button{
         public SaveNodeButton(){
             setText("+ Create node");
             addClickListener(e -> {

@@ -1,43 +1,31 @@
 package de.ketobi.vaadinspringdemo.entities;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.Setter;
+import lombok.*;
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
-
+@Data
 @Document
+@NoArgsConstructor
+@AllArgsConstructor
 public class Workflow {
     @EqualsAndHashCode.Include
     @Id
-    @Getter
-    @Setter
     @NonNull
-    String id;
+    ObjectId id;
 
-    @Getter
-    @Setter
     @Indexed(unique = true)
     @EqualsAndHashCode.Include
     @NonNull
     String name;
 
-    @Getter
-    @Setter
     String description;
 
-    @Getter
-    @Setter
     boolean active;
 
-    @Getter
-    @Setter
     String createdBy;
 
-    @Getter
-    @Setter
     Long schedule;
 
 }

@@ -5,7 +5,7 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 
-@Route("dynamic")
+@Route(value = "dynamic", layout = MainLayout.class)
 public class DynamicLoadingExample extends VerticalLayout {
     public Div dynamicContent;
     public DynamicLoadingExample() {

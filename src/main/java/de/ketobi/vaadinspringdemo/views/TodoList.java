@@ -23,7 +23,7 @@ import org.springframework.dao.DuplicateKeyException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
-@Route(value = "todos")
+@Route(value = "todos", layout = MainLayout.class)
 @PageTitle("Todos and ideas")
 public class TodoList extends VerticalLayout {
     private final TodoRepository todoRepository;

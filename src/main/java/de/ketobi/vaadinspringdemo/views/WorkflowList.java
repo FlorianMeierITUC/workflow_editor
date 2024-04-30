@@ -21,7 +21,7 @@ import org.springframework.dao.DuplicateKeyException;
 
 import java.util.ArrayList;
 
-@Route(value = "workflows")
+@Route(value = "workflows", layout = MainLayout.class)
 @PageTitle("Workflows")
 public class WorkflowList extends VerticalLayout {
     private WorkflowRepository workflowRepository;
@@ -39,7 +39,7 @@ public class WorkflowList extends VerticalLayout {
             Button editButton = new Button("Edit");
             editButton.addClickListener(e -> {
                 editButton.getUI().ifPresent(ui ->
-                        ui.navigate(WorkflowEditor.class, selectedWf.getId()));
+                        ui.navigate(WorkflowEditor.class, selectedWf.getId().toString()));
 
             });
             return editButton;

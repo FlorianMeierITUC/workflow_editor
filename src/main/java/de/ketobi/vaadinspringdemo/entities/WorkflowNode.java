@@ -1,53 +1,37 @@
 package de.ketobi.vaadinspringdemo.entities;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.Setter;
+import lombok.*;
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.ArrayList;
-
+@Data
 @Document
+@NoArgsConstructor
+@AllArgsConstructor
 public class WorkflowNode {
     @EqualsAndHashCode.Include
     @Id
-    @Getter
-    @Setter
     @NonNull
-    String id;
+    ObjectId id;
 
-    @Getter
-    @Setter
     @NonNull
-    String idWorkflow;
+    ObjectId idWorkflow;
 
-    @Getter
-    @Setter
     @NonNull
     String title;
 
-    @Getter
-    @Setter
     @NonNull
     String type;
 
-    @Getter
-    @Setter
     String executorClass;
 
-    @Getter
-    @Setter
     String responsible;
 
-    @Getter
-    @Setter
     ArrayList<String> precessorNodes;
 
-    @Getter
-    @Setter
     ArrayList<String> successorNodes;
 
 }

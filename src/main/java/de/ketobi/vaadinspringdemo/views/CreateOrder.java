@@ -8,7 +8,7 @@ import com.vaadin.flow.router.Route;
 import de.ketobi.vaadinspringdemo.entities.Order;
 import de.ketobi.vaadinspringdemo.repositories.OrderRepository;
 
-@Route(value = "createorder")
+@Route(value = "createOrder", layout = MainLayout.class)
 @PageTitle("Create order")
 public class CreateOrder extends VerticalLayout {
     private final OrderRepository orderRepository;

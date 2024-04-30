@@ -1,52 +1,36 @@
 package de.ketobi.vaadinspringdemo.entities;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.Setter;
+import lombok.*;
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Order extends WorkflowItem{
-    @Getter
-    @Setter
     @Id
     @EqualsAndHashCode.Include
     @NonNull
-    String id;
+    private ObjectId id;
 
-    @Getter
-    @Setter
     @NonNull
-    String item;
+    private String item;
 
-    @Getter
-    @Setter
-    String description;
+    private String description;
 
-    @Getter
-    @Setter
-    String reason;
+    private String reason;
 
-    @Getter
-    @Setter
-    String supplier;
+    private String supplier;
 
-    @Getter
-    @Setter
-    BigDecimal price;
+    private BigDecimal price;
 
-    @Getter
-    @Setter
-    boolean deleted;
+    private boolean deleted;
 
-    @Getter
-    @Setter
-    LocalDateTime createdAt;
+    private LocalDateTime createdAt;
 
-    @Getter
-    @Setter
-    String createdBy;
+    private String createdBy;
 }
