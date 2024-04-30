@@ -24,14 +24,17 @@ public class WorkflowNode {
     String title;
 
     @NonNull
-    String type;
+    WorkflowNodeTypes type;
 
     String executorClass;
 
     String responsible;
 
-    ArrayList<String> precessorNodes;
+    ArrayList<ObjectId> precessorNodes;
 
-    ArrayList<String> successorNodes;
+    ArrayList<ObjectId> successorNodes;
 
+    public void setPredecessorNodes(ArrayList<ObjectId> predecessors) {
+        this.precessorNodes = predecessors;
+    }
 }

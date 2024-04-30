@@ -80,20 +80,4 @@ class WorkflowEditorTest {
 
         verify(wfRepository, times(1)).findById(any());
     }
-
-    @Test
-    public void shouldCreateNodeWhenSaveNodeButtonIsClicked() {
-        WorkflowNode node = new WorkflowNode();
-        node.setIdWorkflow(new ObjectId());
-        node.setTitle("Test Node");
-        node.setType("Test Type");
-        node.setExecutorClass("Test Class");
-        node.setResponsible("Test Responsible");
-
-        when(wfNodeRepository.save(any())).thenReturn(node);
-
-        workflowEditor.new SaveNodeButton().click();
-
-        verify(wfNodeRepository, times(1)).save(any());
-    }
 }

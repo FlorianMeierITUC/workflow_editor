@@ -17,6 +17,7 @@ import de.ketobi.vaadinspringdemo.entities.Workflow;
 import de.ketobi.vaadinspringdemo.entities.WorkflowNode;
 import de.ketobi.vaadinspringdemo.repositories.WorkflowNodeRepository;
 import de.ketobi.vaadinspringdemo.repositories.WorkflowRepository;
+import de.ketobi.vaadinspringdemo.views.components.workflow.CreateWorkflowNodeDiv;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
@@ -36,6 +37,7 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
     private TextField responsible = new TextField("Responsible");
     private TextField predecessor = new TextField("Predecessor node", "START");
     private TextField successor = new TextField("Successor node", "END");
+
     @Autowired
     public WorkflowEditor(WorkflowRepository wfRepository, WorkflowNodeRepository wfNodeRepository){
         this.wfRepository = wfRepository;
@@ -58,15 +60,12 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
         nodeDiv.add(new Paragraph("Name: "+workFlow.getName()));
         nodeDiv.add(new Paragraph("Description: "+workFlow.getDescription()));
         nodeDiv.add(new Paragraph("Select here if the workflow is scheduled or event driven: "+workFlow.getName()));
+        nodeDiv.add(new Paragraph("Nodes:"));
+        for (WorkflowNode node : wfNodeRepository.findByIdWorkflow(workFlow.getId())){
+            nodeDiv.add(new Paragraph(node.getTitle()));
+        }
         nodeDiv.add(new Html("<HR>"));
-        nodeDiv.add(new Paragraph("Create a new node:"));
-        nodeDiv.add(title);
-        nodeDiv.add(type);
-        nodeDiv.add(executorClass);
-        nodeDiv.add(responsible);
-        nodeDiv.add(predecessor);
-        nodeDiv.add(successor);
-        nodeDiv.add(new SaveNodeButton());
+        nodeDiv.add(new CreateWorkflowNodeDiv(workFlow, wfNodeRepository));
     }
 
     private void drawWorkflow(){
@@ -86,28 +85,5 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
         draw.add(circle);
         treeDiv.add(draw);
     }
-    class SaveNodeButton extends Button{
-        public SaveNodeButton(){
-            setText("+ Create node");
-            addClickListener(e -> {
-                WorkflowNode node = new WorkflowNode();
-                node.setIdWorkflow(workFlow.getId());
-                node.setTitle(title.getValue());
-                node.setType(type.getValue());
-                node.setExecutorClass(executorClass.getValue());
-                node.setResponsible(responsible.getValue());
-                ArrayList<String> predecessors = new ArrayList<>();
-                predecessors.add("START");
-                node.setPrecessorNodes(predecessors);
-                ArrayList<String> successors = new ArrayList<>();
-                successors.add("END");
-                node.setSuccessorNodes(successors);
-                wfNodeRepository.save(node);
-                Notification notification = Notification
-                        .show("Workflow node created!");
-                notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-                drawWorkflow();
-            });
-        }
-    }
+
 }

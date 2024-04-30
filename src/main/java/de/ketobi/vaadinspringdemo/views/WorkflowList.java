@@ -15,7 +15,11 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 import de.ketobi.vaadinspringdemo.entities.Workflow;
+import de.ketobi.vaadinspringdemo.entities.WorkflowNode;
+import de.ketobi.vaadinspringdemo.entities.WorkflowNodeTypes;
+import de.ketobi.vaadinspringdemo.repositories.WorkflowNodeRepository;
 import de.ketobi.vaadinspringdemo.repositories.WorkflowRepository;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 
@@ -25,12 +29,15 @@ import java.util.ArrayList;
 @PageTitle("Workflows")
 public class WorkflowList extends VerticalLayout {
     private WorkflowRepository workflowRepository;
+    private WorkflowNodeRepository workflowNodeRepository;
     private GridListDataView<Workflow> workflowView;
     private TextField name = new TextField("Name *");
     private TextArea description = new TextArea("Description");
+
     @Autowired
-    public WorkflowList(WorkflowRepository workflowRepository){
+    public WorkflowList(WorkflowRepository workflowRepository, WorkflowNodeRepository workflowNodeRepository){
         this.workflowRepository = workflowRepository;
+        this.workflowNodeRepository = workflowNodeRepository;
         ArrayList<Workflow> workflowList = new ArrayList<>(workflowRepository.findAll());
         Grid<Workflow> wfGrid = new Grid<>(Workflow.class, false);
         wfGrid.addColumn(Workflow::getName).setHeader("Name").setAutoWidth(true);
@@ -85,6 +92,33 @@ public class WorkflowList extends VerticalLayout {
                 wf.setCreatedBy("Tobias");
                 try {
                     workflowRepository.save(wf);
+                    //Create start node
+                    WorkflowNode startNode = new WorkflowNode();
+                    startNode.setIdWorkflow(wf.getId());
+                    startNode.setTitle("Start");
+                    startNode.setType(WorkflowNodeTypes.START);
+                    workflowNodeRepository.save(startNode);
+
+                    //Create end node
+                    WorkflowNode endNode = new WorkflowNode();
+                    endNode.setIdWorkflow(wf.getId());
+                    endNode.setTitle("End");
+                    endNode.setType(WorkflowNodeTypes.END);
+                    //Set start node as predecessor of end node
+                    ArrayList<ObjectId> predecessors = new ArrayList<>();
+                    predecessors.add(startNode.getId());
+                    endNode.setPredecessorNodes(predecessors);
+                    //Save end node
+                    workflowNodeRepository.save(endNode);
+
+                    //Set end node as successor of start node
+                    ArrayList<ObjectId> successors = new ArrayList<>();
+                    successors.add(endNode.getId());
+                    startNode.setSuccessorNodes(successors);
+
+                    //Update start node
+                    workflowNodeRepository.save(startNode);
+
                     Notification notification = Notification
                             .show("Workflow submitted!");
                     notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
@@ -93,6 +127,11 @@ public class WorkflowList extends VerticalLayout {
                     Notification notification = Notification
                             .show("Entry with this name already present! Choose a different name!");
                     notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+                } catch (Exception ex) {
+                    Notification notification = Notification
+                            .show("An error occurred while saving the workflow!");
+                    notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+                    ex.printStackTrace();
                 }
             });
         }
