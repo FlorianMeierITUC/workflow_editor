@@ -17,7 +17,7 @@ public class EndNode extends Node {
     private double x;
     private double y;
 
-    public EndNode(String id, double x, double y) {
+    public EndNode(String id, double x, double y, String title) {
         super(id);
         this.x = x;
         this.y = y;
@@ -27,7 +27,7 @@ public class EndNode extends Node {
         rect.setFillColor("white");
         rect.setStroke("black", 2);
 
-        text = new Text("text", "End");
+        text = new Text("text", title);
         text.move(x + 20, y + 5);
         text.setFillColor("black");
         text.setFontSize("20");
@@ -35,12 +35,12 @@ public class EndNode extends Node {
 
     @Override
     public PolyCoordinatePair getTopConnector() {
-        return new PolyCoordinatePair(x, y - HEIGHT/2);
+        return new PolyCoordinatePair(x + WIDTH/2, y);
     }
 
     @Override
     public PolyCoordinatePair getBottomConnector() {
-        return new PolyCoordinatePair(x, y + HEIGHT/2);
+        return new PolyCoordinatePair(x + WIDTH/2, y + HEIGHT);
     }
 
     @Override

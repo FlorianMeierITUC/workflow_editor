@@ -20,7 +20,13 @@ public class CreateOrder extends VerticalLayout {
     private TextField price = new TextField("Price in Euro");
 
     public CreateOrder(OrderRepository orderRepository){
+
         this.orderRepository = orderRepository;
+        add(item);
+        add(description);
+        add(reason);
+        add(supplier);
+        add(price);
     }
 
 }

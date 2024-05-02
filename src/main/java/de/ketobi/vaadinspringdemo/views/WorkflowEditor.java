@@ -55,10 +55,10 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
             nodeDiv.add(new Paragraph(node.getTitle() + " - " + node.getType()));
         }
         nodeDiv.add(new Html("<HR>"));
-        nodeDiv.add(new CreateWorkflowNodeDiv(workFlow, wfNodeRepository));
+        nodeDiv.add(new CreateWorkflowNodeDiv(workFlow, wfNodeRepository, this::drawWorkflow));
     }
 
-    private void drawWorkflow(){
+    public void drawWorkflow(){
         treeDiv.removeAll();
         List<WorkflowNode> nodes = wfNodeRepository.findByIdWorkflow(workFlow.getId());
         Canvas workflowView = new Canvas(nodes);

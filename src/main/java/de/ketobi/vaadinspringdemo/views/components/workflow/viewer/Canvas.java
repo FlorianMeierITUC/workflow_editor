@@ -10,7 +10,7 @@ import org.bson.types.ObjectId;
 import java.util.*;
 
 public class Canvas extends Svg {
-    private static final int HORIZONTAL_SPACING = 50;
+    private static final int HORIZONTAL_SPACING = 150;
     private static final int VERTICAL_SPACING = 100;
     private List<WorkflowNode> nodes;
     private Map<String, Node> nodeMap = new HashMap<>();
@@ -22,10 +22,9 @@ public class Canvas extends Svg {
         viewbox(0, 0, 1800, 1800);
         setWidth("100%");
         setHeight("1500px");
-//        Rect rect = new Rect("rect", 100, 100);
-//        rect.move(75, 0);
-//        rect.size(150, 150);
-//        this.add(rect);
+        Rect background = new Rect("background", 1800, 1800);
+        background.setFillColor("white");
+        this.add(background);
         WorkflowNode startNode = nodes.stream().filter(n -> n.getType() == WorkflowNodeTypes.START).findFirst().orElseThrow();
         for(WorkflowNode node : nodes) {
             workflowNodeMap.put(node.getId(), node);
@@ -40,7 +39,7 @@ public class Canvas extends Svg {
             for (int i = 0; i < levelSize; i++) {
                 WorkflowNode node = queue.poll();
                 Node svgNode = createNode(node, currentX, currentLevel * VERTICAL_SPACING);
-                System.out.println("Node: " + node.getId() + " " + node.getType() + " " + currentX + " " + currentLevel * VERTICAL_SPACING);
+                System.out.println("Draw Node: " + node.getTitle() + " " + node.getType() + " " + currentX + " " + currentLevel * VERTICAL_SPACING);
                 nodeMap.put(svgNode.getId(), svgNode);
                 this.add(svgNode.getShape());
                 this.add(svgNode.getText());
@@ -48,14 +47,19 @@ public class Canvas extends Svg {
                 if (node.getPredecessorNodes() != null && !node.getPredecessorNodes().isEmpty()) {
                     for (ObjectId predecessorId : node.getPredecessorNodes()) {
                         Node parentNode = nodeMap.get(predecessorId.toString());
+                        System.out.println("Current Node: " + node.getTitle() + " " + node.getType());
                         Line line = new Line("line", parentNode.getBottomConnector(), svgNode.getTopConnector());
+                        line.setStroke("black", 2);
+                        System.out.println("Draw Line from Parent Node: " + parentNode.getId() + " to " + svgNode.getId());
                         this.add(line);
                     }
                 }
 
                 if(node.getSuccessorNodes() != null && !node.getSuccessorNodes().isEmpty()) {
                     for (ObjectId child : node.getSuccessorNodes()) {
+                        System.out.println("Found child Node: " + child);
                         queue.add(workflowNodeMap.get(child));
+                        System.out.println("Added child Node: " + workflowNodeMap.get(child).getTitle() + " to queue");
                     }
                 }
                 currentX += HORIZONTAL_SPACING;
@@ -77,7 +81,7 @@ public class Canvas extends Svg {
             case START:
                 return new StartNode(workflowNode.getId().toString(), x, y);
             case END:
-                return new EndNode(workflowNode.getId().toString(), x, y);
+                return new EndNode(workflowNode.getId().toString(), x, y, workflowNode.getTitle());
             case USER_DECISION:
                 return new UserDecisionNode(workflowNode.getId().toString());
             case USER_ACTION:

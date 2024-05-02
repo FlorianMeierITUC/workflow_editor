@@ -28,18 +28,18 @@ public class BatchActionNode extends Node {
         rect.setStroke("black", 2);
 
         text = new Text("text", title);
-        text.move(x - 20, y + 5);
+        text.move(x + 20, y + 5);
         text.setFillColor("black");
     }
 
     @Override
     public PolyCoordinatePair getTopConnector() {
-        return new PolyCoordinatePair(x, y - HEIGHT/2);
+        return new PolyCoordinatePair(x + WIDTH/2, y);
     }
 
     @Override
     public PolyCoordinatePair getBottomConnector() {
-        return new PolyCoordinatePair(x, y + HEIGHT/2);
+        return new PolyCoordinatePair(x + WIDTH/2, y + HEIGHT);
     }
 
     @Override

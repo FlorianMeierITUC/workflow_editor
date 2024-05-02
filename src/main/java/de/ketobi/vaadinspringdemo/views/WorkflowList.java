@@ -54,6 +54,10 @@ public class WorkflowList extends VerticalLayout {
         wfGrid.addComponentColumn(selectedWf -> {
             Button deleteButton = new Button("Delete");
             deleteButton.addClickListener(e -> {
+                //delete all workflow nodes for this workflow
+                for(WorkflowNode node : workflowNodeRepository.findByIdWorkflow(selectedWf.getId())){
+                    workflowNodeRepository.delete(node);
+                }
                 workflowRepository.delete(selectedWf);
                 Notification notification = Notification
                         .show("Workflow deleted!");

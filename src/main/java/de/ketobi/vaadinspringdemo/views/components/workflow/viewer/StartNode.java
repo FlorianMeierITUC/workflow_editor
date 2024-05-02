@@ -36,12 +36,12 @@ public class StartNode extends Node {
 
     @Override
     public PolyCoordinatePair getTopConnector() {
-        return new PolyCoordinatePair(x, y - HEIGHT/2);
+        return new PolyCoordinatePair(x + WIDTH/2, y);
     }
 
     @Override
     public PolyCoordinatePair getBottomConnector() {
-        return new PolyCoordinatePair(x, y + HEIGHT/2);
+        return new PolyCoordinatePair(x + WIDTH/2, y + HEIGHT);
     }
 
     @Override
