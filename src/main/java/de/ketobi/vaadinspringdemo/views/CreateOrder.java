@@ -1,5 +1,6 @@
 package de.ketobi.vaadinspringdemo.views;
 
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
@@ -7,6 +8,8 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import de.ketobi.vaadinspringdemo.entities.Order;
 import de.ketobi.vaadinspringdemo.repositories.OrderRepository;
+
+import java.math.BigDecimal;
 
 @Route(value = "createOrder", layout = MainLayout.class)
 @PageTitle("Create order")
@@ -27,6 +30,21 @@ public class CreateOrder extends VerticalLayout {
         add(reason);
         add(supplier);
         add(price);
+        add(new Button("Save", e -> {
+            Order order = Order.builder()
+                    .item(item.getValue())
+                    .description(description.getValue())
+                    .reason(reason.getValue())
+                    .supplier(supplier.getValue())
+                    .price(price.getValue().isEmpty() ? null : new BigDecimal(price.getValue()))
+                    .build();
+            orderRepository.save(order);
+            item.clear();
+            description.clear();
+            reason.clear();
+            supplier.clear();
+            price.clear();
+        }));
     }
 
 }

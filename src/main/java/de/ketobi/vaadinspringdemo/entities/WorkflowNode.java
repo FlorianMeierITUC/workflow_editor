@@ -7,6 +7,8 @@ import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.ArrayList;
+import java.util.List;
+
 @Data
 @Document
 @NoArgsConstructor
@@ -27,10 +29,17 @@ public class WorkflowNode {
     WorkflowNodeTypes type;
 
     String executorClass;
-
     String responsible;
+    List<ObjectId> predecessorNodes = new ArrayList<>();
+    List<ObjectId> successorNodes = new ArrayList<>();
+    ObjectId successorNode_success;
+    ObjectId successorNode_failure;
 
-    ArrayList<ObjectId> predecessorNodes;
-
-    ArrayList<ObjectId> successorNodes;
+    public String toString(){
+        return "WorkflowNode{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", type=" + type +
+                '}';
+    }
 }

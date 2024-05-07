@@ -46,7 +46,7 @@ public enum WorkflowNodeTypes {
     START("START"),
 
     /**
-     * End node. The end node has exactly one predecessor and no successor.
+     * End node. The end node has multiple predecessors and no successor.
      */
     END("END");
 

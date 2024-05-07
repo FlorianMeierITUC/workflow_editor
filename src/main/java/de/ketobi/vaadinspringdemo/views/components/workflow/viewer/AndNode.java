@@ -4,26 +4,25 @@ import com.vaadin.flow.component.svg.elements.AbstractPolyElement.PolyCoordinate
 import com.vaadin.flow.component.svg.elements.Circle;
 import com.vaadin.flow.component.svg.elements.SvgElement;
 import com.vaadin.flow.component.svg.elements.Text;
+import de.ketobi.vaadinspringdemo.entities.WorkflowNode;
+import lombok.Getter;
 
 public class AndNode extends Node {
     private Circle circle;
+    @Getter
     private Text text;
-    private static final double RADIUS = 50;
-    private double x;
-    private double y;
+    private static final double RADIUS = 20;
 
-    public AndNode(String id, double x, double y) {
-        super(id);
-        this.x = x;
-        this.y = y;
+    public AndNode(WorkflowNode node) {
+        super(node);
 
         circle = new Circle(id, RADIUS);
         circle.center(x, y);
         circle.setFillColor("white");
         circle.setStroke("black", 2);
 
-        text = new Text("text", "AND");
-        text.move(x - 20, y + 5);
+        text = new Text("text", node.getTitle());
+        text.move(x-RADIUS/2, y-RADIUS/2);
         text.setFillColor("black");
     }
 
@@ -39,11 +38,6 @@ public class AndNode extends Node {
 
     @Override
     SvgElement getShape() {
-        return null;
-    }
-
-    @Override
-    Text getText() {
-        return null;
+        return circle;
     }
 }

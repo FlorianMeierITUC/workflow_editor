@@ -5,6 +5,7 @@ import com.vaadin.flow.component.svg.elements.Rect;
 import com.vaadin.flow.component.svg.elements.SvgElement;
 import com.vaadin.flow.component.svg.elements.SvgType;
 import com.vaadin.flow.component.svg.elements.Text;
+import de.ketobi.vaadinspringdemo.entities.WorkflowNode;
 import elemental.json.JsonValue;
 import lombok.Getter;
 
@@ -14,20 +15,16 @@ public class EndNode extends Node {
     private Text text;
     private static final double WIDTH = 100;
     private static final double HEIGHT = 50;
-    private double x;
-    private double y;
 
-    public EndNode(String id, double x, double y, String title) {
-        super(id);
-        this.x = x;
-        this.y = y;
+    public EndNode(WorkflowNode node) {
+        super(node);
 
         rect = new Rect(id, WIDTH, HEIGHT);
         rect.move(x, y);
         rect.setFillColor("white");
         rect.setStroke("black", 2);
 
-        text = new Text("text", title);
+        text = new Text("text", "End");
         text.move(x + 20, y + 5);
         text.setFillColor("black");
         text.setFontSize("20");

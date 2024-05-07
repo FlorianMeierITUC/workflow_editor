@@ -1,6 +1,11 @@
 package de.ketobi.vaadinspringdemo.views.components.workflow;
 
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.combobox.MultiSelectComboBox;
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -13,8 +18,7 @@ import de.ketobi.vaadinspringdemo.entities.WorkflowNodeTypes;
 import de.ketobi.vaadinspringdemo.repositories.WorkflowNodeRepository;
 import org.bson.types.ObjectId;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static de.ketobi.vaadinspringdemo.entities.WorkflowNodeTypes.*;
@@ -29,106 +33,156 @@ public class CreateWorkflowNodeDiv extends Div{
     private TextField responsible = new TextField("Responsible");
     private Select<WorkflowNode> predecessor = new Select<>();
     private Select<WorkflowNode> successor = new Select<>();
+    private Select<WorkflowNode> successor_success = new Select<>();
+    private Select<WorkflowNode> successor_failure = new Select<>();
+    private MultiSelectComboBox<WorkflowNode> multiplePredecessors = new MultiSelectComboBox<>("Predecessor nodes");
+    private MultiSelectComboBox<WorkflowNode> multipleSuccessors = new MultiSelectComboBox<>("Successor nodes");
     private Runnable drawWorkflow;
+    private Map<WorkflowNode, Boolean> nodeParentSuccessRelation = new HashMap<>();
 
     public CreateWorkflowNodeDiv(Workflow wf, WorkflowNodeRepository wfNodeRepository, Runnable drawWorkflow){
         this.workFlow = wf;
         this.wfNodeRepository = wfNodeRepository;
         this.drawWorkflow = drawWorkflow;
 
-        executorClass.setVisible(false);
-        responsible.setVisible(false);
-        predecessor.setVisible(false);
-        successor.setVisible(false);
-
         predecessor.setLabel("Predecessor node");
         predecessor.setItems(wfNodeRepository.findByIdWorkflow(workFlow.getId()));
         predecessor.setItemLabelGenerator(node -> node == null ? "" : node.getTitle() + " (" + node.getType() + ")");
-        predecessor.setEmptySelectionAllowed(true);
+        predecessor.setValue(wfNodeRepository.findByIdWorkflowAndType(workFlow.getId(), START));
+        //add a value change listener that asks the user if they want to add the node as a success or failure node if the predecessor ia a decision node
+        predecessor.addValueChangeListener(event -> {
+            WorkflowNode selectedNode = event.getValue();
+            if(selectedNode != null && (selectedNode.getType() == WorkflowNodeTypes.USER_DECISION || selectedNode.getType() == WorkflowNodeTypes.BATCH_DECISION)){
+                Dialog dialog = new Dialog();
+                Button closeButton = new Button(new Icon("lumo", "cross"),
+                        (e) -> dialog.close());
+                closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+                dialog.getHeader().add(closeButton);
+                dialog.add(new Paragraph("Do you want to add this node as a success or failure node?"));
+
+                Button successButton = new Button("Success", e -> {
+                    nodeParentSuccessRelation.put(selectedNode, true);
+                    dialog.close();
+                });
+                Button failureButton = new Button("Failure", e -> {
+                    nodeParentSuccessRelation.put(selectedNode, false);
+                    dialog.close();
+                });
+                dialog.getFooter().add(successButton);
+                dialog.getFooter().add(failureButton);
+
+                dialog.open();
+            }
+        });
+
+        multiplePredecessors.setItems(wfNodeRepository.findByIdWorkflow(workFlow.getId()));
+        multiplePredecessors.setItemLabelGenerator(node -> node == null ? "" : node.getTitle() + " (" + node.getType() + ")");
+        ArrayList<WorkflowNode> nodes = new ArrayList<>();
+        nodes.add(wfNodeRepository.findByIdWorkflowAndType(workFlow.getId(), START));
+        multiplePredecessors.setValue(nodes);
+        //add a value change listener that asks the user if they want to add the node as a success or failure node if the predecessor ia a decision node
+        multiplePredecessors.addValueChangeListener(event -> {
+            Set<WorkflowNode> selectedNodes = event.getValue();
+            WorkflowNode selectedNode = selectedNodes.stream().filter(node -> !nodeParentSuccessRelation.containsKey(node)).findFirst().orElse(null);
+            if(selectedNode != null && (selectedNode.getType() == WorkflowNodeTypes.USER_DECISION || selectedNode.getType() == WorkflowNodeTypes.BATCH_DECISION)){
+                Dialog dialog = new Dialog();
+                Button closeButton = new Button(new Icon("lumo", "cross"),
+                        (e) -> dialog.close());
+                closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+                dialog.getHeader().add(closeButton);
+                dialog.add(new Paragraph("Do you want to add this node as a success or failure node?"));
+
+                Button successButton = new Button("Success", e -> {
+                    nodeParentSuccessRelation.put(selectedNode, true);
+                    dialog.close();
+                });
+                Button failureButton = new Button("Failure", e -> {
+                    nodeParentSuccessRelation.put(selectedNode, false);
+                    dialog.close();
+                });
+                dialog.getFooter().add(successButton);
+                dialog.getFooter().add(failureButton);
+
+                dialog.open();
+            }
+        });
 
         successor.setLabel("Successor node");
         successor.setItems(wfNodeRepository.findByIdWorkflow(workFlow.getId()));
         successor.setItemLabelGenerator(node -> node == null ? "" : node.getTitle() + " (" + node.getType() + ")");
-        successor.setEmptySelectionAllowed(true);
+        successor.setValue(wfNodeRepository.findByIdWorkflowAndType(workFlow.getId(), END));
+
+        successor_success.setLabel("Successor success node");
+        successor_success.setItems(wfNodeRepository.findByIdWorkflow(workFlow.getId()));
+        successor_success.setItemLabelGenerator(node -> node == null ? "" : node.getTitle() + " (" + node.getType() + ")");
+        successor_success.setValue(wfNodeRepository.findByIdWorkflowAndType(workFlow.getId(), END));
+
+        successor_failure.setLabel("Successor failure node");
+        successor_failure.setItems(wfNodeRepository.findByIdWorkflow(workFlow.getId()));
+        successor_failure.setItemLabelGenerator(node -> node == null ? "" : node.getTitle() + " (" + node.getType() + ")");
+        successor_failure.setValue(wfNodeRepository.findByIdWorkflowAndType(workFlow.getId(), END));
+
+        multipleSuccessors.setItems(wfNodeRepository.findByIdWorkflow(workFlow.getId()));
+        multipleSuccessors.setItemLabelGenerator(node -> node == null ? "" : node.getTitle() + " (" + node.getType() + ")");
+        ArrayList<WorkflowNode> nodes2 = new ArrayList<>();
+        nodes2.add(wfNodeRepository.findByIdWorkflowAndType(workFlow.getId(), END));
+        multipleSuccessors.setValue(nodes2);
 
         type.setLabel("Type *");
+
+        //START and END nodes are automatically generated and can't be added manually
         type.setItems(Arrays.stream(WorkflowNodeTypes.values())
-                .filter(e -> e != START)
+                .filter(e -> e != START && e != END)
                 .collect(Collectors.toList()));
         type.addValueChangeListener(event -> {
             WorkflowNodeTypes selectedType = event.getValue();
             nodeDetailsInput.removeAll();
             nodeDetailsInput.add(createNodeDetailsInput(selectedType));
-            switch (selectedType) {
-                case END:
-                    executorClass.setVisible(false);
-                    responsible.setVisible(false);
-                    predecessor.setVisible(true);
-                    successor.setVisible(false);
-                    break;
-                case OR:
-                case AND:
-                case UNION:
-                    executorClass.setVisible(false);
-                    responsible.setVisible(false);
-                    predecessor.setVisible(true);
-                    successor.setVisible(true);
-                    break;
-                case USER_DECISION:
-                case USER_ACTION:
-                    executorClass.setVisible(true);
-                    responsible.setVisible(true);
-                    predecessor.setVisible(true);
-                    successor.setVisible(true);
-                    break;
-                case BATCH_DECISION:
-                case BATCH_ACTION:
-                    executorClass.setVisible(true);
-                    responsible.setVisible(false);
-                    predecessor.setVisible(true);
-                    successor.setVisible(true);
-                    break;
-                default:
-                    executorClass.setVisible(false);
-                    responsible.setVisible(false);
-                    predecessor.setVisible(false);
-                    successor.setVisible(false);
-                    break;
-            }
         });
         add(title);
         add(type);
         add(nodeDetailsInput);
-        add(executorClass);
-        add(responsible);
-        add(predecessor);
-        add(successor);
         add(new SaveNodeButton());
     }
 
     private Div createNodeDetailsInput(WorkflowNodeTypes type){
         Div div = new Div();
         switch (type){
-            case END:
             case OR:
             case AND:
+                div.add(predecessor);
+                div.add(multipleSuccessors);
+                break;
             case UNION:
+                div.add(multiplePredecessors);
+                div.add(successor);
+                break;
             case USER_DECISION:
+                div.add(predecessor);
+                div.add(successor_success);
+                div.add(successor_failure);
                 div.add(executorClass);
                 div.add(responsible);
                 break;
             case USER_ACTION:
+                div.add(predecessor);
+                div.add(successor);
                 div.add(executorClass);
                 div.add(responsible);
                 break;
             case BATCH_DECISION:
+                div.add(predecessor);
+                div.add(successor_success);
+                div.add(successor_failure);
                 div.add(executorClass);
                 break;
             case BATCH_ACTION:
+                div.add(predecessor);
+                div.add(successor);
                 div.add(executorClass);
                 break;
             default:
-                break;
+                throw new IllegalStateException("Unexpected value: " + type);
         }
         return div;
     }
@@ -156,69 +210,115 @@ public class CreateWorkflowNodeDiv extends Div{
                 node.setExecutorClass(executorClass.getValue());
                 node.setResponsible(responsible.getValue());
 
-                //can be null! Rework the whole way of entering and saving nodes
                 ArrayList<ObjectId> predecessors = new ArrayList<>();
-                if(predecessor.getValue() != null){
-                    predecessors.add(predecessor.getValue().getId());
-                }
-                node.setPredecessorNodes(predecessors);
-
                 ArrayList<ObjectId> successors = new ArrayList<>();
-                if(successor.getValue() != null){
-                    successors.add(successor.getValue().getId());
+
+                switch (node.getType()){
+                    case OR:
+                    case AND:
+                        if(predecessor.getValue() != null){
+                            predecessors.add(predecessor.getValue().getId());
+                        }
+                        for (WorkflowNode successorNode : multipleSuccessors.getSelectedItems()) {
+                            successors.add(successorNode.getId());
+                        }
+                        break;
+                    case UNION:
+                        for (WorkflowNode predecessorNode : multiplePredecessors.getSelectedItems()) {
+                            predecessors.add(predecessorNode.getId());
+                        }
+                        if(successor.getValue() != null){
+                            successors.add(successor.getValue().getId());
+                        }
+                        break;
+                    case USER_DECISION:
+                    case BATCH_DECISION:
+                        if(predecessor.getValue() != null){
+                            predecessors.add(predecessor.getValue().getId());
+                        }
+                        if(successor_success.getValue() != null){
+                            successors.add(successor_success.getValue().getId());
+                            node.setSuccessorNode_success(successor_success.getValue().getId());
+                        }
+                        if(successor_failure.getValue() != null){
+                            successors.add(successor_failure.getValue().getId());
+                            node.setSuccessorNode_failure(successor_failure.getValue().getId());
+                        }
+                        break;
+                    case USER_ACTION:
+                    case BATCH_ACTION:
+                        if(predecessor.getValue() != null){
+                            predecessors.add(predecessor.getValue().getId());
+                        }
+                        if(successor.getValue() != null){
+                            successors.add(successor.getValue().getId());
+                        }
+                        break;
+                    default:
+                        throw new IllegalStateException("Unexpected value: " + node.getType());
                 }
+
+                node.setPredecessorNodes(predecessors);
                 node.setSuccessorNodes(successors);
 
                 wfNodeRepository.save(node);
-                //set the created node as the successor of the predecessor nodes (if any)
-                //predecessors are not allowed to have another successor (except OR and AND nodes)
-                //END nodes are not allowed to have a successor
-                if(predecessor.getValue() != null){
-                    WorkflowNode predecessorNode = predecessor.getValue();
-                    switch (node.getType()){
+
+                // Update the predecessor nodes
+                for (ObjectId predecessorId : predecessors) {
+                    WorkflowNode predecessorNode = wfNodeRepository.findById(predecessorId);
+                    switch (predecessorNode.getType()){
+                        case END:
+                            break;
                         case START:
                         case UNION:
                         case USER_ACTION:
                         case BATCH_ACTION:
-                            //remove other successors from the predecessor node and set the new node as the only successor
                             predecessorNode.getSuccessorNodes().clear();
                             predecessorNode.getSuccessorNodes().add(node.getId());
                             break;
                         case OR:
                         case AND:
-                            //Add the new node as a successor to the predecessor nodes
                             predecessorNode.getSuccessorNodes().add(node.getId());
                             break;
                         case USER_DECISION:
                         case BATCH_DECISION:
-                            //TODO set the new node either as the success or failure node of the predecessor node
+                            if(nodeParentSuccessRelation.get(predecessorNode)){
+                                predecessorNode.getSuccessorNodes().remove(predecessorNode.getSuccessorNode_success());
+                                predecessorNode.setSuccessorNode_success(node.getId());
+                                predecessorNode.getSuccessorNodes().add(node.getId());
+                            } else {
+                                predecessorNode.getSuccessorNodes().remove(predecessorNode.getSuccessorNode_failure());
+                                predecessorNode.setSuccessorNode_failure(node.getId());
+                                predecessorNode.getSuccessorNodes().add(node.getId());
+                            }
                             break;
                         default:
-                            break;
+                            throw new IllegalStateException("Unexpected value: " + predecessorNode.getType());
                     }
                     wfNodeRepository.save(predecessorNode);
                 }
-                //set the created node as the predecessor of the successor nodes (if any)
-                if(successor.getValue() != null){
-                    WorkflowNode successorNode = successor.getValue();
-                    switch (node.getType()){
+
+                // Update the successor nodes
+                for(ObjectId successorId : successors) {
+                    WorkflowNode successorNode = wfNodeRepository.findById(successorId);
+                    switch (node.getType()) {
+                        case START:
+                            break;
                         case END:
-                        case USER_ACTION:
-                        case BATCH_ACTION:
+                        case UNION:
+                            successorNode.getPredecessorNodes().add(node.getId());
+                            break;
                         case OR:
                         case AND:
                         case USER_DECISION:
                         case BATCH_DECISION:
-                            //set the new node as the only predecessor of the successor node
+                        case USER_ACTION:
+                        case BATCH_ACTION:
                             successorNode.getPredecessorNodes().clear();
                             successorNode.getPredecessorNodes().add(node.getId());
                             break;
-                        case UNION:
-                            //add the new node to the predecessors of the successor node
-                            successorNode.getPredecessorNodes().add(node.getId());
-                            break;
                         default:
-                            break;
+                            throw new IllegalStateException("Unexpected value: " + node.getType());
                     }
                     wfNodeRepository.save(successorNode);
                 }

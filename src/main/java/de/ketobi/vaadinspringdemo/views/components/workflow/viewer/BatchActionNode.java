@@ -3,9 +3,8 @@ package de.ketobi.vaadinspringdemo.views.components.workflow.viewer;
 import com.vaadin.flow.component.svg.elements.AbstractPolyElement.PolyCoordinatePair;
 import com.vaadin.flow.component.svg.elements.Rect;
 import com.vaadin.flow.component.svg.elements.SvgElement;
-import com.vaadin.flow.component.svg.elements.SvgType;
 import com.vaadin.flow.component.svg.elements.Text;
-import elemental.json.JsonValue;
+import de.ketobi.vaadinspringdemo.entities.WorkflowNode;
 import lombok.Getter;
 
 public class BatchActionNode extends Node {
@@ -14,20 +13,16 @@ public class BatchActionNode extends Node {
     private Text text;
     private static final double WIDTH = 100;
     private static final double HEIGHT = 50;
-    private double x;
-    private double y;
 
-    public BatchActionNode(String id, double x, double y, String title) {
-        super(id);
-        this.x = x;
-        this.y = y;
+    public BatchActionNode(WorkflowNode node) {
+        super(node);
 
         rect = new Rect(id, WIDTH, HEIGHT);
         rect.move(x, y);
         rect.setFillColor("white");
         rect.setStroke("black", 2);
 
-        text = new Text("text", title);
+        text = new Text("text", node.getTitle());
         text.move(x + 20, y + 5);
         text.setFillColor("black");
     }
