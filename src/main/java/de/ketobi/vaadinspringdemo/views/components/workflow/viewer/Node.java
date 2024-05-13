@@ -42,4 +42,6 @@ public abstract class Node extends SvgElement {
     abstract AbstractPolyElement.PolyCoordinatePair getBottomConnector();
     abstract SvgElement getShape();
     abstract Text getText();
+    @Override
+    abstract public void move(double x, double y);
 }

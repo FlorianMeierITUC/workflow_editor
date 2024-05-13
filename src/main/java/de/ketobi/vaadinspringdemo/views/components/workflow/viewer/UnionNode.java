@@ -40,4 +40,12 @@ public class UnionNode extends Node {
     SvgElement getShape() {
         return circle;
     }
+
+    @Override
+    public void move(double x, double y) {
+        this.x = x;
+        this.y = y;
+        circle.center(x, y);
+        text.move(x + 20, y + 5);
+    }
 }

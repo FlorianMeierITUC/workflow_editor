@@ -13,18 +13,22 @@ public class WorkflowView extends Svg {
     //All nodes in the workflow
     @Getter
     private List<Node> nodes = new ArrayList<>();
-    private static final int HORIZONTAL_SPACING = 150;
+    // Create a map of the node id to the Node object
+    private Map<ObjectId, Node> idToNode = new HashMap<>();
+    private static final int HORIZONTAL_SPACING = 100;
     private static final int VERTICAL_SPACING = 100;
-    private static final int HORIZONTAL_UNIT = 250;
-    private static final int VERTICAL_UNIT = 150;
+    private int maxYLevel = 0;
 
     public WorkflowView(List<WorkflowNode> nodes) {
         super();
         for(WorkflowNode node : nodes) {
             this.nodes.add(createNode(node));
         }
+        for(Node node : this.nodes) {
+            idToNode.put(node.getNode().getId(), node);
+        }
         orderNodesIntoYLevels();
-        setPositionOfNodes();
+        orderNodesIntoXLevels();
         double width = getWidthOfCanvas();
         double height = getHeightOfCanvas();
         viewbox(0, 0, width, height);
@@ -40,11 +44,6 @@ public class WorkflowView extends Svg {
     private void orderNodesIntoYLevels(){
         Queue<Node> nodesOnTheCurrentLevel = new LinkedList<>();
         Queue<Node> nodesOnTheNextLevel = new LinkedList<>();
-        // Create a map of the node id to the Node object
-        Map<ObjectId, Node> idToNode = new HashMap<>();
-        for(Node node : nodes) {
-            idToNode.put(node.getNode().getId(), node);
-        }
         Map<Node, Set<Node>> ancestors = new HashMap<>();
 
         Node startNode = nodes.stream().filter(n -> n.getNode().getType() == WorkflowNodeTypes.START).findFirst().orElseThrow();
@@ -56,59 +55,72 @@ public class WorkflowView extends Svg {
         nodesOnTheCurrentLevel.add(startNode);
         ancestors.put(startNode, new HashSet<>());
 
-        int levelY = 0;
+        int levelY = 1;
 
         while(!nodesOnTheCurrentLevel.isEmpty()){
             Node currentNode = nodesOnTheCurrentLevel.poll();
-            System.out.println("Current node: " + currentNode.getNode());
             if(currentNode == null){
                 throw new IllegalArgumentException("Current node is null");
             }
-            System.out.println("Current node levelY: " + levelY);
             currentNode.setYLevel(levelY);
             for (ObjectId successorId : currentNode.getNode().getSuccessorNodes()) {
                 Node successorNode = idToNode.get(successorId);
                 if (successorNode == null) {
                     throw new IllegalArgumentException("Successor node is null");
                 }
-                System.out.println("Successor node: " + successorNode.getNode());
                 if(ancestors.get(currentNode) != null && !ancestors.get(currentNode).contains(successorNode)){
-                    System.out.println("Adding successor node to the next level: " + successorNode.getNode());
                     nodesOnTheNextLevel.add(successorNode);
                 }
                 if(ancestors.get(successorNode) == null){
                     ancestors.put(successorNode, new HashSet<>());
                 }
                 ancestors.get(successorNode).add(currentNode);
+                ancestors.get(successorNode).addAll(ancestors.get(currentNode));
             }
             if(nodesOnTheCurrentLevel.isEmpty()){
-                System.out.println("Moving to the next level");
                 levelY++;
-                System.out.println("Nodes on the next level: " + nodesOnTheNextLevel);
                 nodesOnTheCurrentLevel.addAll(nodesOnTheNextLevel);
-                //nodesOnTheCurrentLevel = nodesOnTheNextLevel;
                 nodesOnTheNextLevel.clear();
-                System.out.println("Nodes on the current level: " + nodesOnTheCurrentLevel);
             }
         }
+        //Set the maxYLevel and remove 1 because a level gets added after the end node
+        maxYLevel = levelY - 1;
     }
 
-    private void setPositionOfNodes() {
-
+    private void orderNodesIntoXLevels() {
+        System.out.println("Max Y level: "+maxYLevel);
+        for (int yLevel = 1; yLevel <= maxYLevel; yLevel++) {
+            int finalYLevel = yLevel;
+            List<Node> nodesOnThisLevel = nodes.stream().filter(n -> n.getYLevel() == finalYLevel).toList();
+            int totalAmountOfNodesOnThisLevel = nodesOnThisLevel.size();
+            System.out.println("Amount of nodes on level "+yLevel+": "+totalAmountOfNodesOnThisLevel);
+            int amountOfSuccessors = 0;
+            int xLevel = 1;
+            for (Node node : nodesOnThisLevel) {
+                List<Node> successors = node.getNode().getSuccessorNodes().stream().map(idToNode::get).toList();
+                amountOfSuccessors = successors.size();
+                System.out.println("Amount of successors: "+amountOfSuccessors);
+                node.setXLevel(xLevel);
+                System.out.println("Node "+node.getNode().getTitle()+" is on x level "+xLevel);
+                xLevel++;
+            }
+        }
     }
 
     private double getWidthOfCanvas() {
         // Calculate the width of the canvas
         // The width of the canvas is the maximum x-coordinate of the nodes
-        double width = nodes.stream().mapToDouble(Node::getX).max().orElse(0);
-        return width + HORIZONTAL_SPACING;
+        double width = nodes.stream().mapToDouble(Node::getXLevel).max().orElse(0) * HORIZONTAL_SPACING + 2*HORIZONTAL_SPACING;
+        System.out.println("Width: "+width);
+        return width;
     }
 
     private double getHeightOfCanvas() {
         // Calculate the height of the canvas
         // The height of the canvas is the maximum y-coordinate of the nodes
-        double height = nodes.stream().mapToDouble(Node::getY).max().orElse(0);
-        return height + VERTICAL_SPACING;
+        double height = nodes.stream().mapToDouble(Node::getYLevel).max().orElse(0) * VERTICAL_SPACING + 2*VERTICAL_SPACING;
+        System.out.println("Height: "+height);
+        return height;
     }
 
     private Node createNode(WorkflowNode workflowNode) {
@@ -139,6 +151,7 @@ public class WorkflowView extends Svg {
 
     private void drawNodes() {
         for(Node node : this.nodes) {
+            node.move(node.getXLevel() * HORIZONTAL_SPACING, node.getYLevel() * VERTICAL_SPACING);
             this.add(node.getShape());
             this.add(node.getText());
         }

@@ -14,7 +14,7 @@ import de.ketobi.vaadinspringdemo.entities.WorkflowNode;
 import de.ketobi.vaadinspringdemo.repositories.WorkflowNodeRepository;
 import de.ketobi.vaadinspringdemo.repositories.WorkflowRepository;
 import de.ketobi.vaadinspringdemo.views.components.workflow.CreateWorkflowNodeDiv;
-import de.ketobi.vaadinspringdemo.views.components.workflow.viewer.Canvas;
+import de.ketobi.vaadinspringdemo.views.components.workflow.viewer.WorkflowView;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 
@@ -61,7 +61,7 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
     public void drawWorkflow(){
         treeDiv.removeAll();
         List<WorkflowNode> nodes = wfNodeRepository.findByIdWorkflow(workFlow.getId());
-        Canvas workflowView = new Canvas(nodes);
+        WorkflowView workflowView = new WorkflowView(nodes);
         treeDiv.add(workflowView);
     }
 }
