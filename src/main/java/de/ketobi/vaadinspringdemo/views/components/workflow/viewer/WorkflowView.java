@@ -1,6 +1,8 @@
 package de.ketobi.vaadinspringdemo.views.components.workflow.viewer;
 
 import com.vaadin.flow.component.svg.Svg;
+import com.vaadin.flow.component.svg.elements.AbstractPolyElement;
+import com.vaadin.flow.component.svg.elements.Line;
 import com.vaadin.flow.component.svg.elements.Rect;
 import de.ketobi.vaadinspringdemo.entities.WorkflowNode;
 import de.ketobi.vaadinspringdemo.entities.WorkflowNodeTypes;
@@ -123,8 +125,12 @@ public class WorkflowView extends Svg {
         return height;
     }
 
+    /**
+     * Create a Node object based on the type of the WorkflowNode
+     * @param workflowNode the WorkflowNode object
+     * @return the Node object that extends SVGElement
+     */
     private Node createNode(WorkflowNode workflowNode) {
-        // Create a Node object based on the type of the WorkflowNode
         switch (workflowNode.getType()) {
             case AND:
                 return new AndNode(workflowNode);
@@ -149,6 +155,9 @@ public class WorkflowView extends Svg {
         }
     }
 
+    /**
+     * Draw nodes on the canvas according to their x and y levels
+     */
     private void drawNodes() {
         for(Node node : this.nodes) {
             node.move(node.getXLevel() * HORIZONTAL_SPACING, node.getYLevel() * VERTICAL_SPACING);
@@ -157,7 +166,23 @@ public class WorkflowView extends Svg {
         }
     }
 
+    /**
+     * Draw connections between nodes
+     * A line is drawn between the bottom connector of a node and the top connector of its successor
+     */
     private void drawConnections() {
-
+        for (Node node : this.nodes) {
+            for (ObjectId successorId : node.getNode().getSuccessorNodes()) {
+                Node successorNode = idToNode.get(successorId);
+                if (successorNode == null) {
+                    throw new IllegalArgumentException("Successor node is null");
+                }
+                AbstractPolyElement.PolyCoordinatePair start = node.getBottomConnector();
+                AbstractPolyElement.PolyCoordinatePair end = successorNode.getTopConnector();
+                Line line = new Line(node.getNode().getTitle()+" to "+successorNode.getNode().getTitle(), start, end);
+                line.setStroke("black", 2);
+                this.add(line);
+            }
+        }
     }
 }
