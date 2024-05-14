@@ -23,7 +23,7 @@ public class UserActionNode extends Node {
         rect.setStroke("black", 2);
 
         text = new Text("text", node.getTitle());
-        text.move(x + 20, y + 5);
+        text.move(x + 2, y + 2);
         text.setFillColor("black");
     }
 
@@ -44,10 +44,9 @@ public class UserActionNode extends Node {
 
     @Override
     public void move(double x, double y) {
-        System.out.println("Move to "+x+" "+y+" from "+this.x+" "+this.y);
         this.x = x;
         this.y = y;
         rect.move(x, y);
-        text.move(x + 20, y + 5);
+        text.move(x + 2, y + 2);
     }
 }

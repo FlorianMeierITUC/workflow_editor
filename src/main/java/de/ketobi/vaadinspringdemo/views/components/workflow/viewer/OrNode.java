@@ -46,6 +46,6 @@ public class OrNode extends Node {
         this.x = x;
         this.y = y;
         circle.center(x, y);
-        text.move(x + 20, y + 5);
+        text.move(x-RADIUS/2, y-RADIUS/2);
     }
 }

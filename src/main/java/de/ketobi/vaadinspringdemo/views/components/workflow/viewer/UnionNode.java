@@ -11,7 +11,7 @@ public class UnionNode extends Node {
     private Circle circle;
     @Getter
     private Text text;
-    private static final double RADIUS = 30;
+    private static final double RADIUS = 20;
 
     public UnionNode(WorkflowNode node) {
         super(node);
@@ -46,6 +46,6 @@ public class UnionNode extends Node {
         this.x = x;
         this.y = y;
         circle.center(x, y);
-        text.move(x + 20, y + 5);
+        text.move(x-RADIUS/2, y-RADIUS/2);
     }
 }

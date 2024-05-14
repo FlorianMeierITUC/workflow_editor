@@ -50,6 +50,7 @@ public class CreateWorkflowNodeDiv extends Div{
         predecessor.setItemLabelGenerator(node -> node == null ? "" : node.getTitle() + " (" + node.getType() + ")");
         predecessor.setValue(wfNodeRepository.findByIdWorkflowAndType(workFlow.getId(), START));
         //add a value change listener that asks the user if they want to add the node as a success or failure node if the predecessor ia a decision node
+        //TODO move this logic to the create node functionality (save button) in case the select was never changed
         predecessor.addValueChangeListener(event -> {
             WorkflowNode selectedNode = event.getValue();
             if(selectedNode != null && (selectedNode.getType() == WorkflowNodeTypes.USER_DECISION || selectedNode.getType() == WorkflowNodeTypes.BATCH_DECISION)){

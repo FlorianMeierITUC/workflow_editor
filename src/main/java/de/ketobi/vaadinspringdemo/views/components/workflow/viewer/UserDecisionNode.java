@@ -23,7 +23,7 @@ public class UserDecisionNode extends Node {
         rect.setStroke("black", 2);
 
         text = new Text("text", node.getTitle());
-        text.move(x + 20, y + 5);
+        text.move(x + 2, y + 2);
         text.setFillColor("black");
     }
 
@@ -47,6 +47,6 @@ public class UserDecisionNode extends Node {
         this.x = x;
         this.y = y;
         rect.move(x, y);
-        text.move(x + 20, y + 5);
+        text.move(x + 2, y + 2);
     }
 }

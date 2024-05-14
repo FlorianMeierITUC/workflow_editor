@@ -26,6 +26,7 @@ public abstract class Node extends SvgElement {
     @Setter
     protected String id;
 
+    //TODO all nodes should have the connector above them with an arrow pointing downwards
     public Node(WorkflowNode node) {
         this(node, 0, 0);
     }

@@ -43,9 +43,8 @@ public class AndNode extends Node {
 
     @Override
     public void move(double x, double y) {
-        System.out.println("Move to "+x+" "+y+" from "+this.x+" "+this.y);
         this.x = x;
         this.y = y;
         circle.center(x, y);
-        text.move(x + 20, y + 5);
+        text.move(x-RADIUS/2, y-RADIUS/2);
     }}
