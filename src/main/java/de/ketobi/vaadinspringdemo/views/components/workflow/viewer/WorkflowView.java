@@ -165,7 +165,48 @@ public class WorkflowView extends Svg {
         }
 
         //Shift the nodes to the right to center them on the canvas and above their successors
+        //Set the start node to the center of the yLevel with the most nodes
+        int maxNodesOnYLevel = nodesByYLevel.values().stream().mapToInt(List::size).max().orElse(0);
+        int xShift = maxNodesOnYLevel-1;
+
         for (int yLevel = 1; yLevel <= maxYLevel; yLevel++) {
+            final int finalYLevel = yLevel;
+            List<Node> nodesOnThisYLevel = nodesByYLevel.getOrDefault(yLevel, new ArrayList<>());
+            if(nodesOnThisYLevel.size()==1){
+                Node node = nodesOnThisYLevel.get(0);
+                node.setXLevel(xShift+node.getXLevel());
+            } else {
+                for (Node node : nodesOnThisYLevel) {
+                    switch (node.getNode().getType()) {
+                        case OR:
+                        case AND:
+                            int amountOfSuccessorsOnTheNextYLevel = node.getNode().getSuccessorNodes().stream()
+                                    .map(idToNode::get)
+                                    .filter(n -> n.getYLevel() == finalYLevel + 1)
+                                    .mapToInt(n -> 1)
+                                    .sum();
+                            // Center the node above its successors on the next y level
+                            int centerAboveSuccessors = node.getNode().getSuccessorNodes().stream()
+                                    .map(idToNode::get)
+                                    .filter(n -> n.getYLevel() == finalYLevel + 1)
+                                    .mapToInt(Node::getXLevel)
+                                    .sum() / amountOfSuccessorsOnTheNextYLevel;
+                            node.setXLevel(centerAboveSuccessors);
+                            break;
+                        case UNION:
+                            //center the union node under its predecessors on the previous y level
+                            int centerUnderPredecessors = node.getNode().getPredecessorNodes().stream()
+                                    .map(idToNode::get)
+                                    .filter(n -> n.getYLevel() == finalYLevel - 1)
+                                    .mapToInt(Node::getXLevel)
+                                    .sum() / node.getNode().getPredecessorNodes().size();
+                            node.setXLevel(centerUnderPredecessors);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
 
         }
     }
