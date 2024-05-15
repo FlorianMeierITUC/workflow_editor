@@ -103,56 +103,74 @@ public class WorkflowView extends Svg {
         orderNodesIntoXLevels(startNode, ancestors);
     }
 
-    private void orderNodesIntoXLevels(Node startNode, Map<Node, Set<Node>> ancestors){
-        //maxXLevel is the amount of nodes on the yLevel with the highest amount of nodes
-        int maxXLevel = nodes.stream().mapToInt(Node::getYLevel).max().orElse(0);
-        int levelX = 1;
-        startNode.setXLevel((maxXLevel+1)/2);
-        for (int yLevel = 2; yLevel <= maxYLevel; yLevel++) {
-            int finalYLevel = yLevel;
-            List<Node> nodesOnThisLevel = nodes.stream().filter(n -> n.getYLevel() == finalYLevel).toList();
+    private void orderNodesIntoXLevels(Node startNode, Map<Node, Set<Node>> ancestors) {
+        // Initialize a map to store nodes grouped by their Y level
+        Map<Integer, List<Node>> nodesByYLevel = new HashMap<>();
 
-            int numberOfClustersOnThisLevel = 1;
-            int relativeX = 0;
-            for (Node node : nodesOnThisLevel) {
-                if(yLevel == 2){
-                    node.setXLevel(levelX);
+        for (Node node : nodes) {
+            nodesByYLevel.computeIfAbsent(node.getYLevel(), k -> new ArrayList<>()).add(node);
+        }
+
+        // Initial X level assignment based on successors
+        for (int yLevel = maxYLevel; yLevel >= 1; yLevel--) {
+            List<Node> nodesOnThisYLevel = nodesByYLevel.getOrDefault(yLevel, new ArrayList<>());
+
+            if (nodesOnThisYLevel.isEmpty()) {
+                continue;
+            }
+
+            for (Node node : nodesOnThisYLevel) {
+                List<Integer> successorXLevels = node.getNode().getSuccessorNodes().stream()
+                        .map(idToNode::get)
+                        .map(Node::getXLevel)
+                        .collect(Collectors.toList());
+
+                if (!successorXLevels.isEmpty()) {
+                    int averageXLevel = (int) successorXLevels.stream().mapToInt(Integer::intValue).average().orElse(node.getXLevel());
+                    node.setXLevel(averageXLevel);
                 }
-                // Count the successors of the current node
-                List<Node> successors = node.getNode().getSuccessorNodes().stream().map(idToNode::get).toList();
-                List<Node> successorsOnThisLevel = successors.stream().filter(n -> n.getYLevel() == finalYLevel + 1).toList();
-                if (numberOfClustersOnThisLevel>1){
-                    relativeX += 2;
-                }
-                for (Node successor : successorsOnThisLevel) {
-                    successor.setXLevel(node.getXLevel() + relativeX);
-                    relativeX+=2;
-                    if(successor.getNode().getType() == WorkflowNodeTypes.UNION){
-                        int tempX = 0;
-                        for (Node tempNode : nodesOnThisLevel){
-                            tempX += tempNode.getXLevel();
-                        }
-                        successor.setXLevel(tempX/nodesOnThisLevel.size());
-                    }
-                    System.out.println("Successor node: " + successor.getNode().getTitle() + " x: " + successor.getXLevel() + " y: " + successor.getYLevel());
-                }
-                node.setXLevel((int) Math.round(successorsOnThisLevel.stream().mapToDouble(Node::getXLevel).average().orElse(0)));
-                for(Node ancestor : ancestors.get(node)){
-                    //ancestor.setXLevel(node.getXLevel());
-                }
-                System.out.println("Node: " + node.getNode().getTitle() + " x: " + node.getXLevel() + " y: " + node.getYLevel());
-                System.out.println("-----------");
-                numberOfClustersOnThisLevel++;
-                relativeX = 0;
             }
         }
-        Node endNode = nodes.stream().filter(n -> n.getNode().getType() == WorkflowNodeTypes.END).findFirst().orElseThrow();
-        //check if the end node is present and if it is the only one in the stream
-        if (nodes.stream().filter(n -> n.getNode().getType() == WorkflowNodeTypes.END).count() != 1) {
-            throw new IllegalArgumentException("There must be exactly one start node in the workflow");
+
+        // Adjust X levels based on predecessors
+        for (int yLevel = 1; yLevel <= maxYLevel; yLevel++) {
+            List<Node> nodesOnThisYLevel = nodesByYLevel.getOrDefault(yLevel, new ArrayList<>());
+
+            if (nodesOnThisYLevel.isEmpty()) {
+                continue;
+            }
+
+            for (Node node : nodesOnThisYLevel) {
+                List<Integer> predecessorXLevels = node.getNode().getPredecessorNodes().stream()
+                        .map(idToNode::get)
+                        .map(Node::getXLevel)
+                        .collect(Collectors.toList());
+
+                if (!predecessorXLevels.isEmpty()) {
+                    int averageXLevel = (int) predecessorXLevels.stream().mapToInt(Integer::intValue).average().orElse(node.getXLevel());
+                    node.setXLevel(averageXLevel);
+                }
+            }
         }
-        endNode.setXLevel((maxXLevel+1)/2);
+
+        // Final adjustment to ensure proper spacing and avoid overlaps
+        for (int yLevel = 1; yLevel <= maxYLevel; yLevel++) {
+            List<Node> nodesOnThisYLevel = nodesByYLevel.getOrDefault(yLevel, new ArrayList<>());
+
+            nodesOnThisYLevel.sort(Comparator.comparingInt(Node::getXLevel));
+
+            for (int xLevel = 0; xLevel < nodesOnThisYLevel.size(); xLevel++) {
+                nodesOnThisYLevel.get(xLevel).setXLevel((xLevel + 1) * 2); // Double the X level to add extra space
+            }
+        }
+
+        //Shift the nodes to the right to center them on the canvas and above their successors
+        for (int yLevel = 1; yLevel <= maxYLevel; yLevel++) {
+
+        }
     }
+
+
 
     /**
      * Calculate the width of the canvas
