@@ -167,7 +167,7 @@ public class CreateWorkflowNodeDiv extends Div{
         type.addValueChangeListener(event -> {
             WorkflowNodeTypes selectedType = event.getValue();
             nodeDetailsInput.removeAll();
-            nodeDetailsInput.add(createNodeDetailsInput(selectedType));
+            if(selectedType != null) nodeDetailsInput.add(createNodeDetailsInput(selectedType));
         });
         add(title);
         add(type);
@@ -238,7 +238,7 @@ public class CreateWorkflowNodeDiv extends Div{
                 node.setTitle(title.getValue());
                 node.setType(type.getValue());
                 node.setExecutorClass(executorClass.getValue());
-                node.setResponsible(responsible.getValue().getId());
+                if(responsible.getValue() != null) node.setResponsible(responsible.getValue().getId());
 
                 ArrayList<ObjectId> predecessors = new ArrayList<>();
                 ArrayList<ObjectId> successors = new ArrayList<>();

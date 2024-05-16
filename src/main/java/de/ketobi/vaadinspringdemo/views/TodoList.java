@@ -16,6 +16,7 @@ import com.vaadin.flow.data.renderer.LitRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import de.ketobi.vaadinspringdemo.entities.Todo;
+import de.ketobi.vaadinspringdemo.entities.User;
 import de.ketobi.vaadinspringdemo.repositories.TodoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
@@ -38,7 +39,7 @@ public class TodoList extends VerticalLayout {
         Grid<Todo> todoGrid = new Grid<>(Todo.class, false);
         todoGrid.addColumn(Todo::getName).setHeader("Name").setAutoWidth(true);
         todoGrid.addColumn(Todo::getDescription).setHeader("Description").setAutoWidth(true);
-        todoGrid.addColumn(Todo::getCreatedBy).setHeader("Creator").setAutoWidth(true);
+        todoGrid.addColumn(todo -> todo.getCreatedBy().getName()).setHeader("Creator").setAutoWidth(true);
         todoGrid.addColumn(Todo::getCreatedAt).setHeader("Created at").setAutoWidth(true);
         todoGrid.addColumn(LitRenderer.<Todo>of("<vaadin-checkbox ?checked=${item.done}></vaadin-checkbox>").withProperty("done", Todo::isDone)).setHeader("Done").setAutoWidth(true);
         todoGrid.addComponentColumn(selectedTodo -> {
@@ -83,8 +84,7 @@ public class TodoList extends VerticalLayout {
                     return;
                 }
                 todo.setDescription(description.getValue());
-                //TODO Replace with real user
-                todo.setCreatedBy("Tobias");
+                todo.setCreatedBy(User.getCurrentUser());
                 todo.setCreatedAt(LocalDateTime.now());
                 try {
                     todoRepository.save(todo);

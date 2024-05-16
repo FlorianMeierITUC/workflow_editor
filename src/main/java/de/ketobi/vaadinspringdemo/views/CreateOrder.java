@@ -1,7 +1,9 @@
 package de.ketobi.vaadinspringdemo.views;
 
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
@@ -20,7 +22,7 @@ public class CreateOrder extends VerticalLayout {
     private TextArea reason = new TextArea("Reason");
 
     private TextField supplier = new TextField("Supplier");
-    private TextField price = new TextField("Price in Euro");
+    private NumberField price = new NumberField("Price");
 
     public CreateOrder(OrderRepository orderRepository){
 
@@ -29,6 +31,10 @@ public class CreateOrder extends VerticalLayout {
         add(description);
         add(reason);
         add(supplier);
+        price.setValue(0.0);
+        Div euroSuffix = new Div();
+        euroSuffix.setText("€");
+        price.setSuffixComponent(euroSuffix);
         add(price);
         add(new Button("Save", e -> {
             Order order = Order.builder()
@@ -36,7 +42,7 @@ public class CreateOrder extends VerticalLayout {
                     .description(description.getValue())
                     .reason(reason.getValue())
                     .supplier(supplier.getValue())
-                    .price(price.getValue().isEmpty() ? null : new BigDecimal(price.getValue()))
+                    .price(new BigDecimal(price.getValue()))
                     .build();
             orderRepository.save(order);
             item.clear();

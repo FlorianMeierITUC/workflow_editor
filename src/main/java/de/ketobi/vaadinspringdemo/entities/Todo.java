@@ -28,7 +28,7 @@ public class Todo {
 
     boolean done;
 
-    String createdBy;
+    User createdBy;
 
     LocalDateTime createdAt;
 

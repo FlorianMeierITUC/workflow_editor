@@ -1,5 +1,6 @@
 package de.ketobi.vaadinspringdemo.entities;
 
+import com.vaadin.flow.server.VaadinSession;
 import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -27,4 +28,8 @@ public class User {
 
     @NonNull
     String password;
+
+    public static User getCurrentUser() {
+        return (User) VaadinSession.getCurrent().getAttribute("user");
+    }
 }

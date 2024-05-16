@@ -11,9 +11,8 @@ import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.QueryParameters;
-import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.*;
+import de.ketobi.vaadinspringdemo.entities.User;
 import de.ketobi.vaadinspringdemo.entities.Workflow;
 import de.ketobi.vaadinspringdemo.entities.WorkflowNode;
 import de.ketobi.vaadinspringdemo.entities.WorkflowNodeTypes;
@@ -27,12 +26,19 @@ import java.util.ArrayList;
 
 @Route(value = "workflows", layout = MainLayout.class)
 @PageTitle("Workflows")
-public class WorkflowList extends VerticalLayout {
+public class WorkflowList extends VerticalLayout implements BeforeEnterObserver {
     private WorkflowRepository workflowRepository;
     private WorkflowNodeRepository workflowNodeRepository;
     private GridListDataView<Workflow> workflowView;
     private TextField name = new TextField("Name *");
     private TextArea description = new TextArea("Description");
+
+    @Override
+    public void beforeEnter(BeforeEnterEvent event) {
+        if(User.getCurrentUser() == null){
+            event.forwardTo(Login.class);
+        }
+    }
 
     @Autowired
     public WorkflowList(WorkflowRepository workflowRepository, WorkflowNodeRepository workflowNodeRepository){

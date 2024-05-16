@@ -13,7 +13,6 @@ public class MainLayout extends VerticalLayout implements RouterLayout {
         navigation = new Navigation();
         content = new Div();
         content.setId("content");
-        add(new H3("Main Layout"));
         add(navigation, content);
     }
 
