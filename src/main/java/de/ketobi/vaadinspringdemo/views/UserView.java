@@ -11,6 +11,8 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import de.ketobi.vaadinspringdemo.entities.Todo;
@@ -24,12 +26,19 @@ import java.util.ArrayList;
 
 @Route(value = "user", layout = MainLayout.class)
 @PageTitle("Create and manage users")
-public class UserView extends VerticalLayout {
+public class UserView extends VerticalLayout implements BeforeEnterObserver {
     private final UserRepository userRepository;
     private TextField name = new TextField("Name *");
     private TextField email = new TextField("Email");
     private TextField password = new TextField("Password *");
     private GridListDataView<User> userView;
+
+    @Override
+    public void beforeEnter(BeforeEnterEvent event) {
+        if(User.getCurrentUser() == null){
+            event.forwardTo(Login.class);
+        }
+    }
 
     @Autowired
     public UserView(UserRepository userRepository){

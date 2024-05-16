@@ -55,8 +55,12 @@ public class CreateWorkflowNodeDiv extends Div{
         responsible.setItems(userRepository.findAll());
         responsible.setItemLabelGenerator(User::getName);
 
+        List<WorkflowNode> predecessorNodes = wfNodeRepository.findByIdWorkflow(workFlow.getId()).stream().filter(n -> n.getType()!= END).collect(Collectors.toList());
+        List<WorkflowNode> successorNodes = wfNodeRepository.findByIdWorkflow(workFlow.getId()).stream().filter(n -> n.getType()!= START).collect(Collectors.toList());
+
+
         predecessor.setLabel("Predecessor node");
-        predecessor.setItems(wfNodeRepository.findByIdWorkflow(workFlow.getId()));
+        predecessor.setItems(predecessorNodes);
         predecessor.setItemLabelGenerator(node -> node == null ? "" : node.getTitle() + " (" + node.getType() + ")");
         predecessor.setValue(wfNodeRepository.findByIdWorkflowAndType(workFlow.getId(), START));
         //add a value change listener that asks the user if they want to add the node as a success or failure node if the predecessor ia a decision node
@@ -105,7 +109,7 @@ public class CreateWorkflowNodeDiv extends Div{
             }
         });
 
-        multiplePredecessors.setItems(wfNodeRepository.findByIdWorkflow(workFlow.getId()));
+        multiplePredecessors.setItems(predecessorNodes);
         multiplePredecessors.setItemLabelGenerator(node -> node == null ? "" : node.getTitle() + " (" + node.getType() + ")");
         ArrayList<WorkflowNode> nodes = new ArrayList<>();
         nodes.add(wfNodeRepository.findByIdWorkflowAndType(workFlow.getId(), START));
@@ -138,21 +142,21 @@ public class CreateWorkflowNodeDiv extends Div{
         });
 
         successor.setLabel("Successor node");
-        successor.setItems(wfNodeRepository.findByIdWorkflow(workFlow.getId()));
+        successor.setItems(successorNodes);
         successor.setItemLabelGenerator(node -> node == null ? "" : node.getTitle() + " (" + node.getType() + ")");
         successor.setValue(wfNodeRepository.findByIdWorkflowAndType(workFlow.getId(), END));
 
         successor_success.setLabel("Successor success node");
-        successor_success.setItems(wfNodeRepository.findByIdWorkflow(workFlow.getId()));
+        successor_success.setItems(successorNodes);
         successor_success.setItemLabelGenerator(node -> node == null ? "" : node.getTitle() + " (" + node.getType() + ")");
         successor_success.setValue(wfNodeRepository.findByIdWorkflowAndType(workFlow.getId(), END));
 
         successor_failure.setLabel("Successor failure node");
-        successor_failure.setItems(wfNodeRepository.findByIdWorkflow(workFlow.getId()));
+        successor_failure.setItems(successorNodes);
         successor_failure.setItemLabelGenerator(node -> node == null ? "" : node.getTitle() + " (" + node.getType() + ")");
         successor_failure.setValue(wfNodeRepository.findByIdWorkflowAndType(workFlow.getId(), END));
 
-        multipleSuccessors.setItems(wfNodeRepository.findByIdWorkflow(workFlow.getId()));
+        multipleSuccessors.setItems(successorNodes);
         multipleSuccessors.setItemLabelGenerator(node -> node == null ? "" : node.getTitle() + " (" + node.getType() + ")");
         ArrayList<WorkflowNode> nodes2 = new ArrayList<>();
         nodes2.add(wfNodeRepository.findByIdWorkflowAndType(workFlow.getId(), END));
@@ -292,13 +296,15 @@ public class CreateWorkflowNodeDiv extends Div{
                 node.setSuccessorNodes(successors);
 
                 wfNodeRepository.save(node);
-                //add the new node to the predecessor nodes and the successor nodes selects
-                predecessor.setItems(wfNodeRepository.findByIdWorkflow(workFlow.getId()));
-                multiplePredecessors.setItems(wfNodeRepository.findByIdWorkflow(workFlow.getId()));
-                successor.setItems(wfNodeRepository.findByIdWorkflow(workFlow.getId()));
-                successor_success.setItems(wfNodeRepository.findByIdWorkflow(workFlow.getId()));
-                successor_failure.setItems(wfNodeRepository.findByIdWorkflow(workFlow.getId()));
-                multipleSuccessors.setItems(wfNodeRepository.findByIdWorkflow(workFlow.getId()));
+                List<WorkflowNode> predecessorNodes = wfNodeRepository.findByIdWorkflow(workFlow.getId()).stream().filter(n -> n.getType()!= END).collect(Collectors.toList());
+                List<WorkflowNode> successorNodes = wfNodeRepository.findByIdWorkflow(workFlow.getId()).stream().filter(n -> n.getType()!= START).collect(Collectors.toList());
+
+                predecessor.setItems(predecessorNodes);
+                multiplePredecessors.setItems(predecessorNodes);
+                successor.setItems(successorNodes);
+                successor_success.setItems(successorNodes);
+                successor_failure.setItems(successorNodes);
+                multipleSuccessors.setItems(successorNodes);
 
                 //clear the input fields
                 title.clear();

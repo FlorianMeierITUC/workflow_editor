@@ -6,16 +6,19 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import de.ketobi.vaadinspringdemo.entities.Order;
+import de.ketobi.vaadinspringdemo.entities.User;
 import de.ketobi.vaadinspringdemo.repositories.OrderRepository;
 
 import java.math.BigDecimal;
 
 @Route(value = "createOrder", layout = MainLayout.class)
 @PageTitle("Create order")
-public class CreateOrder extends VerticalLayout {
+public class CreateOrder extends VerticalLayout implements BeforeEnterObserver {
     private final OrderRepository orderRepository;
     private TextField item = new TextField("Item to order *");
     private TextArea description = new TextArea("Description");
@@ -23,6 +26,13 @@ public class CreateOrder extends VerticalLayout {
 
     private TextField supplier = new TextField("Supplier");
     private NumberField price = new NumberField("Price");
+
+    @Override
+    public void beforeEnter(BeforeEnterEvent event) {
+        if(User.getCurrentUser() == null){
+            event.forwardTo(Login.class);
+        }
+    }
 
     public CreateOrder(OrderRepository orderRepository){
 

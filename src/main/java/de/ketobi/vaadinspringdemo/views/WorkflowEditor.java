@@ -5,10 +5,8 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.BeforeEvent;
-import com.vaadin.flow.router.HasUrlParameter;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.*;
+import de.ketobi.vaadinspringdemo.entities.User;
 import de.ketobi.vaadinspringdemo.entities.Workflow;
 import de.ketobi.vaadinspringdemo.entities.WorkflowNode;
 import de.ketobi.vaadinspringdemo.repositories.UserRepository;
@@ -21,7 +19,7 @@ import java.util.List;
 
 @Route(value = "workfloweditor", layout = MainLayout.class)
 @PageTitle("Workflow editor")
-public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<String> {
+public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<String>, BeforeEnterObserver {
     private Workflow workFlow;
     private String idWorkflow;
     private WorkflowRepository wfRepository;
@@ -30,6 +28,12 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
     private Div nodeDiv = new Div();
     private Div treeDiv = new Div();
 
+    @Override
+    public void beforeEnter(BeforeEnterEvent event) {
+        if(User.getCurrentUser() == null){
+            event.forwardTo(Login.class);
+        }
+    }
     @Autowired
     public WorkflowEditor(WorkflowRepository wfRepository, WorkflowNodeRepository wfNodeRepository, UserRepository userRepository){
         this.wfRepository = wfRepository;

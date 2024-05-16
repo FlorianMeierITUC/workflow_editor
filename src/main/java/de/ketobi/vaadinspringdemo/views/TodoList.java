@@ -13,6 +13,8 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.LitRenderer;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import de.ketobi.vaadinspringdemo.entities.Todo;
@@ -26,11 +28,18 @@ import java.util.ArrayList;
 
 @Route(value = "todos", layout = MainLayout.class)
 @PageTitle("Todos and ideas")
-public class TodoList extends VerticalLayout {
+public class TodoList extends VerticalLayout implements BeforeEnterObserver {
     private final TodoRepository todoRepository;
     private TextField name = new TextField("Name *");
     private TextArea description = new TextArea("Description");
     private GridListDataView<Todo> todoView;
+
+    @Override
+    public void beforeEnter(BeforeEnterEvent event) {
+        if(User.getCurrentUser() == null){
+            event.forwardTo(Login.class);
+        }
+    }
 
     @Autowired
     public TodoList(TodoRepository todoRepository){
