@@ -6,14 +6,14 @@ package de.ketobi.vaadinspringdemo.entities;
  */
 public enum WorkflowNodeTypes {
     /**
-     * User decision node. User decision has two successors, success and failure.
+     * UserView decision node. UserView decision has two successors, success and failure.
      */
-    USER_DECISION("User decision"),
+    USER_DECISION("UserView decision"),
 
     /**
-     * User action node. User action has only one successor.
+     * UserView action node. UserView action has only one successor.
      */
-    USER_ACTION("User action"),
+    USER_ACTION("UserView action"),
 
     /**
      * Batch decision node. Batch decision has two successors, success and failure.

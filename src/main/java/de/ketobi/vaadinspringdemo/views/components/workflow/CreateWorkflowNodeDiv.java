@@ -16,6 +16,7 @@ import de.ketobi.vaadinspringdemo.entities.Workflow;
 import de.ketobi.vaadinspringdemo.entities.WorkflowNode;
 import de.ketobi.vaadinspringdemo.entities.WorkflowNodeTypes;
 import de.ketobi.vaadinspringdemo.repositories.WorkflowNodeRepository;
+import de.ketobi.vaadinspringdemo.views.components.workflow.viewer.Node;
 import org.bson.types.ObjectId;
 
 import java.util.*;
@@ -39,6 +40,7 @@ public class CreateWorkflowNodeDiv extends Div{
     private MultiSelectComboBox<WorkflowNode> multipleSuccessors = new MultiSelectComboBox<>("Successor nodes");
     private Runnable drawWorkflow;
     private Map<WorkflowNode, Boolean> nodeParentSuccessRelation = new HashMap<>();
+    private boolean removeRelationToEndNode = false;
 
     public CreateWorkflowNodeDiv(Workflow wf, WorkflowNodeRepository wfNodeRepository, Runnable drawWorkflow){
         this.workFlow = wf;
@@ -71,6 +73,25 @@ public class CreateWorkflowNodeDiv extends Div{
                 });
                 dialog.getFooter().add(successButton);
                 dialog.getFooter().add(failureButton);
+
+                dialog.open();
+            } else if (selectedNode != null && (selectedNode.getType() == WorkflowNodeTypes.OR || selectedNode.getType() == WorkflowNodeTypes.AND)){
+                Dialog dialog = new Dialog();
+                Button closeButton = new Button(new Icon("lumo", "cross"),
+                        (e) -> dialog.close());
+                closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+                dialog.getHeader().add(closeButton);
+                dialog.add(new Paragraph("Do you want to remove the connection to the End Node?"));
+
+                Button yesButton = new Button("Yes", e -> {
+                    removeRelationToEndNode = true;
+                    dialog.close();
+                });
+                Button noButton = new Button("No", e -> {
+                    dialog.close();
+                });
+                dialog.getFooter().add(yesButton);
+                dialog.getFooter().add(noButton);
 
                 dialog.open();
             }
@@ -280,6 +301,12 @@ public class CreateWorkflowNodeDiv extends Div{
                         case OR:
                         case AND:
                             predecessorNode.getSuccessorNodes().add(node.getId());
+                            if(removeRelationToEndNode){
+                                WorkflowNode endNode = wfNodeRepository.findByIdWorkflowAndType(workFlow.getId(), END);
+                                predecessorNode.getSuccessorNodes().remove(endNode.getId());
+                                endNode.getPredecessorNodes().remove(predecessorNode.getId());
+                                removeRelationToEndNode = false;
+                            }
                             break;
                         case USER_DECISION:
                         case BATCH_DECISION:

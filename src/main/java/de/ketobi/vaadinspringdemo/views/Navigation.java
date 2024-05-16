@@ -12,6 +12,7 @@ public class Navigation extends HorizontalLayout {
         add(createButton("Dynamic Loading", DynamicLoadingExample.class));
         add(createButton("Workflow List", WorkflowList.class));
         add(createButton("Create Order", CreateOrder.class));
+        add(createButton("Users", UserView.class));
     }
 
     private Button createButton(String text, Class<? extends Component> navigationTarget){

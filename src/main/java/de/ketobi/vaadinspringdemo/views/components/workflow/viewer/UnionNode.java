@@ -11,29 +11,29 @@ public class UnionNode extends Node {
     private Circle circle;
     @Getter
     private Text text;
-    private static final double RADIUS = 20;
+    private static final double RADIUS = 25;
 
     public UnionNode(WorkflowNode node) {
         super(node);
 
         circle = new Circle(id, RADIUS);
-        circle.center(x, y);
+        circle.center(x+50, y+RADIUS);
         circle.setFillColor("white");
         circle.setStroke("black", 2);
 
         text = new Text("text", node.getTitle());
-        text.move(x-RADIUS/2, y-RADIUS/2);
+        text.move((x-RADIUS/2)+50, (y-RADIUS/2)+RADIUS);
         text.setFillColor("black");
     }
 
     @Override
     public PolyCoordinatePair getTopConnector() {
-        return new PolyCoordinatePair(x, y - RADIUS);
+        return new PolyCoordinatePair(x+50, y);
     }
 
     @Override
     public PolyCoordinatePair getBottomConnector() {
-        return new PolyCoordinatePair(x, y + RADIUS);
+        return new PolyCoordinatePair(x+50, y + 2*RADIUS);
     }
 
     @Override
@@ -45,7 +45,7 @@ public class UnionNode extends Node {
     public void move(double x, double y) {
         this.x = x;
         this.y = y;
-        circle.center(x, y);
-        text.move(x-RADIUS/2, y-RADIUS/2);
+        circle.center(x+50, y+RADIUS);
+        text.move((x-RADIUS/2)+50, (y-RADIUS/2)+RADIUS);
     }
 }

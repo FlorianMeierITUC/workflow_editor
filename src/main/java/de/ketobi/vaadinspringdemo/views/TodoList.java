@@ -30,6 +30,7 @@ public class TodoList extends VerticalLayout {
     private TextField name = new TextField("Name *");
     private TextArea description = new TextArea("Description");
     private GridListDataView<Todo> todoView;
+
     @Autowired
     public TodoList(TodoRepository todoRepository){
         this.todoRepository = todoRepository;
@@ -62,7 +63,7 @@ public class TodoList extends VerticalLayout {
         add(description);
         add(new SaveButton());
         todoView.addItemCountChangeListener(e ->
-                Notification.show(" " + e.getItemCount() + " items available"));
+                Notification.show(e.getItemCount() + " items available"));
 
         Span itemCountSpan = new Span("Total Item Count: " + todoView.getItemCount());
         add(itemCountSpan);

@@ -69,9 +69,9 @@ public class WorkflowView extends Svg {
             if (currentNode == null) {
                 throw new IllegalArgumentException("Current node is null");
             }
-            if(nodesOnTheCurrentLevel.contains(currentNode)){
+            if (nodesOnTheCurrentLevel.contains(currentNode)) {
                 boolean removeDuplicates = true;
-                while(removeDuplicates) {
+                while (removeDuplicates) {
                     removeDuplicates = nodesOnTheCurrentLevel.remove(currentNode);
                 }
             }
@@ -120,10 +120,7 @@ public class WorkflowView extends Svg {
             }
 
             for (Node node : nodesOnThisYLevel) {
-                List<Integer> successorXLevels = node.getNode().getSuccessorNodes().stream()
-                        .map(idToNode::get)
-                        .map(Node::getXLevel)
-                        .collect(Collectors.toList());
+                List<Integer> successorXLevels = node.getNode().getSuccessorNodes().stream().map(idToNode::get).map(Node::getXLevel).collect(Collectors.toList());
 
                 if (!successorXLevels.isEmpty()) {
                     int averageXLevel = (int) successorXLevels.stream().mapToInt(Integer::intValue).average().orElse(node.getXLevel());
@@ -141,10 +138,7 @@ public class WorkflowView extends Svg {
             }
 
             for (Node node : nodesOnThisYLevel) {
-                List<Integer> predecessorXLevels = node.getNode().getPredecessorNodes().stream()
-                        .map(idToNode::get)
-                        .map(Node::getXLevel)
-                        .collect(Collectors.toList());
+                List<Integer> predecessorXLevels = node.getNode().getPredecessorNodes().stream().map(idToNode::get).map(Node::getXLevel).collect(Collectors.toList());
 
                 if (!predecessorXLevels.isEmpty()) {
                     int averageXLevel = (int) predecessorXLevels.stream().mapToInt(Integer::intValue).average().orElse(node.getXLevel());
@@ -167,39 +161,61 @@ public class WorkflowView extends Svg {
         //Shift the nodes to the right to center them on the canvas and above their successors
         //Set the start node to the center of the yLevel with the most nodes
         int maxNodesOnYLevel = nodesByYLevel.values().stream().mapToInt(List::size).max().orElse(0);
-        int xShift = maxNodesOnYLevel-1;
+        int xShift = maxNodesOnYLevel - 1;
 
         for (int yLevel = 1; yLevel <= maxYLevel; yLevel++) {
             final int finalYLevel = yLevel;
             List<Node> nodesOnThisYLevel = nodesByYLevel.getOrDefault(yLevel, new ArrayList<>());
-            if(nodesOnThisYLevel.size()==1){
+
+            if (nodesOnThisYLevel.size() == 1) {
                 Node node = nodesOnThisYLevel.get(0);
-                node.setXLevel(xShift+node.getXLevel());
+                switch (node.getNode().getType()) {
+                    case OR:
+                    case AND:
+                        int amountOfSuccessorsOnTheNextYLevel = node.getNode().getSuccessorNodes().stream().map(idToNode::get).filter(n -> n.getYLevel() == finalYLevel + 1).mapToInt(n -> 1).sum();
+                        // Center the node above its successors on the next y level
+                        int centerAboveSuccessors = node.getNode().getSuccessorNodes().stream().map(idToNode::get).filter(n -> n.getYLevel() == finalYLevel + 1).mapToInt(Node::getXLevel).sum() / amountOfSuccessorsOnTheNextYLevel;
+                        node.setXLevel(centerAboveSuccessors);
+                        break;
+                    case UNION:
+                        //center the union node under its predecessors on the previous y level
+                        int centerUnderPredecessors = node.getNode().getPredecessorNodes().stream().map(idToNode::get).filter(n -> n.getYLevel() == finalYLevel - 1).mapToInt(Node::getXLevel).sum() / node.getNode().getPredecessorNodes().size();
+                        node.setXLevel(centerUnderPredecessors);
+                        break;
+                    default:
+                        int predecessorsOnThePreviousLevel = node.getNode().getPredecessorNodes().stream().map(idToNode::get).filter(n -> n.getYLevel() == finalYLevel - 1).toList().size();
+                        if (predecessorsOnThePreviousLevel == 1) {
+                            Node predecessor = idToNode.get(node.getNode().getPredecessorNodes().get(0));
+                            if ((predecessor.getNode().getType().equals(WorkflowNodeTypes.USER_DECISION) || predecessor.getNode().getType().equals(WorkflowNodeTypes.BATCH_DECISION)) && predecessor.getYLevel() == yLevel - 1) {
+                                if (predecessor.getNode().getSuccessorNode_success().equals(node.getNode().getId())) {
+                                    node.setXLevel(xShift + node.getXLevel() - 1);
+                                } else if (predecessor.getNode().getSuccessorNode_failure().equals(node.getNode().getId())) {
+                                    node.setXLevel(xShift + node.getXLevel() + 1);
+                                } else {
+                                    node.setXLevel(xShift + node.getXLevel());
+                                }
+                            } else {
+                                node.setXLevel(xShift + node.getXLevel());
+                            }
+                        } else {
+                            node.setXLevel(xShift + node.getXLevel());
+                        }
+                        break;
+                }
+
             } else {
                 for (Node node : nodesOnThisYLevel) {
                     switch (node.getNode().getType()) {
                         case OR:
                         case AND:
-                            int amountOfSuccessorsOnTheNextYLevel = node.getNode().getSuccessorNodes().stream()
-                                    .map(idToNode::get)
-                                    .filter(n -> n.getYLevel() == finalYLevel + 1)
-                                    .mapToInt(n -> 1)
-                                    .sum();
+                            int amountOfSuccessorsOnTheNextYLevel = node.getNode().getSuccessorNodes().stream().map(idToNode::get).filter(n -> n.getYLevel() == finalYLevel + 1).mapToInt(n -> 1).sum();
                             // Center the node above its successors on the next y level
-                            int centerAboveSuccessors = node.getNode().getSuccessorNodes().stream()
-                                    .map(idToNode::get)
-                                    .filter(n -> n.getYLevel() == finalYLevel + 1)
-                                    .mapToInt(Node::getXLevel)
-                                    .sum() / amountOfSuccessorsOnTheNextYLevel;
+                            int centerAboveSuccessors = node.getNode().getSuccessorNodes().stream().map(idToNode::get).filter(n -> n.getYLevel() == finalYLevel + 1).mapToInt(Node::getXLevel).sum() / amountOfSuccessorsOnTheNextYLevel;
                             node.setXLevel(centerAboveSuccessors);
                             break;
                         case UNION:
                             //center the union node under its predecessors on the previous y level
-                            int centerUnderPredecessors = node.getNode().getPredecessorNodes().stream()
-                                    .map(idToNode::get)
-                                    .filter(n -> n.getYLevel() == finalYLevel - 1)
-                                    .mapToInt(Node::getXLevel)
-                                    .sum() / node.getNode().getPredecessorNodes().size();
+                            int centerUnderPredecessors = node.getNode().getPredecessorNodes().stream().map(idToNode::get).filter(n -> n.getYLevel() == finalYLevel - 1).mapToInt(Node::getXLevel).sum() / node.getNode().getPredecessorNodes().size();
                             node.setXLevel(centerUnderPredecessors);
                             break;
                         default:
@@ -210,7 +226,6 @@ public class WorkflowView extends Svg {
 
         }
     }
-
 
 
     /**
