@@ -27,6 +27,8 @@ import java.util.ArrayList;
 public class UserView extends VerticalLayout {
     private final UserRepository userRepository;
     private TextField name = new TextField("Name *");
+    private TextField email = new TextField("Email");
+    private TextField password = new TextField("Password *");
     private GridListDataView<User> userView;
 
     @Autowired
@@ -36,6 +38,7 @@ public class UserView extends VerticalLayout {
         Grid<User> userGrid = new Grid<>(User.class, false);
         userGrid.addColumn(User::getId).setHeader("ID").setAutoWidth(true);
         userGrid.addColumn(User::getName).setHeader("Name").setAutoWidth(true);
+        userGrid.addColumn(User::getEmail).setHeader("Email").setAutoWidth(true);
         userGrid.addComponentColumn(selectedUser -> {
                     Button deleteButton = new Button("Delete");
                     deleteButton.addClickListener(e -> {
@@ -54,6 +57,8 @@ public class UserView extends VerticalLayout {
         add(new H3("Users"));
         add(new Paragraph("New User:"));
         add(name);
+        add(email);
+        add(password);
         add(new SaveButton());
         userView.addItemCountChangeListener(e ->
                 Notification.show(e.getItemCount() + " items available"));
@@ -75,6 +80,21 @@ public class UserView extends VerticalLayout {
                     notification.addThemeVariants(NotificationVariant.LUMO_WARNING);
                     return;
                 }
+                user.setEmail(email.getValue());
+                if(null == email.getValue() || email.getValue().isEmpty() || email.getValue().isBlank()){
+                    Notification notification = Notification
+                            .show("Please provide an email for the user!");
+                    notification.addThemeVariants(NotificationVariant.LUMO_WARNING);
+                    return;
+                }
+                user.setPassword(password.getValue());
+                if(null == password.getValue() || password.getValue().isEmpty() || password.getValue().isBlank()){
+                    Notification notification = Notification
+                            .show("Please provide a password for the user!");
+                    notification.addThemeVariants(NotificationVariant.LUMO_WARNING);
+                    return;
+                }
+
                 try {
                     userRepository.save(user);
                     Notification notification = Notification

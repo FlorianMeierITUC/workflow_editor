@@ -21,4 +21,10 @@ public class User {
     @EqualsAndHashCode.Include
     @NonNull
     String name;
+
+    @NonNull
+    String email;
+
+    @NonNull
+    String password;
 }

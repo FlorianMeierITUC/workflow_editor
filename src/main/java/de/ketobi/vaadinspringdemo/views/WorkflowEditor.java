@@ -11,6 +11,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import de.ketobi.vaadinspringdemo.entities.Workflow;
 import de.ketobi.vaadinspringdemo.entities.WorkflowNode;
+import de.ketobi.vaadinspringdemo.repositories.UserRepository;
 import de.ketobi.vaadinspringdemo.repositories.WorkflowNodeRepository;
 import de.ketobi.vaadinspringdemo.repositories.WorkflowRepository;
 import de.ketobi.vaadinspringdemo.views.components.workflow.CreateWorkflowNodeDiv;
@@ -25,13 +26,15 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
     private String idWorkflow;
     private WorkflowRepository wfRepository;
     private WorkflowNodeRepository wfNodeRepository;
+    private UserRepository userRepository;
     private Div nodeDiv = new Div();
     private Div treeDiv = new Div();
 
     @Autowired
-    public WorkflowEditor(WorkflowRepository wfRepository, WorkflowNodeRepository wfNodeRepository){
+    public WorkflowEditor(WorkflowRepository wfRepository, WorkflowNodeRepository wfNodeRepository, UserRepository userRepository){
         this.wfRepository = wfRepository;
         this.wfNodeRepository = wfNodeRepository;
+        this.userRepository = userRepository;
         add(new H3("Workflow editor"));
         add(new Paragraph("Edit a workflow and its workflow nodes."));
         add(nodeDiv);
@@ -55,7 +58,7 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
             nodeDiv.add(new Paragraph(node.getTitle() + " - " + node.getType()));
         }
         nodeDiv.add(new Html("<HR>"));
-        nodeDiv.add(new CreateWorkflowNodeDiv(workFlow, wfNodeRepository, this::drawWorkflow));
+        nodeDiv.add(new CreateWorkflowNodeDiv(workFlow, wfNodeRepository, userRepository, this::drawWorkflow));
     }
 
     public void drawWorkflow(){

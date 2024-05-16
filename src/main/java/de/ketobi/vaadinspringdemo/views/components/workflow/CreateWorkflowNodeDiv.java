@@ -12,9 +12,11 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.html.Div;
+import de.ketobi.vaadinspringdemo.entities.User;
 import de.ketobi.vaadinspringdemo.entities.Workflow;
 import de.ketobi.vaadinspringdemo.entities.WorkflowNode;
 import de.ketobi.vaadinspringdemo.entities.WorkflowNodeTypes;
+import de.ketobi.vaadinspringdemo.repositories.UserRepository;
 import de.ketobi.vaadinspringdemo.repositories.WorkflowNodeRepository;
 import de.ketobi.vaadinspringdemo.views.components.workflow.viewer.Node;
 import org.bson.types.ObjectId;
@@ -27,11 +29,12 @@ import static de.ketobi.vaadinspringdemo.entities.WorkflowNodeTypes.*;
 public class CreateWorkflowNodeDiv extends Div{
     private Workflow workFlow;
     private WorkflowNodeRepository wfNodeRepository;
+    private UserRepository userRepository;
     private TextField title = new TextField("Title *");
     private Select<WorkflowNodeTypes> type = new Select<>();
     private HorizontalLayout nodeDetailsInput = new HorizontalLayout();
     private TextField executorClass = new TextField("Class");
-    private TextField responsible = new TextField("Responsible");
+    private Select<User> responsible = new Select<>();
     private Select<WorkflowNode> predecessor = new Select<>();
     private Select<WorkflowNode> successor = new Select<>();
     private Select<WorkflowNode> successor_success = new Select<>();
@@ -42,10 +45,15 @@ public class CreateWorkflowNodeDiv extends Div{
     private Map<WorkflowNode, Boolean> nodeParentSuccessRelation = new HashMap<>();
     private boolean removeRelationToEndNode = false;
 
-    public CreateWorkflowNodeDiv(Workflow wf, WorkflowNodeRepository wfNodeRepository, Runnable drawWorkflow){
+    public CreateWorkflowNodeDiv(Workflow wf, WorkflowNodeRepository wfNodeRepository, UserRepository userRepository, Runnable drawWorkflow){
         this.workFlow = wf;
         this.wfNodeRepository = wfNodeRepository;
+        this.userRepository = userRepository;
         this.drawWorkflow = drawWorkflow;
+
+        responsible.setLabel("Responsible");
+        responsible.setItems(userRepository.findAll());
+        responsible.setItemLabelGenerator(User::getName);
 
         predecessor.setLabel("Predecessor node");
         predecessor.setItems(wfNodeRepository.findByIdWorkflow(workFlow.getId()));
@@ -230,7 +238,7 @@ public class CreateWorkflowNodeDiv extends Div{
                 node.setTitle(title.getValue());
                 node.setType(type.getValue());
                 node.setExecutorClass(executorClass.getValue());
-                node.setResponsible(responsible.getValue());
+                node.setResponsible(responsible.getValue().getId());
 
                 ArrayList<ObjectId> predecessors = new ArrayList<>();
                 ArrayList<ObjectId> successors = new ArrayList<>();
@@ -284,6 +292,25 @@ public class CreateWorkflowNodeDiv extends Div{
                 node.setSuccessorNodes(successors);
 
                 wfNodeRepository.save(node);
+                //add the new node to the predecessor nodes and the successor nodes selects
+                predecessor.setItems(wfNodeRepository.findByIdWorkflow(workFlow.getId()));
+                multiplePredecessors.setItems(wfNodeRepository.findByIdWorkflow(workFlow.getId()));
+                successor.setItems(wfNodeRepository.findByIdWorkflow(workFlow.getId()));
+                successor_success.setItems(wfNodeRepository.findByIdWorkflow(workFlow.getId()));
+                successor_failure.setItems(wfNodeRepository.findByIdWorkflow(workFlow.getId()));
+                multipleSuccessors.setItems(wfNodeRepository.findByIdWorkflow(workFlow.getId()));
+
+                //clear the input fields
+                title.clear();
+                executorClass.clear();
+                responsible.clear();
+                predecessor.clear();
+                multiplePredecessors.clear();
+                successor.clear();
+                successor_success.clear();
+                successor_failure.clear();
+                multipleSuccessors.clear();
+                type.clear();
 
                 // Update the predecessor nodes
                 for (ObjectId predecessorId : predecessors) {

@@ -29,7 +29,7 @@ public class WorkflowNode {
     WorkflowNodeTypes type;
 
     String executorClass;
-    String responsible;
+    ObjectId responsible;
     List<ObjectId> predecessorNodes = new ArrayList<>();
     List<ObjectId> successorNodes = new ArrayList<>();
     ObjectId successorNode_success;

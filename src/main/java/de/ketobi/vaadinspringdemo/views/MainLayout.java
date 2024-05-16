@@ -7,12 +7,19 @@ import com.vaadin.flow.router.RouterLayout;
 
 public class MainLayout extends VerticalLayout implements RouterLayout {
     private Div content;
+    private Navigation navigation;
 
     public MainLayout() {
-        Navigation navigation = new Navigation();
+        navigation = new Navigation();
         content = new Div();
         content.setId("content");
         add(new H3("Main Layout"));
+        add(navigation, content);
+    }
+
+    public void updateNavigation(){
+        remove(navigation, content);
+        navigation = new Navigation();
         add(navigation, content);
     }
 }
