@@ -209,6 +209,9 @@ public class WorkflowView extends Svg {
                         case OR:
                         case AND:
                             int amountOfSuccessorsOnTheNextYLevel = node.getNode().getSuccessorNodes().stream().map(idToNode::get).filter(n -> n.getYLevel() == finalYLevel + 1).mapToInt(n -> 1).sum();
+                            if(amountOfSuccessorsOnTheNextYLevel <= 1){
+                                break;
+                            }
                             // Center the node above its successors on the next y level
                             int centerAboveSuccessors = node.getNode().getSuccessorNodes().stream().map(idToNode::get).filter(n -> n.getYLevel() == finalYLevel + 1).mapToInt(Node::getXLevel).sum() / amountOfSuccessorsOnTheNextYLevel;
                             node.setXLevel(centerAboveSuccessors);

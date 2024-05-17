@@ -18,10 +18,10 @@ import de.ketobi.vaadinspringdemo.entities.WorkflowNode;
 import de.ketobi.vaadinspringdemo.entities.WorkflowNodeTypes;
 import de.ketobi.vaadinspringdemo.repositories.UserRepository;
 import de.ketobi.vaadinspringdemo.repositories.WorkflowNodeRepository;
-import de.ketobi.vaadinspringdemo.views.components.workflow.viewer.Node;
 import org.bson.types.ObjectId;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static de.ketobi.vaadinspringdemo.entities.WorkflowNodeTypes.*;
@@ -42,7 +42,7 @@ public class CreateWorkflowNodeDiv extends Div{
     private MultiSelectComboBox<WorkflowNode> multiplePredecessors = new MultiSelectComboBox<>("Predecessor nodes");
     private MultiSelectComboBox<WorkflowNode> multipleSuccessors = new MultiSelectComboBox<>("Successor nodes");
     private Runnable drawWorkflow;
-    private Map<WorkflowNode, Boolean> nodeParentSuccessRelation = new HashMap<>();
+    private Map<WorkflowNode, Boolean> nodeParentSuccessRelation = new ConcurrentHashMap<>();
     private boolean removeRelationToEndNode = false;
 
     public CreateWorkflowNodeDiv(Workflow wf, WorkflowNodeRepository wfNodeRepository, UserRepository userRepository, Runnable drawWorkflow){
@@ -64,7 +64,6 @@ public class CreateWorkflowNodeDiv extends Div{
         predecessor.setItemLabelGenerator(node -> node == null ? "" : node.getTitle() + " (" + node.getType() + ")");
         predecessor.setValue(wfNodeRepository.findByIdWorkflowAndType(workFlow.getId(), START));
         //add a value change listener that asks the user if they want to add the node as a success or failure node if the predecessor ia a decision node
-        //TODO move this logic to the create node functionality (save button) in case the select was never changed
         predecessor.addValueChangeListener(event -> {
             WorkflowNode selectedNode = event.getValue();
             if(selectedNode != null && (selectedNode.getType() == WorkflowNodeTypes.USER_DECISION || selectedNode.getType() == WorkflowNodeTypes.BATCH_DECISION)){
@@ -76,12 +75,18 @@ public class CreateWorkflowNodeDiv extends Div{
                 dialog.add(new Paragraph("Do you want to add this node as a success or failure node?"));
 
                 Button successButton = new Button("Success", e -> {
-                    nodeParentSuccessRelation.put(selectedNode, true);
-                    dialog.close();
+                    if(nodeParentSuccessRelation.containsKey(selectedNode)){
+                        nodeParentSuccessRelation.replace(selectedNode, true);
+                    } else {
+                        nodeParentSuccessRelation.put(selectedNode, true);
+                    }dialog.close();
                 });
                 Button failureButton = new Button("Failure", e -> {
-                    nodeParentSuccessRelation.put(selectedNode, false);
-                    dialog.close();
+                    if(nodeParentSuccessRelation.containsKey(selectedNode)){
+                        nodeParentSuccessRelation.replace(selectedNode, false);
+                    } else {
+                        nodeParentSuccessRelation.put(selectedNode, false);
+                    }dialog.close();
                 });
                 dialog.getFooter().add(successButton);
                 dialog.getFooter().add(failureButton);
@@ -127,12 +132,19 @@ public class CreateWorkflowNodeDiv extends Div{
                 dialog.add(new Paragraph("Do you want to add this node as a success or failure node?"));
 
                 Button successButton = new Button("Success", e -> {
-                    nodeParentSuccessRelation.put(selectedNode, true);
+                    if(nodeParentSuccessRelation.containsKey(selectedNode)){
+                        nodeParentSuccessRelation.replace(selectedNode, true);
+                    } else {
+                        nodeParentSuccessRelation.put(selectedNode, true);
+                    }
                     dialog.close();
                 });
                 Button failureButton = new Button("Failure", e -> {
-                    nodeParentSuccessRelation.put(selectedNode, false);
-                    dialog.close();
+                    if(nodeParentSuccessRelation.containsKey(selectedNode)){
+                        nodeParentSuccessRelation.replace(selectedNode, false);
+                    } else {
+                        nodeParentSuccessRelation.put(selectedNode, false);
+                    }dialog.close();
                 });
                 dialog.getFooter().add(successButton);
                 dialog.getFooter().add(failureButton);

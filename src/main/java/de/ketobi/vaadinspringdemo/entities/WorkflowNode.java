@@ -13,6 +13,7 @@ import java.util.List;
 @Document
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class WorkflowNode {
     @EqualsAndHashCode.Include
     @Id
