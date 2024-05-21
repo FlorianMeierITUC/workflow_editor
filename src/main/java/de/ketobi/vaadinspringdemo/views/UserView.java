@@ -37,7 +37,8 @@ public class UserView extends VerticalLayout implements BeforeEnterObserver {
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
         if(UserService.getCurrentUser() == null){
-            event.forwardTo(Login.class);
+            //TODO removed for testing
+            //event.forwardTo(Login.class);
         }
     }
 

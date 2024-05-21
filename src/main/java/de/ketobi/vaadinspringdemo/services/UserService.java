@@ -37,4 +37,8 @@ public class UserService {
         system.setPassword("null");
         return system;
     }
+
+    public User getUserById(ObjectId id){
+        return userRepository.findById(id).orElseThrow();
+    }
 }

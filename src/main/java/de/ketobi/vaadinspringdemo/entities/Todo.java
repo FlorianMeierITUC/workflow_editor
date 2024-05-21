@@ -19,7 +19,6 @@ public class Todo {
     @NonNull
     ObjectId id;
 
-    @Indexed(unique = true)
     @EqualsAndHashCode.Include
     @NonNull
     String name;

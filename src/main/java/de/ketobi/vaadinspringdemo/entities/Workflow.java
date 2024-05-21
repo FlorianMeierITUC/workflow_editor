@@ -15,12 +15,10 @@ public class Workflow {
     @NonNull
     ObjectId id;
 
-    @Indexed(unique = true)
     @EqualsAndHashCode.Include
     @NonNull
     String name;
 
-    @Indexed(unique = true)
     @NonNull
     WorkflowNode startNode;
 

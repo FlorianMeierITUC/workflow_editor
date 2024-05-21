@@ -107,6 +107,7 @@ public class WorkflowList extends VerticalLayout implements BeforeEnterObserver 
                     startNode.setIdWorkflow(wf.getId());
                     startNode.setTitle("Start");
                     startNode.setType(WorkflowNodeTypes.START);
+                    startNode.setResponsible(UserService.getSystemUser().getId());
                     workflowNodeRepository.save(startNode);
 
                     //Create end node
@@ -114,6 +115,7 @@ public class WorkflowList extends VerticalLayout implements BeforeEnterObserver 
                     endNode.setIdWorkflow(wf.getId());
                     endNode.setTitle("End");
                     endNode.setType(WorkflowNodeTypes.END);
+                    endNode.setResponsible(UserService.getSystemUser().getId());
                     //Set start node as predecessor of end node
                     ArrayList<ObjectId> predecessors = new ArrayList<>();
                     predecessors.add(startNode.getId());
@@ -126,8 +128,9 @@ public class WorkflowList extends VerticalLayout implements BeforeEnterObserver 
                     successors.add(endNode.getId());
                     startNode.setSuccessorNodes(successors);
 
-                    //Update start node
+                    //Update start node and workflow
                     workflowNodeRepository.save(startNode);
+                    wf.setStartNode(startNode);
 
                     Notification notification = Notification
                             .show("Workflow submitted!");

@@ -17,8 +17,10 @@ import de.ketobi.vaadinspringdemo.repositories.OrderRepository;
 import de.ketobi.vaadinspringdemo.repositories.WorkflowRepository;
 import de.ketobi.vaadinspringdemo.services.UserService;
 import de.ketobi.vaadinspringdemo.services.WorkflowItemService;
+import org.bson.types.ObjectId;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 import static de.ketobi.vaadinspringdemo.entities.WorkflowTypes.ORDER_WORKFLOW;
 
@@ -58,12 +60,17 @@ public class CreateOrder extends VerticalLayout implements BeforeEnterObserver {
         add(price);
         add(new Button("Save", e -> {
             Order order = Order.builder()
+                    .id(ObjectId.get())
                     .item(item.getValue())
                     .description(description.getValue())
                     .reason(reason.getValue())
                     .supplier(supplier.getValue())
                     .price(new BigDecimal(price.getValue()))
+                    .createdBy(UserService.getCurrentUser().getId())
+                    .createdAt(LocalDateTime.now())
                     .build();
+            order.setWorkflow(workflowRepository.findByName(ORDER_WORKFLOW.getName()));
+            order.setCurrentNode(order.getWorkflow().getStartNode());
             orderRepository.save(order);
             workflowItemService.startWorkflow(order);
             item.clear();

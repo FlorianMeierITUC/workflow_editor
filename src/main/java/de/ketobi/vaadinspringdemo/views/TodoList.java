@@ -19,6 +19,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import de.ketobi.vaadinspringdemo.entities.Todo;
 import de.ketobi.vaadinspringdemo.entities.User;
+import de.ketobi.vaadinspringdemo.entities.WorkflowItem;
 import de.ketobi.vaadinspringdemo.repositories.TodoRepository;
 import de.ketobi.vaadinspringdemo.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,7 @@ import org.springframework.dao.DuplicateKeyException;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 
 @Route(value = "todos", layout = MainLayout.class)
 @PageTitle("Todos and ideas")
@@ -34,6 +36,8 @@ public class TodoList extends VerticalLayout implements BeforeEnterObserver {
     private TextField name = new TextField("Name *");
     private TextArea description = new TextArea("Description");
     private GridListDataView<Todo> todoView;
+    private GridListDataView<WorkflowItem> workflowTodosView;
+    private GridListDataView<WorkflowItem> myWorkflowItemsView;
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
@@ -46,20 +50,23 @@ public class TodoList extends VerticalLayout implements BeforeEnterObserver {
     public TodoList(TodoRepository todoRepository){
         this.todoRepository = todoRepository;
 
-        Grid<Todo> todoGrid = createTodoGrid();
-        ArrayList<Todo> todos = new ArrayList<>(todoRepository.findAll());
-        todoView = todoGrid.setItems(todos);
-
         add(new H3("Todos and ideas for this site"));
         add(new Paragraph("New Todo:"));
         add(name);
         add(description);
         add(new SaveTodoButton());
-        todoView.addItemCountChangeListener(e -> Notification.show(e.getItemCount() + " items available"));
+
         add(new Paragraph("Todos:"));
+        Grid<Todo> todoGrid = createTodoGrid();
+        List<Todo> todos = todoRepository.findAll();
+        todoView = todoGrid.setItems(todos);
+        todoView.addItemCountChangeListener(e -> Notification.show(e.getItemCount() + " items available"));
         add(todoGrid);
+
         add(new Paragraph("My workflow todos:"));
-        add(new Span("Not implemented yet"));
+        Grid<WorkflowItem> workflowTodosGrid = createMyWorkflowTodosGrid();
+        //TODO get all workflow items that are assigned to the current user
+        List<WorkflowItem> workflowTodos = new ArrayList<>();
         add(new Paragraph("My workflow items:"));
         add(new Span("Not implemented yet"));
     }
@@ -115,5 +122,20 @@ public class TodoList extends VerticalLayout implements BeforeEnterObserver {
         });
         todoGrid.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COMPACT);
         return todoGrid;
+    }
+
+    private Grid<WorkflowItem> createMyWorkflowTodosGrid() {
+        Grid<WorkflowItem> workflowTodosGrid = new Grid<>(WorkflowItem.class, false);
+        workflowTodosGrid.addColumn(wfItem -> wfItem.getWorkflow().getName()).setHeader("Workflow").setAutoWidth(true);
+        workflowTodosGrid.addColumn(wfItem -> wfItem.getCurrentNode().getTitle()).setHeader("Current Node").setAutoWidth(true);
+        workflowTodosGrid.addComponentColumn(selectedTodo -> {
+            Button editButton = new Button("Edit");
+            editButton.addClickListener(e -> {
+                //workflowTodosView.removeItem(selectedTodo);
+            });
+            return editButton;
+        });
+        workflowTodosGrid.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COMPACT);
+        return workflowTodosGrid;
     }
 }

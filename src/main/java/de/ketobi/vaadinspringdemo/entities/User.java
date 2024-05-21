@@ -18,7 +18,6 @@ public class User {
     @NonNull
     ObjectId id;
 
-    @Indexed(unique = true)
     @EqualsAndHashCode.Include
     @NonNull
     String name;

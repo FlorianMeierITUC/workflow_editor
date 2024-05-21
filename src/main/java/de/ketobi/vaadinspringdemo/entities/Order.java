@@ -3,11 +3,13 @@ package de.ketobi.vaadinspringdemo.entities;
 import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
+@Document
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -33,6 +35,6 @@ public class Order extends WorkflowItem{
 
     private LocalDateTime createdAt;
 
-    private String createdBy;
+    private ObjectId createdBy;
 
 }
