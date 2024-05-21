@@ -1,6 +1,7 @@
 package de.ketobi.vaadinspringdemo.views;
 import de.ketobi.vaadinspringdemo.entities.Workflow;
 import de.ketobi.vaadinspringdemo.entities.WorkflowNode;
+import de.ketobi.vaadinspringdemo.repositories.UserRepository;
 import de.ketobi.vaadinspringdemo.repositories.WorkflowNodeRepository;
 import de.ketobi.vaadinspringdemo.repositories.WorkflowRepository;
 import org.bson.types.ObjectId;
@@ -10,6 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
 import java.util.Optional;
 
@@ -17,6 +19,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
+@EnableMongoRepositories(basePackages = "de.ketobi.vaadinspringdemo.repositories")
 class WorkflowEditorTest {
 
     @InjectMocks
@@ -27,6 +30,9 @@ class WorkflowEditorTest {
 
     @Mock
     private WorkflowNodeRepository wfNodeRepository;
+
+    @Mock
+    private UserRepository userRepository;
 
     @BeforeEach
     public void setup() {

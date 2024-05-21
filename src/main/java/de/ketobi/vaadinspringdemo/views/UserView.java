@@ -18,6 +18,7 @@ import com.vaadin.flow.router.Route;
 import de.ketobi.vaadinspringdemo.entities.Todo;
 import de.ketobi.vaadinspringdemo.entities.User;
 import de.ketobi.vaadinspringdemo.repositories.UserRepository;
+import de.ketobi.vaadinspringdemo.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 
@@ -35,7 +36,7 @@ public class UserView extends VerticalLayout implements BeforeEnterObserver {
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
-        if(User.getCurrentUser() == null){
+        if(UserService.getCurrentUser() == null){
             event.forwardTo(Login.class);
         }
     }

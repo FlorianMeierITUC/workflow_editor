@@ -12,6 +12,7 @@ import de.ketobi.vaadinspringdemo.entities.WorkflowNode;
 import de.ketobi.vaadinspringdemo.repositories.UserRepository;
 import de.ketobi.vaadinspringdemo.repositories.WorkflowNodeRepository;
 import de.ketobi.vaadinspringdemo.repositories.WorkflowRepository;
+import de.ketobi.vaadinspringdemo.services.UserService;
 import de.ketobi.vaadinspringdemo.views.components.workflow.CreateWorkflowNodeDiv;
 import de.ketobi.vaadinspringdemo.views.components.workflow.viewer.WorkflowView;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +31,7 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
-        if(User.getCurrentUser() == null){
+        if(UserService.getCurrentUser() == null){
             event.forwardTo(Login.class);
         }
     }

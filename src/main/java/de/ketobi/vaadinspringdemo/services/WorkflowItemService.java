@@ -32,7 +32,7 @@ public class WorkflowItemService {
                 .node(workflowItem.getCurrentNode())
                 .item(workflowItem)
                 .message("Workflow started")
-                .responsible(User.getSystemUser())
+                .responsible(UserService.getSystemUser())
                 .createdAt(LocalDateTime.now())
                 .build();
         historyRepository.save(history);

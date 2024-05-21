@@ -18,6 +18,7 @@ import de.ketobi.vaadinspringdemo.entities.WorkflowNode;
 import de.ketobi.vaadinspringdemo.entities.WorkflowNodeTypes;
 import de.ketobi.vaadinspringdemo.repositories.WorkflowNodeRepository;
 import de.ketobi.vaadinspringdemo.repositories.WorkflowRepository;
+import de.ketobi.vaadinspringdemo.services.UserService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
@@ -35,7 +36,7 @@ public class WorkflowList extends VerticalLayout implements BeforeEnterObserver 
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
-        if(User.getCurrentUser() == null){
+        if(UserService.getCurrentUser() == null){
             event.forwardTo(Login.class);
         }
     }
@@ -98,7 +99,7 @@ public class WorkflowList extends VerticalLayout implements BeforeEnterObserver 
                 }
                 wf.setDescription(description.getValue());
                 wf.setActive(true);
-                wf.setCreatedBy(User.getCurrentUser());
+                wf.setCreatedBy(UserService.getCurrentUser());
                 try {
                     workflowRepository.save(wf);
                     //Create start node

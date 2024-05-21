@@ -28,17 +28,4 @@ public class User {
 
     @NonNull
     String password;
-
-    public static User getCurrentUser() {
-        return (User) VaadinSession.getCurrent().getAttribute("user");
-    }
-
-    public static User getSystemUser() {
-        User system = new User();
-        system.setId(new ObjectId("000000000000000000000000"));
-        system.setName("System");
-        system.setEmail("no-reply");
-        system.setPassword("null");
-        return system;
-    }
 }

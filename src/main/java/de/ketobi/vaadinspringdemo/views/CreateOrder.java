@@ -15,6 +15,7 @@ import de.ketobi.vaadinspringdemo.entities.User;
 import de.ketobi.vaadinspringdemo.entities.WorkflowItem;
 import de.ketobi.vaadinspringdemo.repositories.OrderRepository;
 import de.ketobi.vaadinspringdemo.repositories.WorkflowRepository;
+import de.ketobi.vaadinspringdemo.services.UserService;
 import de.ketobi.vaadinspringdemo.services.WorkflowItemService;
 
 import java.math.BigDecimal;
@@ -36,7 +37,7 @@ public class CreateOrder extends VerticalLayout implements BeforeEnterObserver {
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
-        if(User.getCurrentUser() == null){
+        if(UserService.getCurrentUser() == null){
             event.forwardTo(Login.class);
         }
     }
