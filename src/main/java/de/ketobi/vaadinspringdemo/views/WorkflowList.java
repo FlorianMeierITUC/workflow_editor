@@ -98,8 +98,7 @@ public class WorkflowList extends VerticalLayout implements BeforeEnterObserver 
                 }
                 wf.setDescription(description.getValue());
                 wf.setActive(true);
-                //TODO Replace with real user
-                wf.setCreatedBy("Tobias");
+                wf.setCreatedBy(User.getCurrentUser());
                 try {
                     workflowRepository.save(wf);
                     //Create start node

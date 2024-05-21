@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@EqualsAndHashCode(callSuper=false)
 public class Order extends WorkflowItem{
     @Id
     @EqualsAndHashCode.Include
@@ -33,4 +34,5 @@ public class Order extends WorkflowItem{
     private LocalDateTime createdAt;
 
     private String createdBy;
+
 }

@@ -12,14 +12,21 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import de.ketobi.vaadinspringdemo.entities.Order;
 import de.ketobi.vaadinspringdemo.entities.User;
+import de.ketobi.vaadinspringdemo.entities.WorkflowItem;
 import de.ketobi.vaadinspringdemo.repositories.OrderRepository;
+import de.ketobi.vaadinspringdemo.repositories.WorkflowRepository;
+import de.ketobi.vaadinspringdemo.services.WorkflowItemService;
 
 import java.math.BigDecimal;
+
+import static de.ketobi.vaadinspringdemo.entities.WorkflowTypes.ORDER_WORKFLOW;
 
 @Route(value = "createOrder", layout = MainLayout.class)
 @PageTitle("Create order")
 public class CreateOrder extends VerticalLayout implements BeforeEnterObserver {
     private final OrderRepository orderRepository;
+    private final WorkflowRepository workflowRepository;
+    private final WorkflowItemService workflowItemService;
     private TextField item = new TextField("Item to order *");
     private TextArea description = new TextArea("Description");
     private TextArea reason = new TextArea("Reason");
@@ -34,9 +41,11 @@ public class CreateOrder extends VerticalLayout implements BeforeEnterObserver {
         }
     }
 
-    public CreateOrder(OrderRepository orderRepository){
+    public CreateOrder(OrderRepository orderRepository, WorkflowRepository workflowRepository, WorkflowItemService workflowItemService) {
 
         this.orderRepository = orderRepository;
+        this.workflowRepository = workflowRepository;
+        this.workflowItemService = workflowItemService;
         add(item);
         add(description);
         add(reason);
@@ -55,6 +64,7 @@ public class CreateOrder extends VerticalLayout implements BeforeEnterObserver {
                     .price(new BigDecimal(price.getValue()))
                     .build();
             orderRepository.save(order);
+            workflowItemService.startWorkflow(order);
             item.clear();
             description.clear();
             reason.clear();

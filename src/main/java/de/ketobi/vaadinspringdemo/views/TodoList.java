@@ -44,44 +44,27 @@ public class TodoList extends VerticalLayout implements BeforeEnterObserver {
     @Autowired
     public TodoList(TodoRepository todoRepository){
         this.todoRepository = todoRepository;
-        ArrayList<Todo> todos = new ArrayList<>(todoRepository.findAll());
-        Grid<Todo> todoGrid = new Grid<>(Todo.class, false);
-        todoGrid.addColumn(Todo::getName).setHeader("Name").setAutoWidth(true);
-        todoGrid.addColumn(Todo::getDescription).setHeader("Description").setAutoWidth(true);
-        todoGrid.addColumn(todo -> todo.getCreatedBy().getName()).setHeader("Creator").setAutoWidth(true);
-        todoGrid.addColumn(Todo::getCreatedAt).setHeader("Created at").setAutoWidth(true);
-        todoGrid.addColumn(LitRenderer.<Todo>of("<vaadin-checkbox ?checked=${item.done}></vaadin-checkbox>").withProperty("done", Todo::isDone)).setHeader("Done").setAutoWidth(true);
-        todoGrid.addComponentColumn(selectedTodo -> {
-                    Button deleteButton = new Button("Delete");
-                    deleteButton.addClickListener(e -> {
-                        todoRepository.deleteByName(selectedTodo.getName());
-                        Notification notification = Notification
-                                .show("Todo deleted!");
-                        notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-                        todoView.removeItem(selectedTodo);
-                    });
-                    return deleteButton;
-                });
-        todoGrid.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COMPACT);
 
+        Grid<Todo> todoGrid = createTodoGrid();
+        ArrayList<Todo> todos = new ArrayList<>(todoRepository.findAll());
         todoView = todoGrid.setItems(todos);
 
         add(new H3("Todos and ideas for this site"));
-        add(new Paragraph("This page collects the ideas and todos for this project. The aim of the project is the creation of a web-application framework monolith. It should contain features like login, user management, persistence and a workflow engine"));
         add(new Paragraph("New Todo:"));
         add(name);
         add(description);
-        add(new SaveButton());
-        todoView.addItemCountChangeListener(e ->
-                Notification.show(e.getItemCount() + " items available"));
-
-        Span itemCountSpan = new Span("Total Item Count: " + todoView.getItemCount());
-        add(itemCountSpan);
+        add(new SaveTodoButton());
+        todoView.addItemCountChangeListener(e -> Notification.show(e.getItemCount() + " items available"));
+        add(new Paragraph("Todos:"));
         add(todoGrid);
+        add(new Paragraph("My workflow todos:"));
+        add(new Span("Not implemented yet"));
+        add(new Paragraph("My workflow items:"));
+        add(new Span("Not implemented yet"));
     }
 
-    private class SaveButton extends Button {
-        SaveButton(){
+    private class SaveTodoButton extends Button {
+        SaveTodoButton(){
             setText("+ Add");
             addSingleClickListener(clickEvent -> {
                 Todo todo = new Todo();
@@ -109,5 +92,27 @@ public class TodoList extends VerticalLayout implements BeforeEnterObserver {
             });
         }
 
+    }
+
+    private Grid<Todo> createTodoGrid(){
+        Grid<Todo> todoGrid = new Grid<>(Todo.class, false);
+        todoGrid.addColumn(Todo::getName).setHeader("Name").setAutoWidth(true);
+        todoGrid.addColumn(Todo::getDescription).setHeader("Description").setAutoWidth(true);
+        todoGrid.addColumn(todo -> todo.getCreatedBy().getName()).setHeader("Creator").setAutoWidth(true);
+        todoGrid.addColumn(Todo::getCreatedAt).setHeader("Created at").setAutoWidth(true);
+        todoGrid.addColumn(LitRenderer.<Todo>of("<vaadin-checkbox ?checked=${item.done}></vaadin-checkbox>").withProperty("done", Todo::isDone)).setHeader("Done").setAutoWidth(true);
+        todoGrid.addComponentColumn(selectedTodo -> {
+            Button deleteButton = new Button("Delete");
+            deleteButton.addClickListener(e -> {
+                todoRepository.deleteByName(selectedTodo.getName());
+                Notification notification = Notification
+                        .show("Todo deleted!");
+                notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                todoView.removeItem(selectedTodo);
+            });
+            return deleteButton;
+        });
+        todoGrid.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COMPACT);
+        return todoGrid;
     }
 }

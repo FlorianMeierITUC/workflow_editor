@@ -20,11 +20,15 @@ public class Workflow {
     @NonNull
     String name;
 
+    @Indexed(unique = true)
+    @NonNull
+    WorkflowNode startNode;
+
     String description;
 
     boolean active;
 
-    String createdBy;
+    User createdBy;
 
     Long schedule;
 

@@ -232,12 +232,12 @@ public class WorkflowViewTest {
         assertEquals(6, workflowView.getNodes().get(0).getXLevel());
         assertEquals(6, workflowView.getNodes().get(1).getXLevel());
         assertEquals(3, workflowView.getNodes().get(2).getXLevel());
-        assertEquals(9, workflowView.getNodes().get(3).getXLevel());
-        assertEquals(1, workflowView.getNodes().get(4).getXLevel());
-        assertEquals(5, workflowView.getNodes().get(5).getXLevel());
-        assertEquals(7, workflowView.getNodes().get(6).getXLevel());
-        assertEquals(9, workflowView.getNodes().get(7).getXLevel());
-        assertEquals(11, workflowView.getNodes().get(8).getXLevel());
+        assertEquals(8, workflowView.getNodes().get(3).getXLevel());
+        assertEquals(2, workflowView.getNodes().get(4).getXLevel());
+        assertEquals(4, workflowView.getNodes().get(5).getXLevel());
+        assertEquals(6, workflowView.getNodes().get(6).getXLevel());
+        assertEquals(8, workflowView.getNodes().get(7).getXLevel());
+        assertEquals(10, workflowView.getNodes().get(8).getXLevel());
         assertEquals(6, workflowView.getNodes().get(9).getXLevel());
     }
 }
