@@ -131,7 +131,7 @@ public class WorkflowList extends VerticalLayout implements BeforeEnterObserver 
                     //Update start node and workflow
                     workflowNodeRepository.save(startNode);
                     wf.setStartNode(startNode);
-
+                    workflowRepository.save(wf);
                     Notification notification = Notification
                             .show("Workflow submitted!");
                     notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
@@ -140,6 +140,7 @@ public class WorkflowList extends VerticalLayout implements BeforeEnterObserver 
                     Notification notification = Notification
                             .show("Entry with this name already present! Choose a different name!");
                     notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+                    ex.printStackTrace();
                 } catch (Exception ex) {
                     Notification notification = Notification
                             .show("An error occurred while saving the workflow!");

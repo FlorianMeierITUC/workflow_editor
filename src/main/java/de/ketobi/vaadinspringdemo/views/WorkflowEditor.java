@@ -1,14 +1,23 @@
 package de.ketobi.vaadinspringdemo.views;
 
 import com.vaadin.flow.component.Html;
+import com.vaadin.flow.component.Text;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.select.Select;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.*;
 import de.ketobi.vaadinspringdemo.entities.User;
 import de.ketobi.vaadinspringdemo.entities.Workflow;
 import de.ketobi.vaadinspringdemo.entities.WorkflowNode;
+import de.ketobi.vaadinspringdemo.entities.WorkflowNodeTypes;
 import de.ketobi.vaadinspringdemo.repositories.UserRepository;
 import de.ketobi.vaadinspringdemo.repositories.WorkflowNodeRepository;
 import de.ketobi.vaadinspringdemo.repositories.WorkflowRepository;
@@ -17,6 +26,7 @@ import de.ketobi.vaadinspringdemo.views.components.workflow.CreateWorkflowNodeDi
 import de.ketobi.vaadinspringdemo.views.components.workflow.viewer.WorkflowView;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Route(value = "workfloweditor", layout = MainLayout.class)
 @PageTitle("Workflow editor")
@@ -28,6 +38,7 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
     private UserRepository userRepository;
     private Div nodeDiv = new Div();
     private Div treeDiv = new Div();
+    private Select<WorkflowNode> editNodeSelect = new Select<>();
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
@@ -58,10 +69,14 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
         nodeDiv.add(new Paragraph("Name: "+workFlow.getName()));
         nodeDiv.add(new Paragraph("Description: "+workFlow.getDescription()));
         nodeDiv.add(new Paragraph("Select here if the workflow is scheduled or event driven: "+workFlow.getName()));
-        nodeDiv.add(new Paragraph("Nodes:"));
-        for (WorkflowNode node : wfNodeRepository.findByIdWorkflow(workFlow.getId())){
-            nodeDiv.add(new Paragraph(node.getTitle() + " - " + node.getType()));
-        }
+        HorizontalLayout editNodes = new HorizontalLayout();
+        editNodes.add(new Paragraph("Edit nodes: "));
+        //find all nodes of this workflow except the START and END nodes
+        editNodeSelect.setItems(wfNodeRepository.findByIdWorkflow(workFlow.getId()).stream().filter(node -> !node.getType().equals(WorkflowNodeTypes.START) && !node.getType().equals(WorkflowNodeTypes.END)).collect(Collectors.toList()));
+        editNodeSelect.setEmptySelectionAllowed(true);
+        editNodes.add(editNodeSelect);
+        editNodes.add(new EditNodeButton());
+        nodeDiv.add(editNodes);
         nodeDiv.add(new Html("<HR>"));
         nodeDiv.add(new CreateWorkflowNodeDiv(workFlow, wfNodeRepository, userRepository, this::drawWorkflow));
     }
@@ -69,7 +84,32 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
     public void drawWorkflow(){
         treeDiv.removeAll();
         List<WorkflowNode> nodes = wfNodeRepository.findByIdWorkflow(workFlow.getId());
-        WorkflowView workflowView = new WorkflowView(nodes);
-        treeDiv.add(workflowView);
+        treeDiv.add(new WorkflowView(nodes));
+    }
+
+    private class EditNodeButton extends Button {
+        EditNodeButton(){
+            setText("Edit");
+            addClickListener(clickEvent -> {
+                if(editNodeSelect.getValue()!=null){
+                    WorkflowNode node = editNodeSelect.getValue();
+                    Dialog editNodeDialog = new Dialog();
+                    editNodeDialog.add(new Paragraph("Edit node: "+editNodeSelect.getValue().getTitle()));
+                    Button closeButton = new Button(new Icon("lumo", "cross"),
+                            (e) -> editNodeDialog.close());
+                    closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+                    editNodeDialog.getHeader().add(closeButton);
+                    TextField executorClass = new TextField("Class");
+                    Button saveButton = new Button("Save", e -> {
+                        node.setExecutorClass(executorClass.getValue());
+                        wfNodeRepository.save(node);
+                        editNodeDialog.close();
+                    });
+                    editNodeDialog.add(executorClass);
+                    editNodeDialog.getFooter().add(saveButton);
+                    editNodeDialog.open();
+                }
+            });
+        }
     }
 }

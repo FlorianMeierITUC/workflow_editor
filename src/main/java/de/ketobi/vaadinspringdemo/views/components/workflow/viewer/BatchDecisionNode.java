@@ -25,6 +25,7 @@ public class BatchDecisionNode extends Node {
         text = new Text("text", node.getTitle());
         text.move(x + 2, y + 2);
         text.setFillColor("black");
+
     }
 
     @Override
