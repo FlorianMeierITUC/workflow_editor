@@ -18,7 +18,6 @@ public class Login extends VerticalLayout {
     @Autowired
     public Login(UserService userService){
         this.userService = userService;
-        add(new H3("Login"));
         LoginForm loginForm = new LoginForm();
         loginForm.addLoginListener(e -> {
             User user = userService.authenticate(e.getUsername(), e.getPassword());

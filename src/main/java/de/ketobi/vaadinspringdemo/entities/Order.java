@@ -1,5 +1,7 @@
 package de.ketobi.vaadinspringdemo.entities;
 
+import de.ketobi.vaadinspringdemo.repositories.WorkflowNodeRepository;
+import de.ketobi.vaadinspringdemo.repositories.WorkflowRepository;
 import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -36,5 +38,4 @@ public class Order extends WorkflowItem{
     private LocalDateTime createdAt;
 
     private ObjectId createdBy;
-
 }

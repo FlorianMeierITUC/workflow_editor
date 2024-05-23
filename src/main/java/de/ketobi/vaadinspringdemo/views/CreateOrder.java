@@ -14,6 +14,7 @@ import de.ketobi.vaadinspringdemo.entities.Order;
 import de.ketobi.vaadinspringdemo.entities.User;
 import de.ketobi.vaadinspringdemo.entities.WorkflowItem;
 import de.ketobi.vaadinspringdemo.repositories.OrderRepository;
+import de.ketobi.vaadinspringdemo.repositories.WorkflowNodeRepository;
 import de.ketobi.vaadinspringdemo.repositories.WorkflowRepository;
 import de.ketobi.vaadinspringdemo.services.UserService;
 import de.ketobi.vaadinspringdemo.services.WorkflowItemService;
@@ -44,7 +45,7 @@ public class CreateOrder extends VerticalLayout implements BeforeEnterObserver {
         }
     }
 
-    public CreateOrder(OrderRepository orderRepository, WorkflowRepository workflowRepository, WorkflowItemService workflowItemService) {
+    public CreateOrder(OrderRepository orderRepository, WorkflowRepository workflowRepository, WorkflowItemService workflowItemService){
 
         this.orderRepository = orderRepository;
         this.workflowRepository = workflowRepository;
@@ -70,7 +71,7 @@ public class CreateOrder extends VerticalLayout implements BeforeEnterObserver {
                     .createdAt(LocalDateTime.now())
                     .build();
             order.setWorkflow(workflowRepository.findByName(ORDER_WORKFLOW.getName()));
-            order.setCurrentNode(order.getWorkflow().getStartNode());
+            order.setCurrentNode(workflowRepository.findById(order.getWorkflowId()).orElseThrow().getStartNode());
             orderRepository.save(order);
             workflowItemService.startWorkflow(order);
             item.clear();

@@ -24,6 +24,7 @@ import de.ketobi.vaadinspringdemo.repositories.WorkflowRepository;
 import de.ketobi.vaadinspringdemo.services.UserService;
 import de.ketobi.vaadinspringdemo.views.components.workflow.CreateWorkflowNodeDiv;
 import de.ketobi.vaadinspringdemo.views.components.workflow.viewer.WorkflowView;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -59,7 +60,7 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
     @Override
     public void setParameter(BeforeEvent event, String parameter) {
         this.idWorkflow = parameter;
-        this.workFlow = wfRepository.findById(idWorkflow).get();
+        this.workFlow = wfRepository.findById(new ObjectId(idWorkflow)).get();
         fillNodeDiv();
         drawWorkflow();
     }
@@ -90,6 +91,7 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
     private class EditNodeButton extends Button {
         EditNodeButton(){
             setText("Edit");
+            //TODO set the already set values of the node in the dialog
             addClickListener(clickEvent -> {
                 if(editNodeSelect.getValue()!=null){
                     WorkflowNode node = editNodeSelect.getValue();
@@ -99,12 +101,18 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
                             (e) -> editNodeDialog.close());
                     closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
                     editNodeDialog.getHeader().add(closeButton);
+                    Select<User> responsible = new Select<>();
+                    responsible.setLabel("Responsible");
+                    responsible.setItems(userRepository.findAll());
+                    responsible.setItemLabelGenerator(User::getName);
                     TextField executorClass = new TextField("Class");
                     Button saveButton = new Button("Save", e -> {
                         node.setExecutorClass(executorClass.getValue());
+                        node.setResponsible(responsible.getValue().getId());
                         wfNodeRepository.save(node);
                         editNodeDialog.close();
                     });
+                    editNodeDialog.add(responsible);
                     editNodeDialog.add(executorClass);
                     editNodeDialog.getFooter().add(saveButton);
                     editNodeDialog.open();

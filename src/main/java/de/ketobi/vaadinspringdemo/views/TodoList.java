@@ -21,7 +21,10 @@ import de.ketobi.vaadinspringdemo.entities.Todo;
 import de.ketobi.vaadinspringdemo.entities.User;
 import de.ketobi.vaadinspringdemo.entities.WorkflowItem;
 import de.ketobi.vaadinspringdemo.repositories.TodoRepository;
+import de.ketobi.vaadinspringdemo.repositories.WorkflowNodeRepository;
+import de.ketobi.vaadinspringdemo.repositories.WorkflowRepository;
 import de.ketobi.vaadinspringdemo.services.UserService;
+import de.ketobi.vaadinspringdemo.services.WorkflowItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 
@@ -33,6 +36,9 @@ import java.util.List;
 @PageTitle("Todos and ideas")
 public class TodoList extends VerticalLayout implements BeforeEnterObserver {
     private final TodoRepository todoRepository;
+    private final WorkflowItemService workflowItemService;
+    private final WorkflowRepository workflowRepository;
+    private final WorkflowNodeRepository workflowNodeRepository;
     private TextField name = new TextField("Name *");
     private TextArea description = new TextArea("Description");
     private GridListDataView<Todo> todoView;
@@ -47,8 +53,11 @@ public class TodoList extends VerticalLayout implements BeforeEnterObserver {
     }
 
     @Autowired
-    public TodoList(TodoRepository todoRepository){
+    public TodoList(TodoRepository todoRepository, WorkflowItemService workflowItemService, WorkflowRepository workflowRepository, WorkflowNodeRepository workflowNodeRepository){
         this.todoRepository = todoRepository;
+        this.workflowItemService = workflowItemService;
+        this.workflowRepository = workflowRepository;
+        this.workflowNodeRepository = workflowNodeRepository;
 
         add(new H3("Todos and ideas for this site"));
         add(new Paragraph("New Todo:"));
@@ -65,8 +74,9 @@ public class TodoList extends VerticalLayout implements BeforeEnterObserver {
 
         add(new Paragraph("My workflow todos:"));
         Grid<WorkflowItem> workflowTodosGrid = createMyWorkflowTodosGrid();
-        //TODO get all workflow items that are assigned to the current user
-        List<WorkflowItem> workflowTodos = new ArrayList<>();
+        List<WorkflowItem> workflowTodos = workflowItemService.getAllWorkflowItemsAssignedToTheCurrentUser();
+        workflowTodosView = workflowTodosGrid.setItems(workflowTodos);
+        add(workflowTodosGrid);
         add(new Paragraph("My workflow items:"));
         add(new Span("Not implemented yet"));
     }
@@ -126,8 +136,8 @@ public class TodoList extends VerticalLayout implements BeforeEnterObserver {
 
     private Grid<WorkflowItem> createMyWorkflowTodosGrid() {
         Grid<WorkflowItem> workflowTodosGrid = new Grid<>(WorkflowItem.class, false);
-        workflowTodosGrid.addColumn(wfItem -> wfItem.getWorkflow().getName()).setHeader("Workflow").setAutoWidth(true);
-        workflowTodosGrid.addColumn(wfItem -> wfItem.getCurrentNode().getTitle()).setHeader("Current Node").setAutoWidth(true);
+        workflowTodosGrid.addColumn(wfItem -> workflowRepository.findById(wfItem.getWorkflowId()).orElseThrow().getName()).setHeader("Workflow").setAutoWidth(true);
+        workflowTodosGrid.addColumn(wfItem -> workflowNodeRepository.findById(wfItem.getCurrentNode()).getTitle()).setHeader("Current Node").setAutoWidth(true);
         workflowTodosGrid.addComponentColumn(selectedTodo -> {
             Button editButton = new Button("Edit");
             editButton.addClickListener(e -> {
