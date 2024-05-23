@@ -30,11 +30,18 @@ public class Order extends WorkflowItem{
 
     private BigDecimal price;
 
+    private String orderNumber;
+
     private boolean deleted;
 
     private LocalDateTime createdAt;
 
     private ObjectId createdBy;
+
+    @Override
+    public String getTitle() {
+        return item;
+    }
 
     @Override
     public void saveItem() {

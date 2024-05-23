@@ -1,9 +1,12 @@
 package de.ketobi.vaadinspringdemo.views;
 
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
@@ -13,18 +16,14 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.LitRenderer;
-import com.vaadin.flow.router.BeforeEnterEvent;
-import com.vaadin.flow.router.BeforeEnterObserver;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
-import de.ketobi.vaadinspringdemo.entities.Todo;
-import de.ketobi.vaadinspringdemo.entities.User;
-import de.ketobi.vaadinspringdemo.entities.WorkflowItem;
+import com.vaadin.flow.router.*;
+import de.ketobi.vaadinspringdemo.entities.*;
 import de.ketobi.vaadinspringdemo.repositories.TodoRepository;
 import de.ketobi.vaadinspringdemo.repositories.WorkflowNodeRepository;
 import de.ketobi.vaadinspringdemo.repositories.WorkflowRepository;
 import de.ketobi.vaadinspringdemo.services.UserService;
 import de.ketobi.vaadinspringdemo.services.WorkflowItemService;
+import de.ketobi.vaadinspringdemo.views.components.workflow.WorkflowItemHistoryDialog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 
@@ -146,12 +145,22 @@ public class TodoList extends VerticalLayout implements BeforeEnterObserver {
         Grid<WorkflowItem> workflowTodosGrid = new Grid<>(WorkflowItem.class, false);
         workflowTodosGrid.addColumn(wfItem -> workflowRepository.findById(wfItem.getWorkflowId()).orElseThrow().getName()).setHeader("Workflow").setAutoWidth(true);
         workflowTodosGrid.addColumn(wfItem -> workflowNodeRepository.findById(wfItem.getCurrentNode()).getTitle()).setHeader("Current Node").setAutoWidth(true);
-        workflowTodosGrid.addComponentColumn(selectedTodo -> {
+        workflowTodosGrid.addColumn(WorkflowItem::getTitle).setHeader("Title").setAutoWidth(true);
+        workflowTodosGrid.addComponentColumn(selectedWfItem -> {
+            Div buttonDiv = new Div();
             Button editButton = new Button("Edit");
             editButton.addClickListener(e -> {
-                //workflowTodosView.removeItem(selectedTodo);
+                WorkflowNode node = workflowNodeRepository.findById(selectedWfItem.getCurrentNode());
+                getUI().ifPresent(ui -> ui.navigate("/"+node.getId()+"/"+selectedWfItem.getId().toString()));
             });
-            return editButton;
+            Button historyButton = new Button("Show history");
+            historyButton.addClickListener(e -> {
+                WorkflowItemHistoryDialog dialog = new WorkflowItemHistoryDialog(workflowItemService.getWorkflowItemHistory(selectedWfItem));
+                dialog.open();
+            });
+            buttonDiv.add(editButton);
+            buttonDiv.add(historyButton);
+            return buttonDiv;
         });
         workflowTodosGrid.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COMPACT);
         return workflowTodosGrid;

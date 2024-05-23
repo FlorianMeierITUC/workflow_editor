@@ -21,6 +21,10 @@ public abstract class WorkflowItem {
         saveItem();
     }
 
+    public abstract String getTitle();
+
+    public abstract ObjectId getId();
+
     public abstract void saveItem();
 
     protected void saveToDatabase(Object item){

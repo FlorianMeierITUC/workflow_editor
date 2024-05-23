@@ -20,15 +20,20 @@ public class WorkflowItemService {
     private final WorkflowItemHistoryRepository historyRepository;
     private final WorkflowNodeRepository nodeRepository;
     private final UserService userService;
-    @Autowired
-    private MongoTemplate mongoTemplate;
+    private final MongoTemplate mongoTemplate;
 
     @Autowired
-    public WorkflowItemService(WorkflowItemHistoryRepository historyRepository, WorkflowNodeRepository nodeRepository, UserService userService, WorkflowRepository workflowRepository) {
+    public WorkflowItemService(WorkflowItemHistoryRepository historyRepository, WorkflowNodeRepository nodeRepository, UserService userService, WorkflowRepository workflowRepository, MongoTemplate mongoTemplate) {
         this.workflowRepository = workflowRepository;
         this.historyRepository = historyRepository;
         this.nodeRepository = nodeRepository;
         this.userService = userService;
+        this.mongoTemplate = mongoTemplate;
+    }
+
+    public ArrayList<WorkflowItemHistory> getWorkflowItemHistory(WorkflowItem workflowItem) {
+        System.out.println("Getting workflow item history for "+workflowItem.getTitle()+" with id "+workflowItem.getId());
+        return historyRepository.findByItem(workflowItem);
     }
 
     public WorkflowNode getWorkflowNodeById(ObjectId currentNodeId) {
@@ -63,6 +68,7 @@ public class WorkflowItemService {
         System.out.println("Workflow: "+wf);
         System.out.println("Workflow start node: "+startNode);
         System.out.println("Current node: "+workflowItem.getCurrentNode());
+        workflowItem.setMongoTemplate(mongoTemplate);
         workflowItem.save();
         nextNode(nodeRepository.findById(workflowItem.getCurrentNode()), workflowItem, null, "Workflow started");
     }
@@ -75,7 +81,7 @@ public class WorkflowItemService {
         } else if (currentNode.getResponsible().equals(UserService.getSystemUser().getId())) {
             responsible = UserService.getSystemUser();
         } else {
-            responsible = userService.getUserById(currentNode.getResponsible());
+            responsible = userService.getUserById(workflowItem.getCurrentResponsible());
         }
 
         WorkflowItemHistory history = WorkflowItemHistory.builder()
@@ -141,6 +147,7 @@ public class WorkflowItemService {
         System.out.println("Workflow item is now in the next node!");
         System.out.println("Next node: "+nextNode);
         workflowItem.setCurrentResponsible(nextNode.getResponsible());
+        workflowItem.setMongoTemplate(mongoTemplate);
         workflowItem.save();
     }
 }
