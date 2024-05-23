@@ -1,18 +1,31 @@
 package de.ketobi.vaadinspringdemo.entities;
 
-import de.ketobi.vaadinspringdemo.repositories.WorkflowNodeRepository;
-import de.ketobi.vaadinspringdemo.repositories.WorkflowRepository;
 import lombok.Data;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 
 @Data
-public class WorkflowItem {
+@Component
+public abstract class WorkflowItem {
     private ObjectId workflowId;
     private ArrayList<ObjectId> currentNodesIds = new ArrayList<>();
+    private ObjectId currentResponsible;
+    @Autowired
+    private transient MongoTemplate mongoTemplate;
+
+    public void save(){
+        saveItem();
+    }
+
+    public abstract void saveItem();
+
+    protected void saveToDatabase(Object item){
+        mongoTemplate.save(item);
+    }
 
     public ObjectId getCurrentNode(){
         if(currentNodesIds.size() != 1){

@@ -21,7 +21,6 @@ public class IndexManager {
         // Ensure the unique index is only on the top-level Workflow collection
         mongoTemplate.indexOps(Workflow.class).ensureIndex(new Index().on("name", Sort.Direction.ASC).unique());
         mongoTemplate.indexOps(User.class).ensureIndex(new Index().on("name", Sort.Direction.ASC).unique());
-        mongoTemplate.indexOps(Todo.class).ensureIndex(new Index().on("name", Sort.Direction.ASC).unique());
         // Add any other necessary indexes here, ensuring no unique index on embedded documents
     }
 }

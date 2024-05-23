@@ -3,21 +3,21 @@ package de.ketobi.vaadinspringdemo.entities;
 import de.ketobi.vaadinspringdemo.repositories.OrderRepository;
 
 public enum WorkflowTypes {
-    ORDER_WORKFLOW("Order Workflow", OrderRepository.class);
+    ORDER_WORKFLOW("Order Workflow", Order.class);
 
     private final String name;
-    private final Class<?> repository;
+    private final Class<? extends WorkflowItem> entity;
 
-    WorkflowTypes(String name, Class<?> repository) {
+    WorkflowTypes(String name, Class<? extends WorkflowItem> entity) {
         this.name = name;
-        this.repository = repository;
+        this.entity = entity;
     }
 
     public String getName() {
         return name;
     }
 
-    public Class<?> getRepository() {
-        return repository;
+    public Class<? extends WorkflowItem> getEntity() {
+        return entity;
     }
 }

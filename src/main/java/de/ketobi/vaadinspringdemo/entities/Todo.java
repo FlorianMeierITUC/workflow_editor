@@ -27,7 +27,7 @@ public class Todo {
 
     boolean done;
 
-    User createdBy;
+    ObjectId createdBy;
 
     LocalDateTime createdAt;
 

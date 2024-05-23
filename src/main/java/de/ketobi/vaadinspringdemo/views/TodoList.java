@@ -39,9 +39,14 @@ public class TodoList extends VerticalLayout implements BeforeEnterObserver {
     private final WorkflowItemService workflowItemService;
     private final WorkflowRepository workflowRepository;
     private final WorkflowNodeRepository workflowNodeRepository;
+    private final UserService userService;
     private TextField name = new TextField("Name *");
     private TextArea description = new TextArea("Description");
+    private Grid<Todo> todoGrid;
+    private List<Todo> todos = new ArrayList<>();
     private GridListDataView<Todo> todoView;
+    private Grid<WorkflowItem> workflowTodosGrid;
+    private List<WorkflowItem> workflowTodos = new ArrayList<>();
     private GridListDataView<WorkflowItem> workflowTodosView;
     private GridListDataView<WorkflowItem> myWorkflowItemsView;
 
@@ -49,15 +54,23 @@ public class TodoList extends VerticalLayout implements BeforeEnterObserver {
     public void beforeEnter(BeforeEnterEvent event) {
         if(UserService.getCurrentUser() == null){
             event.forwardTo(Login.class);
+        } else {
+        todos = todoRepository.findByCreatedBy(UserService.getCurrentUser().getId());
+        todoView = todoGrid.setItems(todos);
+        todoView.addItemCountChangeListener(e -> Notification.show(e.getItemCount() + " items available"));
+
+        workflowTodos = workflowItemService.getAllWorkflowItemsAssignedToTheCurrentUser();
+        workflowTodosView = workflowTodosGrid.setItems(workflowTodos);
         }
     }
 
     @Autowired
-    public TodoList(TodoRepository todoRepository, WorkflowItemService workflowItemService, WorkflowRepository workflowRepository, WorkflowNodeRepository workflowNodeRepository){
+    public TodoList(TodoRepository todoRepository, WorkflowItemService workflowItemService, WorkflowRepository workflowRepository, WorkflowNodeRepository workflowNodeRepository, UserService userService){
         this.todoRepository = todoRepository;
         this.workflowItemService = workflowItemService;
         this.workflowRepository = workflowRepository;
         this.workflowNodeRepository = workflowNodeRepository;
+        this.userService = userService;
 
         add(new H3("Todos and ideas for this site"));
         add(new Paragraph("New Todo:"));
@@ -66,16 +79,11 @@ public class TodoList extends VerticalLayout implements BeforeEnterObserver {
         add(new SaveTodoButton());
 
         add(new Paragraph("Todos:"));
-        Grid<Todo> todoGrid = createTodoGrid();
-        List<Todo> todos = todoRepository.findAll();
-        todoView = todoGrid.setItems(todos);
-        todoView.addItemCountChangeListener(e -> Notification.show(e.getItemCount() + " items available"));
+        todoGrid = createTodoGrid();
         add(todoGrid);
 
         add(new Paragraph("My workflow todos:"));
-        Grid<WorkflowItem> workflowTodosGrid = createMyWorkflowTodosGrid();
-        List<WorkflowItem> workflowTodos = workflowItemService.getAllWorkflowItemsAssignedToTheCurrentUser();
-        workflowTodosView = workflowTodosGrid.setItems(workflowTodos);
+        workflowTodosGrid = createMyWorkflowTodosGrid();
         add(workflowTodosGrid);
         add(new Paragraph("My workflow items:"));
         add(new Span("Not implemented yet"));
@@ -94,7 +102,7 @@ public class TodoList extends VerticalLayout implements BeforeEnterObserver {
                     return;
                 }
                 todo.setDescription(description.getValue());
-                todo.setCreatedBy(UserService.getCurrentUser());
+                todo.setCreatedBy(UserService.getCurrentUser().getId());
                 todo.setCreatedAt(LocalDateTime.now());
                 try {
                     todoRepository.save(todo);
@@ -116,13 +124,13 @@ public class TodoList extends VerticalLayout implements BeforeEnterObserver {
         Grid<Todo> todoGrid = new Grid<>(Todo.class, false);
         todoGrid.addColumn(Todo::getName).setHeader("Name").setAutoWidth(true);
         todoGrid.addColumn(Todo::getDescription).setHeader("Description").setAutoWidth(true);
-        todoGrid.addColumn(todo -> todo.getCreatedBy().getName()).setHeader("Creator").setAutoWidth(true);
+        todoGrid.addColumn(todo -> userService.getUserById(todo.getCreatedBy()).getName()).setHeader("Creator").setAutoWidth(true);
         todoGrid.addColumn(Todo::getCreatedAt).setHeader("Created at").setAutoWidth(true);
         todoGrid.addColumn(LitRenderer.<Todo>of("<vaadin-checkbox ?checked=${item.done}></vaadin-checkbox>").withProperty("done", Todo::isDone)).setHeader("Done").setAutoWidth(true);
         todoGrid.addComponentColumn(selectedTodo -> {
             Button deleteButton = new Button("Delete");
             deleteButton.addClickListener(e -> {
-                todoRepository.deleteByName(selectedTodo.getName());
+                todoRepository.delete(selectedTodo);
                 Notification notification = Notification
                         .show("Todo deleted!");
                 notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);

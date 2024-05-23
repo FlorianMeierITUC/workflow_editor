@@ -40,18 +40,12 @@ public class WorkflowItemService {
         System.out.println("Getting all workflow items assigned to the current user");
         List<WorkflowItem> workflowItems = new ArrayList<>();
         for(WorkflowTypes type : WorkflowTypes.values()){
-            List<?> items = mongoTemplate.findAll(type.getRepository());
+            List<? extends WorkflowItem> items = mongoTemplate.findAll(type.getEntity());
             System.out.println("Number of Items: "+items.size());
             for(Object item : items){
-                System.out.println("Item is a workflowitem: "+(item instanceof WorkflowItem));
-                if(item instanceof WorkflowItem){
-                    WorkflowItem workflowItem = (WorkflowItem) item;
-                    for(ObjectId nodeId : workflowItem.getCurrentNodesIds()){
-                        WorkflowNode node = getWorkflowNodeById(nodeId);
-                        if(node.getResponsible().equals(UserService.getCurrentUser().getId())){
-                            workflowItems.add(workflowItem);
-                        }
-                    }
+                WorkflowItem workflowItem = (WorkflowItem) item;
+                if(workflowItem.getCurrentResponsible()!=null && workflowItem.getCurrentResponsible().equals(UserService.getCurrentUser().getId())){
+                    workflowItems.add(workflowItem);
                 }
             }
         }
@@ -63,11 +57,13 @@ public class WorkflowItemService {
         workflowItem.setWorkflow(wf);
         WorkflowNode startNode = wf.getStartNode();
         workflowItem.setCurrentNode(startNode);
+        workflowItem.setCurrentResponsible(startNode.getResponsible());
         System.out.println("Workflow started");
         System.out.println("Workflow item: " + workflowItem);
         System.out.println("Workflow: "+wf);
         System.out.println("Workflow start node: "+startNode);
         System.out.println("Current node: "+workflowItem.getCurrentNode());
+        workflowItem.save();
         nextNode(nodeRepository.findById(workflowItem.getCurrentNode()), workflowItem, null, "Workflow started");
     }
 
@@ -144,6 +140,7 @@ public class WorkflowItemService {
         }
         System.out.println("Workflow item is now in the next node!");
         System.out.println("Next node: "+nextNode);
-
+        workflowItem.setCurrentResponsible(nextNode.getResponsible());
+        workflowItem.save();
     }
 }

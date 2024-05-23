@@ -1,7 +1,5 @@
 package de.ketobi.vaadinspringdemo.entities;
 
-import de.ketobi.vaadinspringdemo.repositories.WorkflowNodeRepository;
-import de.ketobi.vaadinspringdemo.repositories.WorkflowRepository;
 import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -12,7 +10,6 @@ import java.time.LocalDateTime;
 
 @Data
 @Document
-@NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @EqualsAndHashCode(callSuper=false)
@@ -38,4 +35,9 @@ public class Order extends WorkflowItem{
     private LocalDateTime createdAt;
 
     private ObjectId createdBy;
+
+    @Override
+    public void saveItem() {
+        saveToDatabase(this);
+    }
 }
