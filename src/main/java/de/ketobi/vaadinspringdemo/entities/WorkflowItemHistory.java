@@ -12,10 +12,11 @@ import java.time.LocalDateTime;
 @Document
 public class WorkflowItemHistory {
     private ObjectId id;
-    private Workflow workflow;
-    private WorkflowNode node;
-    private WorkflowItem item;
+    private ObjectId itemId;
+    private String workflowName;
+    private String nodeTitle;
+    private String itemTitle;
     private String message;
-    private User responsible;
+    private String responsibleUser;
     private LocalDateTime createdAt;
 }

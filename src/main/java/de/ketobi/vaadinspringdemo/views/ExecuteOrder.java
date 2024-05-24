@@ -43,9 +43,7 @@ public class ExecuteOrder extends VerticalLayout implements HasUrlParameter<Stri
         priceField = new TextField("Price");
         priceField.setReadOnly(true);
 
-        add(new Paragraph("Wenn sie möchten können sie hier ein Kommentar anhängen"));
         message = new TextField("Message");
-        add(new Paragraph("Wenn sie nach der durchführung der Bestellung eine Bestellnummer erhalten haben geben sie diese bitte hier ein."));
         orderNumber = new TextField("Order number");
 
         Button executedButton = new Button("Order executed");
@@ -53,6 +51,7 @@ public class ExecuteOrder extends VerticalLayout implements HasUrlParameter<Stri
             order.setOrderNumber(orderNumber.getValue());
             orderRepository.save(order);
             workflowItemService.nextNode(workflowItemService.getWorkflowNodeById(new ObjectId("664dd9de49a7d57f42c0a1e7")), order, null,  message.getValue());
+            executedButton.getUI().ifPresent(ui -> ui.navigate("todos"));
         });
 
         Button cancelButton = new Button("Cancel");
@@ -60,7 +59,12 @@ public class ExecuteOrder extends VerticalLayout implements HasUrlParameter<Stri
             cancelButton.getUI().ifPresent(ui -> ui.navigate("todos"));
         });
 
-        add(itemField, descriptionField, supplierField, priceField, message, orderNumber, executedButton, cancelButton);
+        add(itemField, descriptionField, supplierField, priceField);
+        add(new Paragraph("Wenn sie möchten können sie hier ein Kommentar anhängen"));
+        add(message);
+        add(new Paragraph("Wenn sie nach der durchführung der Bestellung eine Bestellnummer erhalten haben geben sie diese bitte hier ein."));
+        add(orderNumber);
+        add(executedButton, cancelButton);
 
     }
 

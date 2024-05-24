@@ -19,18 +19,20 @@ public class WorkflowItemHistoryDialog extends Dialog {
         historyGrid = new Grid<>(WorkflowItemHistory.class, false);
         historyGrid.setItems(history);
         historyGrid.addColumn(WorkflowItemHistory::getCreatedAt).setHeader("Created At");
-        historyGrid.addColumn(historyItem -> historyItem.getWorkflow().getName()).setHeader("Workflow");
-        historyGrid.addColumn(historyItem -> historyItem.getNode().getTitle()).setHeader("Node");
-        historyGrid.addColumn(historyItem -> historyItem.getItem().getTitle()).setHeader("Item");
+        historyGrid.addColumn(WorkflowItemHistory::getWorkflowName).setHeader("Workflow");
+        historyGrid.addColumn(WorkflowItemHistory::getNodeTitle).setHeader("Node");
+        historyGrid.addColumn(WorkflowItemHistory::getItemTitle).setHeader("Item");
         historyGrid.addColumn(WorkflowItemHistory::getMessage).setHeader("Message");
-        historyGrid.addColumn(historyItem -> historyItem.getResponsible().getName()).setHeader("Responsible User");
+        historyGrid.addColumn(WorkflowItemHistory::getResponsibleUser).setHeader("Responsible User");
         historyGrid.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COMPACT);
+        historyGrid.setAllRowsVisible(true);
 
         add(new Paragraph("Workflow item history"));
         Button closeButton = new Button(new Icon("lumo", "cross"),
                 (e) -> this.close());
         closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         this.getHeader().add(closeButton);
+
         add(historyGrid);
         setWidthFull();
     }

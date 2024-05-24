@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 @Data
@@ -53,4 +54,7 @@ public abstract class WorkflowItem {
     public void setWorkflow(Workflow workflow) {
         this.workflowId = workflow.getId();
     }
+
+    public abstract ObjectId getCreatedBy();
+    public abstract LocalDateTime getCreatedAt();
 }

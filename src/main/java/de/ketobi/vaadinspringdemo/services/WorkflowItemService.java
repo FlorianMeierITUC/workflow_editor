@@ -33,7 +33,7 @@ public class WorkflowItemService {
 
     public ArrayList<WorkflowItemHistory> getWorkflowItemHistory(WorkflowItem workflowItem) {
         System.out.println("Getting workflow item history for "+workflowItem.getTitle()+" with id "+workflowItem.getId());
-        return historyRepository.findByItem(workflowItem);
+        return historyRepository.findByItemId(workflowItem.getId());
     }
 
     public WorkflowNode getWorkflowNodeById(ObjectId currentNodeId) {
@@ -50,6 +50,22 @@ public class WorkflowItemService {
             for(Object item : items){
                 WorkflowItem workflowItem = (WorkflowItem) item;
                 if(workflowItem.getCurrentResponsible()!=null && workflowItem.getCurrentResponsible().equals(UserService.getCurrentUser().getId())){
+                    workflowItems.add(workflowItem);
+                }
+            }
+        }
+        return workflowItems;
+    }
+
+    public List<WorkflowItem> getAllWorkflowItemsCreatedByTheCurrentUser() {
+        System.out.println("Getting all workflow items created by the current user");
+        List<WorkflowItem> workflowItems = new ArrayList<>();
+        for(WorkflowTypes type : WorkflowTypes.values()){
+            List<? extends WorkflowItem> items = mongoTemplate.findAll(type.getEntity());
+            System.out.println("Number of Items: "+items.size());
+            for(Object item : items){
+                WorkflowItem workflowItem = (WorkflowItem) item;
+                if(workflowItem.getCreatedBy()!=null && workflowItem.getCreatedBy().equals(UserService.getCurrentUser().getId())){
                     workflowItems.add(workflowItem);
                 }
             }
@@ -75,6 +91,7 @@ public class WorkflowItemService {
 
     public void nextNode(WorkflowNode currentNode, WorkflowItem workflowItem, Boolean success, String message) {
         System.out.println("Next node");
+        Workflow wf = workflowRepository.findById(workflowItem.getWorkflowId()).orElseThrow();
         User responsible;
         if(currentNode.getResponsible()==null) {
             responsible = UserService.getSystemUser();
@@ -85,11 +102,12 @@ public class WorkflowItemService {
         }
 
         WorkflowItemHistory history = WorkflowItemHistory.builder()
-                .workflow(workflowRepository.findById(workflowItem.getWorkflowId()).orElseThrow())
-                .node(currentNode)
-                .item(workflowItem)
+                .itemId(workflowItem.getId())
+                .workflowName(wf.getName())
+                .nodeTitle(currentNode.getTitle())
+                .itemTitle(workflowItem.getTitle())
                 .message(message)
-                .responsible(responsible)
+                .responsibleUser(responsible.getName())
                 .createdAt(LocalDateTime.now())
                 .build();
         historyRepository.save(history);
@@ -135,11 +153,12 @@ public class WorkflowItemService {
         }
         if(nextNode.getType() == WorkflowNodeTypes.END){
             WorkflowItemHistory historyEnd = WorkflowItemHistory.builder()
-                    .workflow(workflowRepository.findById(workflowItem.getWorkflowId()).orElseThrow())
-                    .node(nextNode)
-                    .item(workflowItem)
+                    .itemId(workflowItem.getId())
+                    .workflowName(wf.getName())
+                    .nodeTitle(nextNode.getTitle())
+                    .itemTitle(workflowItem.getTitle())
                     .message("Workflow finished")
-                    .responsible(UserService.getSystemUser())
+                    .responsibleUser(UserService.getSystemUser().getName())
                     .createdAt(LocalDateTime.now())
                     .build();
             historyRepository.save(historyEnd);
