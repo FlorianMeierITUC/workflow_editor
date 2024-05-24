@@ -3,6 +3,8 @@ package de.ketobi.vaadinspringdemo.views;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
@@ -10,9 +12,11 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.LitRenderer;
@@ -26,6 +30,7 @@ import de.ketobi.vaadinspringdemo.services.WorkflowItemService;
 import de.ketobi.vaadinspringdemo.views.components.workflow.WorkflowItemHistoryDialog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.data.mongodb.core.MongoTemplate;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -39,6 +44,7 @@ public class TodoList extends VerticalLayout implements BeforeEnterObserver {
     private final WorkflowRepository workflowRepository;
     private final WorkflowNodeRepository workflowNodeRepository;
     private final UserService userService;
+    private final MongoTemplate mongoTemplate;
     private TextField name = new TextField("Name *");
     private TextArea description = new TextArea("Description");
 
@@ -72,12 +78,13 @@ public class TodoList extends VerticalLayout implements BeforeEnterObserver {
     }
 
     @Autowired
-    public TodoList(TodoRepository todoRepository, WorkflowItemService workflowItemService, WorkflowRepository workflowRepository, WorkflowNodeRepository workflowNodeRepository, UserService userService){
+    public TodoList(TodoRepository todoRepository, WorkflowItemService workflowItemService, WorkflowRepository workflowRepository, WorkflowNodeRepository workflowNodeRepository, UserService userService, MongoTemplate mongoTemplate){
         this.todoRepository = todoRepository;
         this.workflowItemService = workflowItemService;
         this.workflowRepository = workflowRepository;
         this.workflowNodeRepository = workflowNodeRepository;
         this.userService = userService;
+        this.mongoTemplate = mongoTemplate;
 
         add(new H3("Todos and ideas for this site"));
         add(new Paragraph("New Todo:"));
@@ -170,7 +177,47 @@ public class TodoList extends VerticalLayout implements BeforeEnterObserver {
                 WorkflowItemHistoryDialog dialog = new WorkflowItemHistoryDialog(workflowItemService.getWorkflowItemHistory(selectedWfItem));
                 dialog.open();
             });
+            Button forwardButton = new Button("Forward");
+            forwardButton.addClickListener(e -> {
+                Dialog dialog = new Dialog();
+                Button closeButton = new Button(new Icon("lumo", "cross"),
+                        (e2) -> dialog.close());
+                closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+                dialog.getHeader().add(closeButton);
+                Select<User> responsible = new Select<>();
+                responsible.setLabel("Responsible");
+                responsible.setItems(userService.getAllUsersExceptTheCurrentUser());
+                responsible.setItemLabelGenerator(User::getName);
+                TextArea message = new TextArea();
+                Button saveButton = new Button("Save", e3 -> {
+                    selectedWfItem.setCurrentResponsible(responsible.getValue().getId());
+                    selectedWfItem.setMongoTemplate(mongoTemplate);
+                    selectedWfItem.save();
+                    User user = UserService.getCurrentUser();
+                    Workflow wf = workflowRepository.findById(selectedWfItem.getWorkflowId()).orElseThrow();
+                    WorkflowNode node = workflowNodeRepository.findById(selectedWfItem.getCurrentNode());
+                    WorkflowItemHistory history = WorkflowItemHistory.builder()
+                            .itemId(selectedWfItem.getId())
+                            .workflowName(wf.getName())
+                            .nodeTitle(node.getTitle())
+                            .itemTitle(selectedWfItem.getTitle())
+                            .message("Item forwarded: "+user.getName()+" -> "+responsible.getValue().getName()+". Message: "+message.getValue())
+                            .responsibleUser(user.getName())
+                            .createdAt(LocalDateTime.now())
+                            .build();
+                    workflowItemService.writeWorkflowHistoryEntry(history);
+                    workflowTodosView.removeItem(selectedWfItem);
+                    dialog.close();
+                });
+                dialog.add(new Span("Forward item to:"));
+                dialog.add(responsible);
+                dialog.add(new Span("Message:"));
+                dialog.add(message);
+                dialog.getFooter().add(saveButton);
+                dialog.open();
+            });
             buttonDiv.add(editButton);
+            buttonDiv.add(forwardButton);
             buttonDiv.add(historyButton);
             return buttonDiv;
         });

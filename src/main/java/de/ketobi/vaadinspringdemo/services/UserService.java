@@ -7,6 +7,10 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class UserService {
 
@@ -40,5 +44,10 @@ public class UserService {
 
     public User getUserById(ObjectId id){
         return userRepository.findById(id).orElseThrow();
+    }
+
+    public List<User> getAllUsersExceptTheCurrentUser() {
+        User currentUser = getCurrentUser();
+        return userRepository.findAll().stream().filter(user -> !user.getId().equals(currentUser.getId())).collect(Collectors.toList());
     }
 }

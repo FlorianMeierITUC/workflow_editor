@@ -169,4 +169,8 @@ public class WorkflowItemService {
         workflowItem.setMongoTemplate(mongoTemplate);
         workflowItem.save();
     }
+
+    public void writeWorkflowHistoryEntry(WorkflowItemHistory history) {
+        historyRepository.save(history);
+    }
 }
