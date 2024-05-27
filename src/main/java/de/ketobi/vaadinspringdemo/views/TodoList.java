@@ -8,10 +8,7 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.html.Paragraph;
-import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
@@ -28,11 +25,13 @@ import de.ketobi.vaadinspringdemo.repositories.WorkflowRepository;
 import de.ketobi.vaadinspringdemo.services.UserService;
 import de.ketobi.vaadinspringdemo.services.WorkflowItemService;
 import de.ketobi.vaadinspringdemo.views.components.workflow.WorkflowItemHistoryDialog;
+import de.ketobi.vaadinspringdemo.views.components.workflow.viewer.WorkflowView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,6 +44,8 @@ public class TodoList extends VerticalLayout implements BeforeEnterObserver {
     private final WorkflowNodeRepository workflowNodeRepository;
     private final UserService userService;
     private final MongoTemplate mongoTemplate;
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
+
     private TextField name = new TextField("Name *");
     private TextArea description = new TextArea("Description");
 
@@ -87,19 +88,23 @@ public class TodoList extends VerticalLayout implements BeforeEnterObserver {
         this.mongoTemplate = mongoTemplate;
 
         add(new H3("Todos and ideas for this site"));
-        add(new Paragraph("New Todo:"));
+        add(new H4("New Todo:"));
         add(name);
         add(description);
         add(new SaveTodoButton());
 
-        add(new Paragraph("Todos:"));
+        add(new Hr());
+        add(new H4("Todos:"));
         todoGrid = createTodoGrid();
         add(todoGrid);
 
-        add(new Paragraph("My workflow todos:"));
+        add(new Hr());
+        add(new H4("My workflow todos:"));
         workflowTodosGrid = createMyWorkflowTodosGrid();
         add(workflowTodosGrid);
-        add(new Paragraph("My workflow items:"));
+
+        add(new Hr());
+        add(new H4("My workflow items:"));
         myWorkflowItemsGrid = createMyWorkflowItemsGrid();
         add(myWorkflowItemsGrid);
     }
@@ -139,10 +144,12 @@ public class TodoList extends VerticalLayout implements BeforeEnterObserver {
 
     private Grid<Todo> createTodoGrid(){
         Grid<Todo> todoGrid = new Grid<>(Todo.class, false);
+        //<theme-editor-local-classname>
+        todoGrid.addClassName("todo-list-grid-1");
         todoGrid.addColumn(Todo::getName).setHeader("Name").setAutoWidth(true);
         todoGrid.addColumn(Todo::getDescription).setHeader("Description").setAutoWidth(true);
         todoGrid.addColumn(todo -> userService.getUserById(todo.getCreatedBy()).getName()).setHeader("Creator").setAutoWidth(true);
-        todoGrid.addColumn(Todo::getCreatedAt).setHeader("Created at").setAutoWidth(true);
+        todoGrid.addColumn(todo -> todo.getCreatedAt().format(formatter)).setHeader("Created at").setAutoWidth(true);
         todoGrid.addColumn(LitRenderer.<Todo>of("<vaadin-checkbox ?checked=${item.done}></vaadin-checkbox>").withProperty("done", Todo::isDone)).setHeader("Done").setAutoWidth(true);
         todoGrid.addComponentColumn(selectedTodo -> {
             Button deleteButton = new Button("Delete");
@@ -228,7 +235,7 @@ public class TodoList extends VerticalLayout implements BeforeEnterObserver {
 
     private Grid<WorkflowItem> createMyWorkflowItemsGrid() {
         Grid<WorkflowItem> myWorkflowItemsGrid = new Grid<>(WorkflowItem.class, false);
-        myWorkflowItemsGrid.addColumn(WorkflowItem::getCreatedAt).setHeader("Created at").setAutoWidth(true);
+        myWorkflowItemsGrid.addColumn(wfItem -> wfItem.getCreatedAt().format(formatter)).setHeader("Created at").setAutoWidth(true);
         myWorkflowItemsGrid.addColumn(wfItem -> workflowRepository.findById(wfItem.getWorkflowId()).orElseThrow().getName()).setHeader("Workflow").setAutoWidth(true);
         myWorkflowItemsGrid.addColumn(wfItem -> workflowNodeRepository.findById(wfItem.getCurrentNode()).getTitle()).setHeader("Current Node").setAutoWidth(true);
         myWorkflowItemsGrid.addColumn(WorkflowItem::getTitle).setHeader("Title").setAutoWidth(true);
@@ -236,7 +243,10 @@ public class TodoList extends VerticalLayout implements BeforeEnterObserver {
             Div buttonDiv = new Div();
             Button editButton = new Button("Show workflow");
             editButton.addClickListener(e -> {
-                //TODO
+                Dialog dialog = new Dialog();
+                List<WorkflowNode> nodes = workflowNodeRepository.findByIdWorkflow(selectedWfItem.getWorkflowId());
+                dialog.add(new WorkflowView(nodes, workflowNodeRepository.findById(selectedWfItem.getCurrentNode())));
+                dialog.open();
             });
             Button historyButton = new Button("Show history");
             historyButton.addClickListener(e -> {

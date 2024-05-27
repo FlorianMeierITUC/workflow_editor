@@ -10,15 +10,17 @@ import com.vaadin.flow.component.icon.Icon;
 import de.ketobi.vaadinspringdemo.entities.WorkflowItem;
 import de.ketobi.vaadinspringdemo.entities.WorkflowItemHistory;
 
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 public class WorkflowItemHistoryDialog extends Dialog {
     private Grid<WorkflowItemHistory> historyGrid;
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
 
     public WorkflowItemHistoryDialog(ArrayList<WorkflowItemHistory> history) {
         historyGrid = new Grid<>(WorkflowItemHistory.class, false);
         historyGrid.setItems(history);
-        historyGrid.addColumn(WorkflowItemHistory::getCreatedAt).setHeader("Created At");
+        historyGrid.addColumn(wfItemHistory -> wfItemHistory.getCreatedAt().format(formatter)).setHeader("Created At");
         historyGrid.addColumn(WorkflowItemHistory::getWorkflowName).setHeader("Workflow");
         historyGrid.addColumn(WorkflowItemHistory::getNodeTitle).setHeader("Node");
         historyGrid.addColumn(WorkflowItemHistory::getItemTitle).setHeader("Item");

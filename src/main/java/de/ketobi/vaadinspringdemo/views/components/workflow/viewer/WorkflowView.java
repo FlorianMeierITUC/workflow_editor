@@ -19,6 +19,7 @@ public class WorkflowView extends Svg {
     private final List<Node> nodes = new ArrayList<>();
     private final Map<ObjectId, Node> idToNode = new HashMap<>();
     private int maxYLevel = 0;
+    private Node highlightNode;
 
     /**
      * The WorkflowView object is a canvas that displays the workflow
@@ -29,7 +30,12 @@ public class WorkflowView extends Svg {
      * @param nodes - an unsorted list of WorkflowNode objects
      */
     public WorkflowView(List<WorkflowNode> nodes) {
+        this(nodes, null);
+    }
+
+    public WorkflowView(List<WorkflowNode> nodes, WorkflowNode highlightNode) {
         super();
+        this.highlightNode = createNode(highlightNode);
         for (WorkflowNode node : nodes) {
             this.nodes.add(createNode(node));
         }
@@ -289,6 +295,13 @@ public class WorkflowView extends Svg {
      */
     private void drawNodes() {
         for (Node node : this.nodes) {
+            System.out.println("Highlight node: "+highlightNode);
+            if (highlightNode != null) {
+                System.out.println("Highlight node ID: "+highlightNode.getNode().getId());
+            }
+            if (highlightNode != null && node.getNode().getId().equals(highlightNode.getNode().getId())) {
+                node.getShape().setFillColor("yellow");
+            }
             node.move(node.getXLevel() * HORIZONTAL_SPACING, node.getYLevel() * VERTICAL_SPACING);
             this.add(node.getShape());
             this.add(node.getText());
