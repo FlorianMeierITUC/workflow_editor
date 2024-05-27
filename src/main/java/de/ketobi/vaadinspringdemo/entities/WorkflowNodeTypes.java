@@ -26,11 +26,6 @@ public enum WorkflowNodeTypes {
     BATCH_ACTION("Batch action"),
 
     /**
-     * OR node. The OR node has one predecessor and can have multiple successors, the successors must be followed by a union node.
-     */
-    OR("OR"),
-
-    /**
      * AND node. The AND node has one predecessor and can have multiple successors, the successors must be followed by a union node.
      */
     AND("AND"),

@@ -19,5 +19,4 @@ vaadin-text-area::part(input-field) {
 
 vaadin-text-field::part(input-field) {
   height:var(--lumo-size-m);
-  width:300px;
 }

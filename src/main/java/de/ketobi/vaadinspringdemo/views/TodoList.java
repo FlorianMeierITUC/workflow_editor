@@ -144,8 +144,6 @@ public class TodoList extends VerticalLayout implements BeforeEnterObserver {
 
     private Grid<Todo> createTodoGrid(){
         Grid<Todo> todoGrid = new Grid<>(Todo.class, false);
-        //<theme-editor-local-classname>
-        todoGrid.addClassName("todo-list-grid-1");
         todoGrid.addColumn(Todo::getName).setHeader("Name").setAutoWidth(true);
         todoGrid.addColumn(Todo::getDescription).setHeader("Description").setAutoWidth(true);
         todoGrid.addColumn(todo -> userService.getUserById(todo.getCreatedBy()).getName()).setHeader("Creator").setAutoWidth(true);

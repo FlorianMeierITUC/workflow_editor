@@ -22,7 +22,7 @@ public class UserActionNode extends Node {
         rect.setFillColor("white");
         rect.setStroke("black", 2);
 
-        text = new Text("text", node.getTitle());
+        text = new Text("text", "<<User>>\n"+node.getTitle()+"\n"+node.getResponsible());
         text.move(x + 2, y + 2);
         text.setFillColor("black");
     }

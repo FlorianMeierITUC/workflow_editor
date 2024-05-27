@@ -22,7 +22,7 @@ public class BatchActionNode extends Node {
         rect.setFillColor("white");
         rect.setStroke("black", 2);
 
-        text = new Text("text", node.getTitle());
+        text = new Text("text", "<<Batch>>\n"+node.getTitle()+"\n"+node.getExecutorClass());
         text.move(x + 2, y + 2);
         text.setFillColor("black");
     }

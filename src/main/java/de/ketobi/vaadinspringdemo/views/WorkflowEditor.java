@@ -93,10 +93,10 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
             setText("Edit");
             //TODO set the already set values of the node in the dialog
             addClickListener(clickEvent -> {
-                if(editNodeSelect.getValue()!=null){
-                    WorkflowNode node = editNodeSelect.getValue();
+                WorkflowNode node = editNodeSelect.getValue();
+                if(node!=null){
                     Dialog editNodeDialog = new Dialog();
-                    editNodeDialog.add(new Paragraph("Edit node: "+editNodeSelect.getValue().getTitle()));
+                    editNodeDialog.add(new Paragraph("Edit node: "+node.getTitle()));
                     Button closeButton = new Button(new Icon("lumo", "cross"),
                             (e) -> editNodeDialog.close());
                     closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
@@ -105,15 +105,25 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
                     responsible.setLabel("Responsible");
                     responsible.setItems(userRepository.findAll());
                     responsible.setItemLabelGenerator(User::getName);
+                    if(node.getResponsible()!=null) {
+                        responsible.setValue(userRepository.findById(node.getResponsible()).orElseThrow());
+                    }
                     TextField executorClass = new TextField("Class");
+                    executorClass.setValue(node.getExecutorClass());
                     Button saveButton = new Button("Save", e -> {
                         node.setExecutorClass(executorClass.getValue());
-                        node.setResponsible(responsible.getValue().getId());
+                        if(responsible.getValue()!=null) {
+                            node.setResponsible(responsible.getValue().getId());
+                        }
                         wfNodeRepository.save(node);
                         editNodeDialog.close();
                     });
-                    editNodeDialog.add(responsible);
-                    editNodeDialog.add(executorClass);
+                    if(node.getType().equals(WorkflowNodeTypes.BATCH_ACTION) || node.getType().equals(WorkflowNodeTypes.BATCH_DECISION)) {
+                        editNodeDialog.add(executorClass);
+                    }
+                    if(node.getType().equals(WorkflowNodeTypes.USER_ACTION) || node.getType().equals(WorkflowNodeTypes.USER_DECISION)) {
+                        editNodeDialog.add(responsible);
+                    }
                     editNodeDialog.getFooter().add(saveButton);
                     editNodeDialog.open();
                 }

@@ -92,7 +92,7 @@ public class CreateWorkflowNodeDiv extends Div{
                 dialog.getFooter().add(failureButton);
 
                 dialog.open();
-            } else if (selectedNode != null && (selectedNode.getType() == WorkflowNodeTypes.OR || selectedNode.getType() == WorkflowNodeTypes.AND)){
+            } else if (selectedNode != null && selectedNode.getType() == WorkflowNodeTypes.AND){
                 Dialog dialog = new Dialog();
                 Button closeButton = new Button(new Icon("lumo", "cross"),
                         (e) -> dialog.close());
@@ -194,7 +194,6 @@ public class CreateWorkflowNodeDiv extends Div{
     private Div createNodeDetailsInput(WorkflowNodeTypes type){
         Div div = new Div();
         switch (type){
-            case OR:
             case AND:
                 div.add(predecessor);
                 div.add(multipleSuccessors);
@@ -260,7 +259,6 @@ public class CreateWorkflowNodeDiv extends Div{
                 ArrayList<ObjectId> successors = new ArrayList<>();
 
                 switch (node.getType()){
-                    case OR:
                     case AND:
                         if(predecessor.getValue() != null){
                             predecessors.add(predecessor.getValue().getId());
@@ -343,7 +341,6 @@ public class CreateWorkflowNodeDiv extends Div{
                             predecessorNode.getSuccessorNodes().clear();
                             predecessorNode.getSuccessorNodes().add(node.getId());
                             break;
-                        case OR:
                         case AND:
                             predecessorNode.getSuccessorNodes().add(node.getId());
                             if(removeRelationToEndNode){
@@ -381,7 +378,6 @@ public class CreateWorkflowNodeDiv extends Div{
                         case UNION:
                             successorNode.getPredecessorNodes().add(node.getId());
                             break;
-                        case OR:
                         case AND:
                         case USER_DECISION:
                         case BATCH_DECISION:

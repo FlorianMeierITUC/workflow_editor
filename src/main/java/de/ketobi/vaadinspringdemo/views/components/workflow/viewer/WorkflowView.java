@@ -35,9 +35,13 @@ public class WorkflowView extends Svg {
 
     public WorkflowView(List<WorkflowNode> nodes, WorkflowNode highlightNode) {
         super();
-        this.highlightNode = createNode(highlightNode);
+        if(highlightNode!= null){
+            this.highlightNode = createNode(highlightNode);
+        }
         for (WorkflowNode node : nodes) {
-            this.nodes.add(createNode(node));
+            if(node!=null) {
+                this.nodes.add(createNode(node));
+            }
         }
         for (Node node : this.nodes) {
             idToNode.put(node.getNode().getId(), node);
@@ -48,9 +52,6 @@ public class WorkflowView extends Svg {
         viewbox(0, 0, width, height);
         setWidth(width + "px");
         setHeight(height + "px");
-        Rect background = new Rect("background", width, height);
-        background.setFillColor("white");
-        this.add(background);
         drawNodes();
         drawConnections();
     }
@@ -126,7 +127,7 @@ public class WorkflowView extends Svg {
             }
 
             for (Node node : nodesOnThisYLevel) {
-                List<Integer> successorXLevels = node.getNode().getSuccessorNodes().stream().map(idToNode::get).map(Node::getXLevel).collect(Collectors.toList());
+                List<Integer> successorXLevels = node.getNode().getSuccessorNodes().stream().map(idToNode::get).map(Node::getXLevel).toList();
 
                 if (!successorXLevels.isEmpty()) {
                     int averageXLevel = (int) successorXLevels.stream().mapToInt(Integer::intValue).average().orElse(node.getXLevel());
@@ -144,7 +145,7 @@ public class WorkflowView extends Svg {
             }
 
             for (Node node : nodesOnThisYLevel) {
-                List<Integer> predecessorXLevels = node.getNode().getPredecessorNodes().stream().map(idToNode::get).map(Node::getXLevel).collect(Collectors.toList());
+                List<Integer> predecessorXLevels = node.getNode().getPredecessorNodes().stream().map(idToNode::get).map(Node::getXLevel).toList();
 
                 if (!predecessorXLevels.isEmpty()) {
                     int averageXLevel = (int) predecessorXLevels.stream().mapToInt(Integer::intValue).average().orElse(node.getXLevel());
@@ -176,7 +177,6 @@ public class WorkflowView extends Svg {
             if (nodesOnThisYLevel.size() == 1) {
                 Node node = nodesOnThisYLevel.get(0);
                 switch (node.getNode().getType()) {
-                    case OR:
                     case AND:
                         int amountOfSuccessorsOnTheNextYLevel = node.getNode().getSuccessorNodes().stream().map(idToNode::get).filter(n -> n.getYLevel() == finalYLevel + 1).mapToInt(n -> 1).sum();
                         // Center the node above its successors on the next y level
@@ -212,7 +212,6 @@ public class WorkflowView extends Svg {
             } else {
                 for (Node node : nodesOnThisYLevel) {
                     switch (node.getNode().getType()) {
-                        case OR:
                         case AND:
                             int amountOfSuccessorsOnTheNextYLevel = node.getNode().getSuccessorNodes().stream().map(idToNode::get).filter(n -> n.getYLevel() == finalYLevel + 1).mapToInt(n -> 1).sum();
                             if(amountOfSuccessorsOnTheNextYLevel <= 1){
@@ -269,8 +268,6 @@ public class WorkflowView extends Svg {
         switch (workflowNode.getType()) {
             case AND:
                 return new AndNode(workflowNode);
-            case OR:
-                return new OrNode(workflowNode);
             case UNION:
                 return new UnionNode(workflowNode);
             case START:
@@ -295,10 +292,6 @@ public class WorkflowView extends Svg {
      */
     private void drawNodes() {
         for (Node node : this.nodes) {
-            System.out.println("Highlight node: "+highlightNode);
-            if (highlightNode != null) {
-                System.out.println("Highlight node ID: "+highlightNode.getNode().getId());
-            }
             if (highlightNode != null && node.getNode().getId().equals(highlightNode.getNode().getId())) {
                 node.getShape().setFillColor("yellow");
             }
@@ -331,7 +324,7 @@ public class WorkflowView extends Svg {
                         throw new IllegalArgumentException("Failed to draw a line from " + node.getNode().getTitle() + " to the successor nodes because a node that is neither success or failure was found!");
                     }
                 } else {
-                    line.setStroke("black", 2);
+                    line.setStroke("orange", 2);
                 }
                 this.add(line);
             }

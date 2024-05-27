@@ -66,12 +66,12 @@ public class WorkflowViewTest {
         endNode.setTitle("End");
 
         orNode.setId(new ObjectId());
-        orNode.setType(WorkflowNodeTypes.OR);
-        orNode.setTitle("Or");
+        orNode.setType(WorkflowNodeTypes.AND);
+        orNode.setTitle("And1");
 
         andNode.setId(new ObjectId());
         andNode.setType(WorkflowNodeTypes.AND);
-        andNode.setTitle("And");
+        andNode.setTitle("And2");
     }
 
     @Test

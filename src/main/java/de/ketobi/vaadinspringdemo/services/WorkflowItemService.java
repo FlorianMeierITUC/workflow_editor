@@ -1,14 +1,19 @@
 package de.ketobi.vaadinspringdemo.services;
 
+import de.ketobi.vaadinspringdemo.batchnodes.Batchnode;
+import de.ketobi.vaadinspringdemo.config.AppConfig;
 import de.ketobi.vaadinspringdemo.entities.*;
 import de.ketobi.vaadinspringdemo.repositories.WorkflowItemHistoryRepository;
 import de.ketobi.vaadinspringdemo.repositories.WorkflowNodeRepository;
 import de.ketobi.vaadinspringdemo.repositories.WorkflowRepository;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,14 +26,22 @@ public class WorkflowItemService {
     private final WorkflowNodeRepository nodeRepository;
     private final UserService userService;
     private final MongoTemplate mongoTemplate;
+    private final ApplicationContext context;
 
     @Autowired
-    public WorkflowItemService(WorkflowItemHistoryRepository historyRepository, WorkflowNodeRepository nodeRepository, UserService userService, WorkflowRepository workflowRepository, MongoTemplate mongoTemplate) {
+    public WorkflowItemService(
+            WorkflowItemHistoryRepository historyRepository,
+            WorkflowNodeRepository nodeRepository,
+            UserService userService,
+            WorkflowRepository workflowRepository,
+            MongoTemplate mongoTemplate,
+            ApplicationContext context) {
         this.workflowRepository = workflowRepository;
         this.historyRepository = historyRepository;
         this.nodeRepository = nodeRepository;
         this.userService = userService;
         this.mongoTemplate = mongoTemplate;
+        this.context = context;
     }
 
     public ArrayList<WorkflowItemHistory> getWorkflowItemHistory(WorkflowItem workflowItem) {
@@ -86,11 +99,15 @@ public class WorkflowItemService {
         System.out.println("Current node: "+workflowItem.getCurrentNode());
         workflowItem.setMongoTemplate(mongoTemplate);
         workflowItem.save();
-        nextNode(nodeRepository.findById(workflowItem.getCurrentNode()), workflowItem, null, "Workflow started");
+        nextNode(workflowItem, null, "Workflow started");
     }
 
-    public void nextNode(WorkflowNode currentNode, WorkflowItem workflowItem, Boolean success, String message) {
+    public void nextNode(WorkflowItem workflowItem, Boolean success, String message) {
         System.out.println("Next node");
+        WorkflowNode currentNode = nodeRepository.findById(workflowItem.getCurrentNode());
+        if(currentNode == null){
+            throw new RuntimeException("Current node is null! That should not be possible... Database corrupted?");
+        }
         Workflow wf = workflowRepository.findById(workflowItem.getWorkflowId()).orElseThrow();
         User responsible;
         if(currentNode.getResponsible()==null) {
@@ -119,17 +136,15 @@ public class WorkflowItemService {
             case USER_DECISION:
                 if (success) {
                     nextNode = getWorkflowNodeById(currentNode.getSuccessorNode_success());
-                    System.out.println("Moving workflow item from "+currentNode+" to "+nextNode);
-                    workflowItem.setCurrentNode(nextNode);
                 } else {
                     nextNode = getWorkflowNodeById(currentNode.getSuccessorNode_failure());
-                    System.out.println("Moving workflow item from "+currentNode+" to "+nextNode);
-                    workflowItem.setCurrentNode(nextNode);
                 }
+                System.out.println("Moving workflow item from "+currentNode+" to "+nextNode);
+                workflowItem.setCurrentNode(nextNode);
                 break;
+            case BATCH_ACTION:
             case START:
             case USER_ACTION:
-            case BATCH_ACTION:
             case UNION:
                 nextNode = getWorkflowNodeById(currentNode.getSuccessorNodes().get(0));
                 System.out.println("Moving workflow item from "+currentNode+" to "+nextNode);
@@ -137,7 +152,6 @@ public class WorkflowItemService {
                 break;
             case END:
                 break;
-            case OR:
             case AND:
                 ArrayList<WorkflowNode> successorNodes = currentNode.getSuccessorNodes().stream()
                         .map(this::getWorkflowNodeById)
@@ -168,6 +182,16 @@ public class WorkflowItemService {
         workflowItem.setCurrentResponsible(nextNode.getResponsible());
         workflowItem.setMongoTemplate(mongoTemplate);
         workflowItem.save();
+        if(nextNode.getType() == WorkflowNodeTypes.BATCH_DECISION || nextNode.getType() == WorkflowNodeTypes.BATCH_ACTION){
+            System.out.println("Batch node");
+            Batchnode batchnode = (Batchnode) context.getBean(nextNode.getExecutorClass());
+            try {
+                batchnode.execute(workflowItem.getId());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 
     public void writeWorkflowHistoryEntry(WorkflowItemHistory history) {
