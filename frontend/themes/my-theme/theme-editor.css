@@ -17,6 +17,4 @@ vaadin-text-area::part(input-field) {
   width:300px;
 }
 
-vaadin-text-field::part(input-field) {
-  height:var(--lumo-size-m);
-}
+vaadin-text-field::part(input-field) { height:var(--lumo-size-m); }

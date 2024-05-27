@@ -1,7 +1,6 @@
 package de.ketobi.vaadinspringdemo.batchnodes;
 
 import de.ketobi.vaadinspringdemo.entities.Order;
-import de.ketobi.vaadinspringdemo.entities.WorkflowNode;
 import de.ketobi.vaadinspringdemo.repositories.OrderRepository;
 import de.ketobi.vaadinspringdemo.services.WorkflowItemService;
 import org.bson.types.ObjectId;

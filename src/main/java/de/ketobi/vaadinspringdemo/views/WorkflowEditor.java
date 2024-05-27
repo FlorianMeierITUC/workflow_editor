@@ -91,16 +91,19 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
     private class EditNodeButton extends Button {
         EditNodeButton(){
             setText("Edit");
-            //TODO set the already set values of the node in the dialog
             addClickListener(clickEvent -> {
                 WorkflowNode node = editNodeSelect.getValue();
                 if(node!=null){
                     Dialog editNodeDialog = new Dialog();
-                    editNodeDialog.add(new Paragraph("Edit node: "+node.getTitle()));
+                    VerticalLayout editNodeLayout = new VerticalLayout();
+                    editNodeLayout.add(new Paragraph("Edit node: "+node.getTitle()));
+                    editNodeLayout.add(new Paragraph("ID: "+node.getId()));
+                    editNodeLayout.add(new Paragraph("Type: "+node.getType()));
                     Button closeButton = new Button(new Icon("lumo", "cross"),
                             (e) -> editNodeDialog.close());
                     closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
                     editNodeDialog.getHeader().add(closeButton);
+
                     Select<User> responsible = new Select<>();
                     responsible.setLabel("Responsible");
                     responsible.setItems(userRepository.findAll());
@@ -108,7 +111,7 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
                     if(node.getResponsible()!=null) {
                         responsible.setValue(userRepository.findById(node.getResponsible()).orElseThrow());
                     }
-                    TextField executorClass = new TextField("Class");
+                    TextField executorClass = new TextField("Component");
                     executorClass.setValue(node.getExecutorClass());
                     Button saveButton = new Button("Save", e -> {
                         node.setExecutorClass(executorClass.getValue());
@@ -119,11 +122,12 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
                         editNodeDialog.close();
                     });
                     if(node.getType().equals(WorkflowNodeTypes.BATCH_ACTION) || node.getType().equals(WorkflowNodeTypes.BATCH_DECISION)) {
-                        editNodeDialog.add(executorClass);
+                        editNodeLayout.add(executorClass);
                     }
                     if(node.getType().equals(WorkflowNodeTypes.USER_ACTION) || node.getType().equals(WorkflowNodeTypes.USER_DECISION)) {
-                        editNodeDialog.add(responsible);
+                        editNodeLayout.add(responsible);
                     }
+                    editNodeDialog.add(editNodeLayout);
                     editNodeDialog.getFooter().add(saveButton);
                     editNodeDialog.open();
                 }
