@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class NavigationFolder{
     @Id
     @EqualsAndHashCode.Include

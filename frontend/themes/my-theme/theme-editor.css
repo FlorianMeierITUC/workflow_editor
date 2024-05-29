@@ -13,6 +13,14 @@ span {
   font-weight:bold;
 }
 
+vaadin-button.navigation-layout-button-1 {
+  --lumo-button-size:var(--lumo-size-xs);
+  border-radius:var(--lumo-border-radius-m);
+  padding-inline:8px;
+}
+
+vaadin-button.navigation-layout-button-1::part(label) { font-size:var(--lumo-font-size-xxs); }
+
 vaadin-grid {
   border-style:solid;
   border-width:2px;

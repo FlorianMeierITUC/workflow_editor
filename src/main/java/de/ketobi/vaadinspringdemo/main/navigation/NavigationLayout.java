@@ -12,7 +12,6 @@ import de.ketobi.vaadinspringdemo.main.navigation.components.AddFolderButton;
 import de.ketobi.vaadinspringdemo.main.navigation.components.AddTargetButton;
 import de.ketobi.vaadinspringdemo.main.navigation.services.NavigationService;
 import de.ketobi.vaadinspringdemo.services.UserService;
-import de.ketobi.vaadinspringdemo.views.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @SpringComponent
@@ -30,50 +29,32 @@ public class NavigationLayout extends VerticalLayout {
         }
     }
 
-    private void addLoginNav(){
-        SideNav loginNav = new SideNav();
-        loginNav.setLabel("Login");
-        loginNav.setCollapsible(true);
-        loginNav.addItem(new SideNavItem("Login", Login.class));
-        navigationDiv.add(loginNav);
-    }
-
-    private void addTodosNav(){
-        SideNav todosNav = new SideNav();
-        todosNav.setLabel("Todos");
-        todosNav.setCollapsible(true);
-        todosNav.addItem(new SideNavItem("Todos", TodoList.class));
-        navigationDiv.add(todosNav);
-    }
-
-    private void addOrdersNav(){
-        SideNav ordersNav = new SideNav();
-        ordersNav.setLabel("Orders");
-        ordersNav.setCollapsible(true);
-        ordersNav.addItem(new SideNavItem("Create Order", CreateOrder.class));
-        navigationDiv.add(ordersNav);
-    }
-
-    private void addAdminNav(){
-        SideNav adminNav = new SideNav();
-        adminNav.setLabel("Admin");
-        adminNav.setCollapsible(true);
-        adminNav.addItem(new SideNavItem("Users", UserView.class));
-        adminNav.addItem(new SideNavItem("Workflow List", WorkflowList.class));
-        navigationDiv.add(adminNav);
-    }
-
     public void refresh(){
         removeAll();
-        addLoginNav();
-        addAdminNav();
-        addTodosNav();
-        addOrdersNav();
+        navigationDiv.removeAll();
+        navigationService.getAllNavigationFolders().forEach(folder -> {
+            SideNav folderNav = new SideNav();
+            folderNav.setLabel(folder.getLabel());
+            folderNav.setCollapsible(true);
+            navigationService.getTargetsByFolderId(folder.getId()).forEach(target -> {
+                folderNav.addItem(new SideNavItem(target.getLabel(), target.getView()));
+            });
+            VerticalLayout container = new VerticalLayout();
+            container.add(folderNav);
+            AddTargetButton addTargetButton = new AddTargetButton(folder.getId(), navigationService, this);
+            //<theme-editor-local-classname>
+            addTargetButton.addClassName("navigation-layout-button-1");
+            container.add(addTargetButton);
+            navigationDiv.add(container);
+        });
+
         Scroller scroller = new Scroller(navigationDiv);
         scroller.setScrollDirection(Scroller.ScrollDirection.VERTICAL);
         add(scroller);
         add(new Hr());
-        add(new AddFolderButton(navigationService));
-        add(new AddTargetButton());
+        AddFolderButton addFolderButton = new AddFolderButton(navigationService, this);
+        //<theme-editor-local-classname>
+        addFolderButton.addClassName("navigation-layout-button-1");
+        add(addFolderButton);
     }
 }
