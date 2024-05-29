@@ -1,10 +1,8 @@
-package de.ketobi.vaadinspringdemo.entities;
+package de.ketobi.vaadinspringdemo.main.navigation.entities;
 
-import com.vaadin.flow.server.VaadinSession;
 import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
@@ -12,7 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
+public class NavigationTarget {
     @Id
     @EqualsAndHashCode.Include
     @NonNull
@@ -20,16 +18,15 @@ public class User {
 
     @EqualsAndHashCode.Include
     @NonNull
-    String name;
+    ObjectId idFolder;
+
+    @EqualsAndHashCode.Include
+    @NonNull
+    String label;
 
     @NonNull
-    String email;
+    Integer index;
 
     @NonNull
-    String password;
-
-    @Override
-    public String toString() {
-        return name+" ("+email+")";
-    }
+    String view;
 }

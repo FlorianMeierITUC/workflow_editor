@@ -1,6 +1,5 @@
 package de.ketobi.vaadinspringdemo.views;
 import de.ketobi.vaadinspringdemo.entities.Workflow;
-import de.ketobi.vaadinspringdemo.entities.WorkflowNode;
 import de.ketobi.vaadinspringdemo.repositories.UserRepository;
 import de.ketobi.vaadinspringdemo.repositories.WorkflowNodeRepository;
 import de.ketobi.vaadinspringdemo.repositories.WorkflowRepository;

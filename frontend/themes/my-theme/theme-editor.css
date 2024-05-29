@@ -2,6 +2,17 @@
  * This file has been created by the Vaadin Theme Editor. Please note that
  * manual changes to individual CSS properties may be overwritten by the theme editor.
  */
+hr {
+  border-width:0px;
+  font-size:var(--lumo-font-size-s);
+  padding:1px;
+}
+
+span {
+  font-size:var(--lumo-font-size-s);
+  font-weight:bold;
+}
+
 vaadin-grid {
   border-style:solid;
   border-width:2px;
@@ -11,6 +22,10 @@ vaadin-grid::part(header-cell) {
   --lumo-font-size-s:var(--lumo-font-size-l);
   font-weight:bold;
 }
+
+vaadin-icon { font-size:8px; }
+
+vaadin-side-nav-item::part(link) { font-size:var(--lumo-font-size-s); }
 
 vaadin-text-area::part(input-field) {
   height:100px;
