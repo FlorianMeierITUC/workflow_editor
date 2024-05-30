@@ -10,10 +10,8 @@ import de.ketobi.vaadinspringdemo.apps.orders.entities.Order;
 import de.ketobi.vaadinspringdemo.apps.orders.services.OrderService;
 import de.ketobi.vaadinspringdemo.main.login.Login;
 import de.ketobi.vaadinspringdemo.main.ui.MainLayout;
-import de.ketobi.vaadinspringdemo.apps.orders.repositories.OrderRepository;
 import de.ketobi.vaadinspringdemo.main.user.services.UserService;
-import de.ketobi.vaadinspringdemo.apps.workflows.services.WorkflowItemService;
-import org.bson.types.ObjectId;
+import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowItemService;
 
 @Route(value = "665461bacb82ed217dceb578", layout = MainLayout.class)
 @PageTitle("Approve Order")

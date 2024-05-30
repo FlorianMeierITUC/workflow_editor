@@ -1,6 +1,6 @@
 package de.ketobi.vaadinspringdemo.apps.orders.entities;
 
-import de.ketobi.vaadinspringdemo.apps.workflows.entities.WorkflowItem;
+import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowItem;
 import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;

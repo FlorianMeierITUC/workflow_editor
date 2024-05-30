@@ -1,7 +1,7 @@
 package de.ketobi.vaadinspringdemo.config;
 
 import de.ketobi.vaadinspringdemo.main.user.entities.User;
-import de.ketobi.vaadinspringdemo.apps.workflows.entities.Workflow;
+import de.ketobi.vaadinspringdemo.main.workflows.entities.Workflow;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
