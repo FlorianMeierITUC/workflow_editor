@@ -4,6 +4,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.notification.Notification;
@@ -11,12 +12,11 @@ import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.component.html.Div;
 import de.ketobi.vaadinspringdemo.main.user.entities.User;
+import de.ketobi.vaadinspringdemo.main.user.repositories.UserRepository;
 import de.ketobi.vaadinspringdemo.main.workflows.entities.Workflow;
 import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowNode;
 import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowNodeTypes;
-import de.ketobi.vaadinspringdemo.main.user.repositories.UserRepository;
 import de.ketobi.vaadinspringdemo.main.workflows.repositories.WorkflowNodeRepository;
 import org.bson.types.ObjectId;
 
@@ -24,7 +24,8 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import static de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowNodeTypes.*;
+import static de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowNodeTypes.END;
+import static de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowNodeTypes.START;
 
 public class CreateWorkflowNodeDiv extends Div{
     private Workflow workFlow;

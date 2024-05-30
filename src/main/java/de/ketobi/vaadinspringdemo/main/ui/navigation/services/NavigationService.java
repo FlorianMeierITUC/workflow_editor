@@ -7,6 +7,7 @@ import de.ketobi.vaadinspringdemo.main.ui.navigation.repositories.NavigationTarg
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 
 @Service

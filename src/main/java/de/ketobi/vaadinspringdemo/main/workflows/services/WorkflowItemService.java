@@ -1,13 +1,12 @@
 package de.ketobi.vaadinspringdemo.main.workflows.services;
 
-import de.ketobi.vaadinspringdemo.main.workflows.batchnodes.Batchnode;
-import de.ketobi.vaadinspringdemo.main.workflows.entities.*;
 import de.ketobi.vaadinspringdemo.main.user.entities.User;
+import de.ketobi.vaadinspringdemo.main.user.services.UserService;
+import de.ketobi.vaadinspringdemo.main.workflows.batchnodes.Batchnode;
 import de.ketobi.vaadinspringdemo.main.workflows.entities.*;
 import de.ketobi.vaadinspringdemo.main.workflows.repositories.WorkflowItemHistoryRepository;
 import de.ketobi.vaadinspringdemo.main.workflows.repositories.WorkflowNodeRepository;
 import de.ketobi.vaadinspringdemo.main.workflows.repositories.WorkflowRepository;
-import de.ketobi.vaadinspringdemo.main.user.services.UserService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;

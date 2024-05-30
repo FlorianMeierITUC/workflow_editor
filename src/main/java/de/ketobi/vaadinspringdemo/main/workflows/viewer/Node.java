@@ -1,6 +1,8 @@
 package de.ketobi.vaadinspringdemo.main.workflows.viewer;
 
-import com.vaadin.flow.component.svg.elements.*;
+import com.vaadin.flow.component.svg.elements.AbstractPolyElement;
+import com.vaadin.flow.component.svg.elements.SvgElement;
+import com.vaadin.flow.component.svg.elements.Text;
 import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowNode;
 import lombok.Getter;
 import lombok.Setter;
