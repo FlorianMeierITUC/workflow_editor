@@ -7,6 +7,7 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,16 +22,11 @@ public class UserService {
     }
 
     public User authenticate(String username, String password) {
-        User user = userRepository.findByName(username);
-        if (user != null && user.getPassword().equals(password)) {
+        User user = userRepository.findByName(username).orElseThrow();
+        if (user.getPassword().equals(password)) {
             return user;
         }
         return null;
-    }
-
-    public static void logout() {
-        System.out.println("Logging out user.");
-        VaadinSession.getCurrent().setAttribute("user", null);
     }
 
     public static User getCurrentUser() {
@@ -56,5 +52,9 @@ public class UserService {
     public List<User> getAllUsersExceptTheCurrentUser() {
         User currentUser = getCurrentUser();
         return userRepository.findAll().stream().filter(user -> !user.getId().equals(currentUser.getId())).collect(Collectors.toList());
+    }
+
+    public ArrayList<User> getAll() {
+        return new ArrayList<>(userRepository.findAll());
     }
 }

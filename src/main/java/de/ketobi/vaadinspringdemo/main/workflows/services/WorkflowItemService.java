@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class WorkflowItemService {
-    private final WorkflowRepository workflowRepository;
+    private final WorkflowService workflowService;
     private final WorkflowItemHistoryRepository historyRepository;
     private final WorkflowNodeRepository nodeRepository;
     private final UserService userService;
@@ -32,10 +32,10 @@ public class WorkflowItemService {
             WorkflowItemHistoryRepository historyRepository,
             WorkflowNodeRepository nodeRepository,
             UserService userService,
-            WorkflowRepository workflowRepository,
+            WorkflowService workflowService,
             MongoTemplate mongoTemplate,
             ApplicationContext context) {
-        this.workflowRepository = workflowRepository;
+        this.workflowService = workflowService;
         this.historyRepository = historyRepository;
         this.nodeRepository = nodeRepository;
         this.userService = userService;
@@ -47,11 +47,6 @@ public class WorkflowItemService {
         System.out.println("Getting workflow item history for "+workflowItem.getTitle()+" with id "+workflowItem.getId());
         return historyRepository.findByItemId(workflowItem.getId());
     }
-
-    public WorkflowNode getWorkflowNodeById(ObjectId currentNodeId) {
-        return nodeRepository.findById(currentNodeId);
-    }
-
 
     public List<WorkflowItem> getAllWorkflowItemsAssignedToTheCurrentUser() {
         System.out.println("Getting all workflow items assigned to the current user");
@@ -86,9 +81,9 @@ public class WorkflowItemService {
     }
 
     public void startWorkflow(WorkflowItem workflowItem) {
-        Workflow wf = workflowRepository.findById(workflowItem.getWorkflowId()).orElseThrow();
+        Workflow wf = workflowService.getById(workflowItem.getWorkflowId());
         workflowItem.setWorkflow(wf);
-        WorkflowNode startNode = wf.getStartNode();
+        WorkflowNode startNode = workflowService.getStartNode(wf.getId());
         workflowItem.setCurrentNode(startNode);
         workflowItem.setCurrentResponsible(startNode.getResponsible());
         System.out.println("Workflow started");
@@ -103,11 +98,11 @@ public class WorkflowItemService {
 
     public void nextNode(WorkflowItem workflowItem, Boolean success, String message) {
         System.out.println("Next node");
-        WorkflowNode currentNode = nodeRepository.findById(workflowItem.getCurrentNode());
+        WorkflowNode currentNode = nodeRepository.findById(workflowItem.getCurrentNode()).orElseThrow();
         if(currentNode == null){
             throw new RuntimeException("Current node is null! That should not be possible... Database corrupted?");
         }
-        Workflow wf = workflowRepository.findById(workflowItem.getWorkflowId()).orElseThrow();
+        Workflow wf = workflowService.getById(workflowItem.getWorkflowId());
         User responsible;
         if(currentNode.getResponsible()==null) {
             responsible = UserService.getSystemUser();
@@ -191,6 +186,10 @@ public class WorkflowItemService {
             }
         }
 
+    }
+
+    private WorkflowNode getWorkflowNodeById(ObjectId nodeId) {
+        return nodeRepository.findById(nodeId).orElseThrow();
     }
 
     public void writeWorkflowHistoryEntry(WorkflowItemHistory history) {

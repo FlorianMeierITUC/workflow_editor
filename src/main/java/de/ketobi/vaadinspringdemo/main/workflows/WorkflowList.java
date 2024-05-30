@@ -23,6 +23,8 @@ import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowNode;
 import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowNodeTypes;
 import de.ketobi.vaadinspringdemo.main.workflows.repositories.WorkflowNodeRepository;
 import de.ketobi.vaadinspringdemo.main.workflows.repositories.WorkflowRepository;
+import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowNodeService;
+import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
@@ -32,8 +34,8 @@ import java.util.ArrayList;
 @Route(value = "workflows", layout = MainLayout.class)
 @PageTitle("Workflows")
 public class WorkflowList extends VerticalLayout implements BeforeEnterObserver {
-    private WorkflowRepository workflowRepository;
-    private WorkflowNodeRepository workflowNodeRepository;
+    private final WorkflowService workflowService;
+    private final WorkflowNodeService workflowNodeService;
     private GridListDataView<Workflow> workflowView;
     private TextField name = new TextField("Name *");
     private TextArea description = new TextArea("Description");
@@ -46,10 +48,10 @@ public class WorkflowList extends VerticalLayout implements BeforeEnterObserver 
     }
 
     @Autowired
-    public WorkflowList(WorkflowRepository workflowRepository, WorkflowNodeRepository workflowNodeRepository){
-        this.workflowRepository = workflowRepository;
-        this.workflowNodeRepository = workflowNodeRepository;
-        ArrayList<Workflow> workflowList = new ArrayList<>(workflowRepository.findAll());
+    public WorkflowList(WorkflowService workflowService, WorkflowNodeService workflowNodeService){
+        this.workflowService = workflowService;
+        this.workflowNodeService = workflowNodeService;
+        ArrayList<Workflow> workflowList = new ArrayList<>(workflowService.findAll());
         Grid<Workflow> wfGrid = new Grid<>(Workflow.class, false);
         wfGrid.addColumn(Workflow::getName).setHeader("Name").setAutoWidth(true);
         wfGrid.addColumn(Workflow::getDescription).setHeader("Description").setAutoWidth(true);
@@ -65,11 +67,8 @@ public class WorkflowList extends VerticalLayout implements BeforeEnterObserver 
         wfGrid.addComponentColumn(selectedWf -> {
             Button deleteButton = new Button("Delete");
             deleteButton.addClickListener(e -> {
-                //delete all workflow nodes for this workflow
-                for(WorkflowNode node : workflowNodeRepository.findByIdWorkflow(selectedWf.getId())){
-                    workflowNodeRepository.delete(node);
-                }
-                workflowRepository.delete(selectedWf);
+                workflowNodeService.deleteAllFromWorkflow(selectedWf.getId());
+                workflowService.delete(selectedWf);
                 Notification notification = Notification
                         .show("Workflow deleted!");
                 notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
@@ -105,14 +104,14 @@ public class WorkflowList extends VerticalLayout implements BeforeEnterObserver 
                 wf.setActive(true);
                 wf.setCreatedBy(UserService.getCurrentUser());
                 try {
-                    workflowRepository.save(wf);
+                    workflowService.save(wf);
                     //Create start node
                     WorkflowNode startNode = new WorkflowNode();
                     startNode.setIdWorkflow(wf.getId());
                     startNode.setTitle("Start");
                     startNode.setType(WorkflowNodeTypes.START);
                     startNode.setResponsible(UserService.getSystemUser().getId());
-                    workflowNodeRepository.save(startNode);
+                    workflowNodeService.save(startNode);
 
                     //Create end node
                     WorkflowNode endNode = new WorkflowNode();
@@ -125,17 +124,14 @@ public class WorkflowList extends VerticalLayout implements BeforeEnterObserver 
                     predecessors.add(startNode.getId());
                     endNode.setPredecessorNodes(predecessors);
                     //Save end node
-                    workflowNodeRepository.save(endNode);
+                    workflowNodeService.save(endNode);
 
                     //Set end node as successor of start node
                     ArrayList<ObjectId> successors = new ArrayList<>();
                     successors.add(endNode.getId());
                     startNode.setSuccessorNodes(successors);
 
-                    //Update start node and workflow
-                    workflowNodeRepository.save(startNode);
-                    wf.setStartNode(startNode);
-                    workflowRepository.save(wf);
+                    workflowNodeService.save(startNode);
                     Notification notification = Notification
                             .show("Workflow submitted!");
                     notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);

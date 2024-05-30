@@ -24,6 +24,8 @@ import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowNode;
 import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowNodeTypes;
 import de.ketobi.vaadinspringdemo.main.workflows.repositories.WorkflowNodeRepository;
 import de.ketobi.vaadinspringdemo.main.workflows.repositories.WorkflowRepository;
+import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowNodeService;
+import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowService;
 import de.ketobi.vaadinspringdemo.main.workflows.viewer.WorkflowView;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,11 +36,11 @@ import java.util.stream.Collectors;
 @Route(value = "workfloweditor", layout = MainLayout.class)
 @PageTitle("Workflow editor")
 public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<String>, BeforeEnterObserver {
+    private final WorkflowService wfService;
+    private final WorkflowNodeService wfNodeService;
+    private final UserService userService;
     private Workflow workFlow;
     private String idWorkflow;
-    private WorkflowRepository wfRepository;
-    private WorkflowNodeRepository wfNodeRepository;
-    private UserRepository userRepository;
     private Div nodeDiv = new Div();
     private Div treeDiv = new Div();
     private Select<WorkflowNode> editNodeSelect = new Select<>();
@@ -50,10 +52,10 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
         }
     }
     @Autowired
-    public WorkflowEditor(WorkflowRepository wfRepository, WorkflowNodeRepository wfNodeRepository, UserRepository userRepository){
-        this.wfRepository = wfRepository;
-        this.wfNodeRepository = wfNodeRepository;
-        this.userRepository = userRepository;
+    public WorkflowEditor(WorkflowService wfService, WorkflowNodeService wfNodeService, UserService userService){
+        this.wfService = wfService;
+        this.wfNodeService = wfNodeService;
+        this.userService = userService;
         add(new H3("Workflow editor"));
         add(new Paragraph("Edit a workflow and its workflow nodes."));
         add(nodeDiv);
@@ -62,7 +64,7 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
     @Override
     public void setParameter(BeforeEvent event, String parameter) {
         this.idWorkflow = parameter;
-        this.workFlow = wfRepository.findById(new ObjectId(idWorkflow)).get();
+        this.workFlow = wfService.getById(idWorkflow);
         fillNodeDiv();
         drawWorkflow();
     }
@@ -74,19 +76,18 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
         nodeDiv.add(new Paragraph("Select here if the workflow is scheduled or event driven: "+workFlow.getName()));
         HorizontalLayout editNodes = new HorizontalLayout();
         editNodes.add(new Paragraph("Edit nodes: "));
-        //find all nodes of this workflow except the START and END nodes
-        editNodeSelect.setItems(wfNodeRepository.findByIdWorkflow(workFlow.getId()).stream().filter(node -> !node.getType().equals(WorkflowNodeTypes.START) && !node.getType().equals(WorkflowNodeTypes.END)).collect(Collectors.toList()));
+        editNodeSelect.setItems(wfNodeService.getAllWithoutStartAndEnd(workFlow.getId()));
         editNodeSelect.setEmptySelectionAllowed(true);
         editNodes.add(editNodeSelect);
         editNodes.add(new EditNodeButton());
         nodeDiv.add(editNodes);
         nodeDiv.add(new Html("<HR>"));
-        nodeDiv.add(new CreateWorkflowNodeDiv(workFlow, wfNodeRepository, userRepository, this::drawWorkflow));
+        nodeDiv.add(new CreateWorkflowNodeDiv(workFlow, wfNodeService, userService, this::drawWorkflow));
     }
 
     public void drawWorkflow(){
         treeDiv.removeAll();
-        List<WorkflowNode> nodes = wfNodeRepository.findByIdWorkflow(workFlow.getId());
+        List<WorkflowNode> nodes = wfNodeService.getAll(workFlow.getId());
         treeDiv.add(new WorkflowView(nodes));
     }
 
@@ -108,10 +109,10 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
 
                     Select<User> responsible = new Select<>();
                     responsible.setLabel("Responsible");
-                    responsible.setItems(userRepository.findAll());
+                    responsible.setItems(userService.getAll());
                     responsible.setItemLabelGenerator(User::getName);
                     if(node.getResponsible()!=null) {
-                        responsible.setValue(userRepository.findById(node.getResponsible()).orElseThrow());
+                        responsible.setValue(userService.getUserById(node.getResponsible()));
                     }
                     TextField executorClass = new TextField("Component");
                     executorClass.setValue(node.getExecutorClass());
@@ -120,7 +121,7 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
                         if(responsible.getValue()!=null) {
                             node.setResponsible(responsible.getValue().getId());
                         }
-                        wfNodeRepository.save(node);
+                        wfNodeService.save(node);
                         editNodeDialog.close();
                     });
                     if(node.getType().equals(WorkflowNodeTypes.BATCH_ACTION) || node.getType().equals(WorkflowNodeTypes.BATCH_DECISION)) {

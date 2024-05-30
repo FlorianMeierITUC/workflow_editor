@@ -19,9 +19,6 @@ public class Workflow {
     @NonNull
     String name;
 
-    @NonNull
-    WorkflowNode startNode;
-
     String description;
 
     boolean active;

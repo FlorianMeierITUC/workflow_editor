@@ -61,10 +61,6 @@ public class TodoList extends VerticalLayout implements BeforeEnterObserver {
     private List<Todo> todos = new ArrayList<>();
     private GridListDataView<Todo> todoView;
 
-    private Grid<WorkflowItem> workflowTodosGrid;
-    private List<WorkflowItem> workflowTodos = new ArrayList<>();
-    private GridListDataView<WorkflowItem> workflowTodosView;
-
     private Grid<WorkflowItem> myWorkflowItemsGrid;
     private List<WorkflowItem> myWorkflowItems = new ArrayList<>();
     private GridListDataView<WorkflowItem> myWorkflowItemsView;
@@ -78,8 +74,7 @@ public class TodoList extends VerticalLayout implements BeforeEnterObserver {
             todoView = todoGrid.setItems(todos);
             todoView.addItemCountChangeListener(e -> Notification.show(e.getItemCount() + " items available"));
 
-            workflowTodos = workflowItemService.getAllWorkflowItemsAssignedToTheCurrentUser();
-            workflowTodosView = workflowTodosGrid.setItems(workflowTodos);
+
 
             myWorkflowItems = workflowItemService.getAllWorkflowItemsCreatedByTheCurrentUser();
             myWorkflowItemsView = myWorkflowItemsGrid.setItems(myWorkflowItems);
@@ -105,11 +100,6 @@ public class TodoList extends VerticalLayout implements BeforeEnterObserver {
         add(new H4("Todos:"));
         todoGrid = createTodoGrid();
         add(todoGrid);
-
-        add(new Hr());
-        add(new H4("My workflow todos:"));
-        workflowTodosGrid = createMyWorkflowTodosGrid();
-        add(workflowTodosGrid);
 
         add(new Hr());
         add(new H4("My workflow items:"));
@@ -173,77 +163,11 @@ public class TodoList extends VerticalLayout implements BeforeEnterObserver {
         return todoGrid;
     }
 
-    private Grid<WorkflowItem> createMyWorkflowTodosGrid() {
-        Grid<WorkflowItem> workflowTodosGrid = new Grid<>(WorkflowItem.class, false);
-        workflowTodosGrid.addColumn(wfItem -> workflowRepository.findById(wfItem.getWorkflowId()).orElseThrow().getName()).setHeader("Workflow").setAutoWidth(true);
-        workflowTodosGrid.addColumn(wfItem -> workflowNodeRepository.findById(wfItem.getCurrentNode()).getTitle()).setHeader("Current Node").setAutoWidth(true);
-        workflowTodosGrid.addColumn(WorkflowItem::getTitle).setHeader("Title").setAutoWidth(true);
-        workflowTodosGrid.addComponentColumn(selectedWfItem -> {
-            Div buttonDiv = new Div();
-            Button editButton = new Button("Edit");
-            editButton.addClickListener(e -> {
-                WorkflowNode node = workflowNodeRepository.findById(selectedWfItem.getCurrentNode());
-                getUI().ifPresent(ui -> ui.navigate("/"+node.getId()+"/"+selectedWfItem.getId().toString()));
-            });
-            Button historyButton = new Button("Show history");
-            historyButton.addClickListener(e -> {
-                WorkflowItemHistoryDialog dialog = new WorkflowItemHistoryDialog(workflowItemService.getWorkflowItemHistory(selectedWfItem));
-                dialog.open();
-            });
-            Button forwardButton = new Button("Forward");
-            forwardButton.addClickListener(e -> {
-                Dialog dialog = new Dialog();
-                Button closeButton = new Button(new Icon("lumo", "cross"),
-                        (e2) -> dialog.close());
-                closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-                dialog.getHeader().add(closeButton);
-                Select<User> responsible = new Select<>();
-                responsible.setLabel("Responsible");
-                responsible.setItems(userService.getAllUsersExceptTheCurrentUser());
-                responsible.setItemLabelGenerator(User::getName);
-                TextArea message = new TextArea();
-                Button saveButton = new Button("Save", e3 -> {
-                    selectedWfItem.setCurrentResponsible(responsible.getValue().getId());
-                    selectedWfItem.setMongoTemplate(mongoTemplate);
-                    selectedWfItem.save();
-                    User user = UserService.getCurrentUser();
-                    Workflow wf = workflowRepository.findById(selectedWfItem.getWorkflowId()).orElseThrow();
-                    WorkflowNode node = workflowNodeRepository.findById(selectedWfItem.getCurrentNode());
-                    WorkflowItemHistory history = WorkflowItemHistory.builder()
-                            .itemId(selectedWfItem.getId())
-                            .workflowName(wf.getName())
-                            .nodeTitle(node.getTitle())
-                            .itemTitle(selectedWfItem.getTitle())
-                            .message("Item forwarded: "+user.getName()+" -> "+responsible.getValue().getName()+". Message: "+message.getValue())
-                            .responsibleUser(user.getName())
-                            .createdAt(LocalDateTime.now())
-                            .build();
-                    workflowItemService.writeWorkflowHistoryEntry(history);
-                    workflowTodosView.removeItem(selectedWfItem);
-                    dialog.close();
-                });
-                dialog.add(new Span("Forward item to:"));
-                dialog.add(responsible);
-                dialog.add(new Span("Message:"));
-                dialog.add(message);
-                dialog.getFooter().add(saveButton);
-                dialog.open();
-            });
-            buttonDiv.add(editButton);
-            buttonDiv.add(forwardButton);
-            buttonDiv.add(historyButton);
-            return buttonDiv;
-        });
-        workflowTodosGrid.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COMPACT);
-        workflowTodosGrid.setAllRowsVisible(true);
-        return workflowTodosGrid;
-    }
-
     private Grid<WorkflowItem> createMyWorkflowItemsGrid() {
         Grid<WorkflowItem> myWorkflowItemsGrid = new Grid<>(WorkflowItem.class, false);
         myWorkflowItemsGrid.addColumn(wfItem -> wfItem.getCreatedAt().format(formatter)).setHeader("Created at").setAutoWidth(true);
         myWorkflowItemsGrid.addColumn(wfItem -> workflowRepository.findById(wfItem.getWorkflowId()).orElseThrow().getName()).setHeader("Workflow").setAutoWidth(true);
-        myWorkflowItemsGrid.addColumn(wfItem -> workflowNodeRepository.findById(wfItem.getCurrentNode()).getTitle()).setHeader("Current Node").setAutoWidth(true);
+        myWorkflowItemsGrid.addColumn(wfItem -> workflowNodeRepository.findById(wfItem.getCurrentNode()).get().getTitle()).setHeader("Current Node").setAutoWidth(true);
         myWorkflowItemsGrid.addColumn(WorkflowItem::getTitle).setHeader("Title").setAutoWidth(true);
         myWorkflowItemsGrid.addComponentColumn(selectedWfItem -> {
             Div buttonDiv = new Div();
@@ -251,7 +175,7 @@ public class TodoList extends VerticalLayout implements BeforeEnterObserver {
             editButton.addClickListener(e -> {
                 Dialog dialog = new Dialog();
                 List<WorkflowNode> nodes = workflowNodeRepository.findByIdWorkflow(selectedWfItem.getWorkflowId());
-                dialog.add(new WorkflowView(nodes, workflowNodeRepository.findById(selectedWfItem.getCurrentNode())));
+                dialog.add(new WorkflowView(nodes, workflowNodeRepository.findById(selectedWfItem.getCurrentNode()).orElseThrow()));
                 dialog.open();
             });
             Button historyButton = new Button("Show history");
