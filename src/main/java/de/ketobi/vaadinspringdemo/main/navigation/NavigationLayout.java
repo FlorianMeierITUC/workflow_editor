@@ -6,6 +6,8 @@ import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.component.sidenav.SideNavItem;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import de.ketobi.vaadinspringdemo.main.navigation.components.AddFolderButton;
@@ -16,7 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 @SpringComponent
 @UIScope
-public class NavigationLayout extends VerticalLayout {
+public class NavigationLayout extends VerticalLayout implements BeforeEnterObserver {
     private final NavigationService navigationService;
     private final Div navigationDiv = new Div();
 
@@ -24,9 +26,7 @@ public class NavigationLayout extends VerticalLayout {
     public NavigationLayout(NavigationService navigationService) {
         this.navigationService = navigationService;
         setSizeUndefined();
-        if (UserService.getCurrentUser() != null) {
-            refresh();
-        }
+        System.out.println("NavigationLayout constructor called for user:  "+UserService.getCurrentUser());
     }
 
     public void refresh(){
@@ -56,5 +56,12 @@ public class NavigationLayout extends VerticalLayout {
         //<theme-editor-local-classname>
         addFolderButton.addClassName("navigation-layout-button-1");
         add(addFolderButton);
+    }
+
+    @Override
+    public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
+        if (UserService.getCurrentUser() != null) {
+            refresh();
+        }
     }
 }

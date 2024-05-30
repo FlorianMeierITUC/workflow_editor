@@ -2,6 +2,8 @@
  * This file has been created by the Vaadin Theme Editor. Please note that
  * manual changes to individual CSS properties may be overwritten by the theme editor.
  */
+h1.main-layout-h1-1 { padding:var(--lumo-space-s); }
+
 hr {
   border-width:0px;
   font-size:var(--lumo-font-size-s);

@@ -15,14 +15,12 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import de.ketobi.vaadinspringdemo.entities.Todo;
 import de.ketobi.vaadinspringdemo.entities.User;
 import de.ketobi.vaadinspringdemo.repositories.UserRepository;
 import de.ketobi.vaadinspringdemo.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 @Route(value = "user", layout = MainLayout.class)

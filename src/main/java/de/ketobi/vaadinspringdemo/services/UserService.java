@@ -1,5 +1,6 @@
 package de.ketobi.vaadinspringdemo.services;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.VaadinSession;
 import de.ketobi.vaadinspringdemo.entities.User;
 import de.ketobi.vaadinspringdemo.repositories.UserRepository;
@@ -29,7 +30,15 @@ public class UserService {
         return null;
     }
 
+    public static void logout() {
+        System.out.println("Logging out user.");
+        VaadinSession.getCurrent().setAttribute("user", null);
+    }
+
     public static User getCurrentUser() {
+        if(((User) VaadinSession.getCurrent().getAttribute("user"))!=null) {
+            System.out.println("Getting current user. " + ((User) VaadinSession.getCurrent().getAttribute("user")).getName());
+        }
         return (User) VaadinSession.getCurrent().getAttribute("user");
     }
 
