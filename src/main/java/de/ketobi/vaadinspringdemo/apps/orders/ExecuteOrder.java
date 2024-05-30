@@ -7,6 +7,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.*;
 import de.ketobi.vaadinspringdemo.apps.orders.entities.Order;
+import de.ketobi.vaadinspringdemo.apps.orders.services.OrderService;
 import de.ketobi.vaadinspringdemo.main.login.Login;
 import de.ketobi.vaadinspringdemo.main.ui.MainLayout;
 import de.ketobi.vaadinspringdemo.apps.orders.repositories.OrderRepository;
@@ -17,7 +18,7 @@ import org.bson.types.ObjectId;
 @Route(value = "664dd9de49a7d57f42c0a1e7", layout = MainLayout.class)
 @PageTitle("Execute order")
 public class ExecuteOrder extends VerticalLayout implements HasUrlParameter<String>, BeforeEnterObserver {
-    private final OrderRepository orderRepository;
+    private final OrderService orderService;
     private Order order;
     private TextField itemField;
     private TextField descriptionField;
@@ -26,8 +27,8 @@ public class ExecuteOrder extends VerticalLayout implements HasUrlParameter<Stri
     private TextField message;
     private TextField orderNumber;
 
-    public ExecuteOrder(OrderRepository orderRepository, WorkflowItemService workflowItemService){
-        this.orderRepository = orderRepository;
+    public ExecuteOrder(OrderService orderService, WorkflowItemService workflowItemService){
+        this.orderService = orderService;
         add(new H3("Execute order"));
         add(new Paragraph("Bitte führen sie die Bestellung durch."));
         itemField = new TextField("Item");
@@ -48,7 +49,7 @@ public class ExecuteOrder extends VerticalLayout implements HasUrlParameter<Stri
         Button executedButton = new Button("Order executed");
         executedButton.addClickListener(e -> {
             order.setOrderNumber(orderNumber.getValue());
-            orderRepository.save(order);
+            orderService.save(order);
             workflowItemService.nextNode(order, null,  message.getValue());
             executedButton.getUI().ifPresent(ui -> ui.navigate("todos"));
         });
@@ -68,8 +69,8 @@ public class ExecuteOrder extends VerticalLayout implements HasUrlParameter<Stri
     }
 
     @Override
-    public void setParameter(BeforeEvent beforeEvent, String s) {
-        this.order = orderRepository.findById(new ObjectId(s)).orElseThrow();
+    public void setParameter(BeforeEvent beforeEvent, String orderId) {
+        this.order = orderService.getOrderById(orderId);
         itemField.setValue(order.getItem());
         descriptionField.setValue(order.getDescription());
         supplierField.setValue(order.getSupplier());

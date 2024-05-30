@@ -11,6 +11,8 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import de.ketobi.vaadinspringdemo.apps.orders.entities.Order;
+import de.ketobi.vaadinspringdemo.apps.orders.services.OrderService;
+import de.ketobi.vaadinspringdemo.apps.workflows.services.WorkflowService;
 import de.ketobi.vaadinspringdemo.main.login.Login;
 import de.ketobi.vaadinspringdemo.main.ui.MainLayout;
 import de.ketobi.vaadinspringdemo.apps.orders.repositories.OrderRepository;
@@ -27,8 +29,8 @@ import static de.ketobi.vaadinspringdemo.apps.workflows.entities.WorkflowTypes.O
 @Route(value = "createOrder", layout = MainLayout.class)
 @PageTitle("Create order")
 public class CreateOrder extends VerticalLayout implements BeforeEnterObserver {
-    private final OrderRepository orderRepository;
-    private final WorkflowRepository workflowRepository;
+    private final OrderService orderService;
+    private final WorkflowService workflowService;
     private final WorkflowItemService workflowItemService;
     private TextField item = new TextField("Item to order *");
     private TextArea description = new TextArea("Description");
@@ -44,10 +46,10 @@ public class CreateOrder extends VerticalLayout implements BeforeEnterObserver {
         }
     }
 
-    public CreateOrder(OrderRepository orderRepository, WorkflowRepository workflowRepository, WorkflowItemService workflowItemService){
+    public CreateOrder(OrderService orderService, WorkflowService workflowService, WorkflowItemService workflowItemService){
 
-        this.orderRepository = orderRepository;
-        this.workflowRepository = workflowRepository;
+        this.orderService = orderService;
+        this.workflowService = workflowService;
         this.workflowItemService = workflowItemService;
         add(item);
         add(description);
@@ -65,13 +67,13 @@ public class CreateOrder extends VerticalLayout implements BeforeEnterObserver {
                     .description(description.getValue())
                     .reason(reason.getValue())
                     .supplier(supplier.getValue())
-                    .price(new BigDecimal(price.getValue()))
+                    .price(BigDecimal.valueOf(price.getValue()))
                     .createdBy(UserService.getCurrentUser().getId())
                     .createdAt(LocalDateTime.now())
                     .build();
-            order.setWorkflow(workflowRepository.findByName(ORDER_WORKFLOW.getName()));
-            order.setCurrentNode(workflowRepository.findById(order.getWorkflowId()).orElseThrow().getStartNode());
-            orderRepository.save(order);
+            order.setWorkflow(workflowService.findByName(ORDER_WORKFLOW.getName()));
+            order.setCurrentNode(workflowService.findById(order.getWorkflowId()).getStartNode());
+            orderService.save(order);
             workflowItemService.startWorkflow(order);
             item.clear();
             description.clear();

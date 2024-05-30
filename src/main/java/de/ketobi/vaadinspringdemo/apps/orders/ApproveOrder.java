@@ -7,6 +7,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.*;
 import de.ketobi.vaadinspringdemo.apps.orders.entities.Order;
+import de.ketobi.vaadinspringdemo.apps.orders.services.OrderService;
 import de.ketobi.vaadinspringdemo.main.login.Login;
 import de.ketobi.vaadinspringdemo.main.ui.MainLayout;
 import de.ketobi.vaadinspringdemo.apps.orders.repositories.OrderRepository;
@@ -17,15 +18,15 @@ import org.bson.types.ObjectId;
 @Route(value = "665461bacb82ed217dceb578", layout = MainLayout.class)
 @PageTitle("Approve Order")
 public class ApproveOrder extends VerticalLayout implements HasUrlParameter<String>, BeforeEnterObserver {
-    private final OrderRepository orderRepository;
+    private final OrderService orderService;
     private Order order;
     private TextField itemField;
     private TextField descriptionField;
     private TextField supplierField;
     private TextField priceField;
 
-    public ApproveOrder(OrderRepository orderRepository, WorkflowItemService workflowItemService){
-        this.orderRepository = orderRepository;
+    public ApproveOrder(OrderService orderService, WorkflowItemService workflowItemService){
+        this.orderService = orderService;
         add(new H3("Approve Order"));
         add(new Paragraph("Please review the order details."));
         itemField = new TextField("Item");
@@ -57,8 +58,8 @@ public class ApproveOrder extends VerticalLayout implements HasUrlParameter<Stri
     }
 
     @Override
-    public void setParameter(BeforeEvent beforeEvent, String s) {
-        this.order = orderRepository.findById(new ObjectId(s)).orElseThrow();
+    public void setParameter(BeforeEvent beforeEvent, String orderId) {
+        this.order = orderService.getOrderById(orderId);
         itemField.setValue(order.getItem());
         descriptionField.setValue(order.getDescription());
         supplierField.setValue(order.getSupplier());
