@@ -1,0 +1,33 @@
+package de.ketobi.vaadinspringdemo.main.user.entities;
+
+import lombok.*;
+import org.bson.types.ObjectId;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+@Data
+@Document
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@NoArgsConstructor
+@AllArgsConstructor
+public class User {
+    @Id
+    @EqualsAndHashCode.Include
+    @NonNull
+    ObjectId id;
+
+    @EqualsAndHashCode.Include
+    @NonNull
+    String name;
+
+    @NonNull
+    String email;
+
+    @NonNull
+    String password;
+
+    @Override
+    public String toString() {
+        return name+" ("+email+")";
+    }
+}

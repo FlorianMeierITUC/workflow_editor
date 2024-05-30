@@ -1,8 +1,9 @@
 package de.ketobi.vaadinspringdemo.views;
-import de.ketobi.vaadinspringdemo.entities.Workflow;
-import de.ketobi.vaadinspringdemo.repositories.UserRepository;
-import de.ketobi.vaadinspringdemo.repositories.WorkflowNodeRepository;
-import de.ketobi.vaadinspringdemo.repositories.WorkflowRepository;
+import de.ketobi.vaadinspringdemo.apps.workflows.WorkflowEditor;
+import de.ketobi.vaadinspringdemo.apps.workflows.entities.Workflow;
+import de.ketobi.vaadinspringdemo.main.user.repositories.UserRepository;
+import de.ketobi.vaadinspringdemo.apps.workflows.repositories.WorkflowNodeRepository;
+import de.ketobi.vaadinspringdemo.apps.workflows.repositories.WorkflowRepository;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

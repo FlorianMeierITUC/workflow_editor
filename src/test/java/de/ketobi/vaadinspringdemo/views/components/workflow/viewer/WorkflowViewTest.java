@@ -1,8 +1,8 @@
 package de.ketobi.vaadinspringdemo.views.components.workflow.viewer;
 
-import de.ketobi.vaadinspringdemo.entities.WorkflowNode;
-import de.ketobi.vaadinspringdemo.entities.WorkflowNodeTypes;
-import de.ketobi.vaadinspringdemo.views.components.workflow.viewer.WorkflowView;
+import de.ketobi.vaadinspringdemo.apps.workflows.entities.WorkflowNode;
+import de.ketobi.vaadinspringdemo.apps.workflows.entities.WorkflowNodeTypes;
+import de.ketobi.vaadinspringdemo.apps.workflows.viewer.WorkflowView;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
