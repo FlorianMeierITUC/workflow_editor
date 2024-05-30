@@ -1,7 +1,7 @@
 package de.ketobi.vaadinspringdemo.main.workflows.services;
 
 import de.ketobi.vaadinspringdemo.main.workflows.batchnodes.Batchnode;
-import de.ketobi.vaadinspringdemo.apps.workflows.entities.*;
+import de.ketobi.vaadinspringdemo.main.workflows.entities.*;
 import de.ketobi.vaadinspringdemo.main.user.entities.User;
 import de.ketobi.vaadinspringdemo.main.workflows.entities.*;
 import de.ketobi.vaadinspringdemo.main.workflows.repositories.WorkflowItemHistoryRepository;
