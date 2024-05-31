@@ -26,12 +26,12 @@ public class NavigationLayout extends VerticalLayout implements BeforeEnterObser
     public NavigationLayout(NavigationService navigationService) {
         this.navigationService = navigationService;
         setSizeUndefined();
-        System.out.println("NavigationLayout constructor called for user:  "+UserService.getCurrentUser());
     }
 
     public void refresh(){
         removeAll();
         navigationDiv.removeAll();
+
         navigationService.getAllNavigationFolders().forEach(folder -> {
             SideNav folderNav = new SideNav();
             folderNav.setLabel(folder.getLabel());

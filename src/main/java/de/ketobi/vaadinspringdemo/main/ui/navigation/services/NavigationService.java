@@ -8,6 +8,7 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -22,11 +23,15 @@ public class NavigationService {
     }
 
     public List<NavigationFolder> getAllNavigationFolders() {
-        return folderRepository.findAll();
+        List<NavigationFolder> folders = folderRepository.findAll();
+        folders.sort(Comparator.comparingInt(NavigationFolder::getIndex));
+        return folders;
     }
 
     public List<NavigationTarget> getTargetsByFolderId(ObjectId folderId) {
-        return targetRepository.findByIdFolder(folderId);
+        List<NavigationTarget> targets = targetRepository.findByIdFolder(folderId);
+        targets.sort(Comparator.comparingInt(NavigationTarget::getIndex));
+        return targets;
     }
 
     public void saveNewFolder(String label, Integer index) {
