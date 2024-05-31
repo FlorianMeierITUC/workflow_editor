@@ -13,6 +13,7 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import de.ketobi.vaadinspringdemo.apps.orders.components.OrderDetailsDiv;
 import de.ketobi.vaadinspringdemo.apps.orders.entities.Order;
 import de.ketobi.vaadinspringdemo.apps.orders.services.OrderService;
 import de.ketobi.vaadinspringdemo.main.login.Login;
@@ -37,7 +38,7 @@ public class OrderList extends VerticalLayout implements BeforeEnterObserver {
     private Grid<Order> ordersGrid;
     private List<Order> orders = new ArrayList<>();
     private GridListDataView<Order> ordersView;
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
 
     public OrderList(OrderService orderService, WorkflowNodeService workflowNodeService, WorkflowItemService workflowItemService) {
         this.orderService = orderService;
@@ -60,10 +61,17 @@ public class OrderList extends VerticalLayout implements BeforeEnterObserver {
 
     private Grid<Order> createOrdersGrid() {
         Grid<Order> ordersGrid = new Grid<>(Order.class, false);
+        ordersGrid.addComponentColumn(selectedOrder -> {
+            Button detailsButton = new Button("Show details");
+            detailsButton.addClickListener(e -> {
+                Dialog dialog = new Dialog();
+                dialog.add(new OrderDetailsDiv(selectedOrder, orderService));
+                dialog.open();
+            });
+            return detailsButton;
+        });
         ordersGrid.addColumn(order -> order.getCreatedAt().format(formatter)).setHeader("Created at").setAutoWidth(true);
         ordersGrid.addColumn(Order::getItem).setHeader("Item").setAutoWidth(true);
-        ordersGrid.addColumn(Order::getDescription).setHeader("Description").setAutoWidth(true);
-        ordersGrid.addColumn(Order::getReason).setHeader("Reason").setAutoWidth(true);
         ordersGrid.addColumn(Order::getSupplier).setHeader("Supplier").setAutoWidth(true);
         ordersGrid.addColumn(order -> order.getPrice().toString()).setHeader("Price").setAutoWidth(true);
         ordersGrid.addColumn(Order::getOrderNumber).setHeader("Order Number").setAutoWidth(true);

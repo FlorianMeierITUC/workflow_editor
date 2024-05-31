@@ -49,4 +49,8 @@ public class OrderService {
     public User getCurrentResponsible(Order order) {
         return userService.getUserById(order.getCurrentResponsible());
     }
+
+    public User getCreatedBy(Order order) {
+        return userService.getUserById(order.getCreatedBy());
+    }
 }

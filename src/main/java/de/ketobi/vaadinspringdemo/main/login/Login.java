@@ -21,7 +21,6 @@ public class Login extends VerticalLayout {
         loginForm.addLoginListener(e -> {
             User user = userService.authenticate(e.getUsername(), e.getPassword());
             if (user != null) {
-                System.out.println("User " + user.getName() + " logged in. Setting attribute and navigating to welcome page.");
                 VaadinSession.getCurrent().setAttribute("user", user);
                 loginForm.getUI().ifPresent(ui -> ui.navigate("welcome"));
             } else {

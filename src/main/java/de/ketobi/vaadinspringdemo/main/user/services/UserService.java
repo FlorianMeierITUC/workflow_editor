@@ -30,9 +30,6 @@ public class UserService {
     }
 
     public static User getCurrentUser() {
-        if(VaadinSession.getCurrent().getAttribute("user") !=null) {
-            System.out.println("Getting current user. " + ((User) VaadinSession.getCurrent().getAttribute("user")).getName());
-        }
         return (User) VaadinSession.getCurrent().getAttribute("user");
     }
 
@@ -46,6 +43,9 @@ public class UserService {
     }
 
     public User getUserById(ObjectId id){
+        if(id.equals(new ObjectId("000000000000000000000000"))) {
+            return getSystemUser();
+        }
         return userRepository.findById(id).orElseThrow();
     }
 

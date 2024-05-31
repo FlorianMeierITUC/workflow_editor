@@ -35,7 +35,7 @@ import java.util.List;
 public class TodoList extends VerticalLayout implements BeforeEnterObserver {
     private final TodoService todoService;
     private final UserService userService;
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
 
     private TextField name = new TextField("Name *");
     private TextArea description = new TextArea("Description");

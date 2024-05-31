@@ -17,9 +17,8 @@ public class OrderSendMail implements Batchnode{
     }
     @Override
     public void execute(ObjectId itemId) {
+        //This is a dummy implementation
         Order order = orderRepository.findById(itemId).orElseThrow();
-
-        System.out.println("Sending mail for order with id: "+itemId);
         workflowItemService.nextNode(order, null, "Mail sent");
     }
 }

@@ -37,7 +37,7 @@ public class WorkflowItemsList extends VerticalLayout implements BeforeEnterObse
     private Grid<WorkflowItem> myWorkflowItemsGrid;
     private List<WorkflowItem> myWorkflowItems = new ArrayList<>();
     private GridListDataView<WorkflowItem> myWorkflowItemsView;
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
 
     public WorkflowItemsList(WorkflowItemService workflowItemService, WorkflowService workflowService, WorkflowNodeService workflowNodeService) {
         this.workflowItemService = workflowItemService;

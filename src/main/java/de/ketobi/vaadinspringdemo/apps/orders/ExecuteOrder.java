@@ -50,18 +50,18 @@ public class ExecuteOrder extends VerticalLayout implements HasUrlParameter<Stri
             order.setOrderNumber(orderNumber.getValue());
             orderService.save(order);
             workflowItemService.nextNode(order, null,  message.getValue());
-            executedButton.getUI().ifPresent(ui -> ui.navigate("todos"));
+            executedButton.getUI().ifPresent(ui -> ui.navigate("workflowtickets"));
         });
 
         Button cancelButton = new Button("Cancel");
         cancelButton.addClickListener(e -> {
-            cancelButton.getUI().ifPresent(ui -> ui.navigate("todos"));
+            cancelButton.getUI().ifPresent(ui -> ui.navigate("workflowtickets"));
         });
 
         add(itemField, descriptionField, supplierField, priceField);
-        add(new Paragraph("Wenn sie möchten können sie hier ein Kommentar anhängen"));
+        add(new Paragraph("Please add a message. This message will be visible to the next user in the workflow."));
         add(message);
-        add(new Paragraph("Wenn sie nach der durchführung der Bestellung eine Bestellnummer erhalten haben geben sie diese bitte hier ein."));
+        add(new Paragraph("Please enter the order number provided by the supplier here."));
         add(orderNumber);
         add(executedButton, cancelButton);
 

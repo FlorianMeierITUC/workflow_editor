@@ -33,7 +33,6 @@ import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowService;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,7 +44,6 @@ public class WorkflowTicketList  extends VerticalLayout implements BeforeEnterOb
     private final WorkflowNodeService workflowNodeService;
     private final UserService userService;
     private final MongoTemplate mongoTemplate;
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
 
     private Grid<WorkflowItem> workflowTicketsGrid;
     private List<WorkflowItem> workflowTickets = new ArrayList<>();

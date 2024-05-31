@@ -6,7 +6,6 @@ import de.ketobi.vaadinspringdemo.main.workflows.batchnodes.Batchnode;
 import de.ketobi.vaadinspringdemo.main.workflows.entities.*;
 import de.ketobi.vaadinspringdemo.main.workflows.repositories.WorkflowItemHistoryRepository;
 import de.ketobi.vaadinspringdemo.main.workflows.repositories.WorkflowNodeRepository;
-import de.ketobi.vaadinspringdemo.main.workflows.repositories.WorkflowRepository;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -44,16 +43,13 @@ public class WorkflowItemService {
     }
 
     public ArrayList<WorkflowItemHistory> getWorkflowItemHistory(WorkflowItem workflowItem) {
-        System.out.println("Getting workflow item history for "+workflowItem.getTitle()+" with id "+workflowItem.getId());
         return historyRepository.findByItemId(workflowItem.getId());
     }
 
     public List<WorkflowItem> getAllWorkflowItemsAssignedToTheCurrentUser() {
-        System.out.println("Getting all workflow items assigned to the current user");
         List<WorkflowItem> workflowItems = new ArrayList<>();
         for(WorkflowTypes type : WorkflowTypes.values()){
             List<? extends WorkflowItem> items = mongoTemplate.findAll(type.getEntity());
-            System.out.println("Number of Items: "+items.size());
             for(Object item : items){
                 WorkflowItem workflowItem = (WorkflowItem) item;
                 if(workflowItem.getCurrentResponsible()!=null && workflowItem.getCurrentResponsible().equals(UserService.getCurrentUser().getId())){
@@ -65,11 +61,9 @@ public class WorkflowItemService {
     }
 
     public List<WorkflowItem> getAllWorkflowItemsCreatedByTheCurrentUser() {
-        System.out.println("Getting all workflow items created by the current user");
         List<WorkflowItem> workflowItems = new ArrayList<>();
         for(WorkflowTypes type : WorkflowTypes.values()){
             List<? extends WorkflowItem> items = mongoTemplate.findAll(type.getEntity());
-            System.out.println("Number of Items: "+items.size());
             for(Object item : items){
                 WorkflowItem workflowItem = (WorkflowItem) item;
                 if(workflowItem.getCreatedBy()!=null && workflowItem.getCreatedBy().equals(UserService.getCurrentUser().getId())){
@@ -86,18 +80,12 @@ public class WorkflowItemService {
         WorkflowNode startNode = workflowService.getStartNode(wf.getId());
         workflowItem.setCurrentNode(startNode);
         workflowItem.setCurrentResponsible(startNode.getResponsible());
-        System.out.println("Workflow started");
-        System.out.println("Workflow item: " + workflowItem);
-        System.out.println("Workflow: "+wf);
-        System.out.println("Workflow start node: "+startNode);
-        System.out.println("Current node: "+workflowItem.getCurrentNode());
         workflowItem.setMongoTemplate(mongoTemplate);
         workflowItem.save();
         nextNode(workflowItem, null, "Workflow started");
     }
 
     public void nextNode(WorkflowItem workflowItem, Boolean success, String message) {
-        System.out.println("Next node");
         WorkflowNode currentNode = nodeRepository.findById(workflowItem.getCurrentNode()).orElseThrow();
         if(currentNode == null){
             throw new RuntimeException("Current node is null! That should not be possible... Database corrupted?");
@@ -122,9 +110,7 @@ public class WorkflowItemService {
                 .createdAt(LocalDateTime.now())
                 .build();
         historyRepository.save(history);
-        System.out.println("Workflow history entry was created");
         WorkflowNode nextNode = null;
-        System.out.println("Current node: "+currentNode);
         switch (currentNode.getType()) {
             case BATCH_DECISION:
             case USER_DECISION:
@@ -133,7 +119,6 @@ public class WorkflowItemService {
                 } else {
                     nextNode = getWorkflowNodeById(currentNode.getSuccessorNode_failure());
                 }
-                System.out.println("Moving workflow item from "+currentNode+" to "+nextNode);
                 workflowItem.setCurrentNode(nextNode);
                 break;
             case BATCH_ACTION:
@@ -141,7 +126,6 @@ public class WorkflowItemService {
             case USER_ACTION:
             case UNION:
                 nextNode = getWorkflowNodeById(currentNode.getSuccessorNodes().get(0));
-                System.out.println("Moving workflow item from "+currentNode+" to "+nextNode);
                 workflowItem.setCurrentNode(nextNode);
                 break;
             case END:
@@ -171,13 +155,10 @@ public class WorkflowItemService {
                     .build();
             historyRepository.save(historyEnd);
         }
-        System.out.println("Workflow item is now in the next node!");
-        System.out.println("Next node: "+nextNode);
         workflowItem.setCurrentResponsible(nextNode.getResponsible());
         workflowItem.setMongoTemplate(mongoTemplate);
         workflowItem.save();
         if(nextNode.getType() == WorkflowNodeTypes.BATCH_DECISION || nextNode.getType() == WorkflowNodeTypes.BATCH_ACTION){
-            System.out.println("Batch node");
             Batchnode batchnode = (Batchnode) context.getBean(nextNode.getExecutorClass());
             try {
                 batchnode.execute(workflowItem.getId());
