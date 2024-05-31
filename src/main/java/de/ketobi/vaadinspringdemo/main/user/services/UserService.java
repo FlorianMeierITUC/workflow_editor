@@ -57,4 +57,12 @@ public class UserService {
     public ArrayList<User> getAll() {
         return new ArrayList<>(userRepository.findAll());
     }
+
+    public void delete(User user) {
+        userRepository.delete(user);
+    }
+
+    public User save(User user) {
+        return userRepository.save(user);
+    }
 }

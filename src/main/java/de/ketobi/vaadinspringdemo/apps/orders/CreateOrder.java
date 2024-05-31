@@ -24,7 +24,7 @@ import java.time.LocalDateTime;
 
 import static de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowTypes.ORDER_WORKFLOW;
 
-@Route(value = "createOrder", layout = MainLayout.class)
+@Route(value = "createorder", layout = MainLayout.class)
 @PageTitle("Create order")
 public class CreateOrder extends VerticalLayout implements BeforeEnterObserver {
     private final OrderService orderService;

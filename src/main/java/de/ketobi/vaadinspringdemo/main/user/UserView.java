@@ -15,6 +15,7 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import de.ketobi.vaadinspringdemo.main.login.Login;
 import de.ketobi.vaadinspringdemo.main.ui.MainLayout;
 import de.ketobi.vaadinspringdemo.main.user.entities.User;
 import de.ketobi.vaadinspringdemo.main.user.repositories.UserRepository;
@@ -27,7 +28,7 @@ import java.util.ArrayList;
 @Route(value = "user", layout = MainLayout.class)
 @PageTitle("Create and manage users")
 public class UserView extends VerticalLayout implements BeforeEnterObserver {
-    private final UserRepository userRepository;
+    private final UserService userService;
     private TextField name = new TextField("Name *");
     private TextField email = new TextField("Email");
     private TextField password = new TextField("Password *");
@@ -36,15 +37,14 @@ public class UserView extends VerticalLayout implements BeforeEnterObserver {
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
         if(UserService.getCurrentUser() == null){
-            //TODO removed for testing
-            //event.forwardTo(Login.class);
+            event.forwardTo(Login.class);
         }
     }
 
     @Autowired
-    public UserView(UserRepository userRepository){
-        this.userRepository = userRepository;
-        ArrayList<User> user = new ArrayList<>(userRepository.findAll());
+    public UserView(UserService userService){
+        this.userService = userService;
+        ArrayList<User> user = new ArrayList<>(userService.getAll());
         Grid<User> userGrid = new Grid<>(User.class, false);
         userGrid.addColumn(User::getId).setHeader("ID").setAutoWidth(true);
         userGrid.addColumn(User::getName).setHeader("Name").setAutoWidth(true);
@@ -52,7 +52,7 @@ public class UserView extends VerticalLayout implements BeforeEnterObserver {
         userGrid.addComponentColumn(selectedUser -> {
                     Button deleteButton = new Button("Delete");
                     deleteButton.addClickListener(e -> {
-                        userRepository.delete(selectedUser);
+                        userService.delete(selectedUser);
                         Notification notification = Notification
                                 .show("User deleted!");
                         notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
@@ -106,7 +106,7 @@ public class UserView extends VerticalLayout implements BeforeEnterObserver {
                 }
 
                 try {
-                    userRepository.save(user);
+                    userService.save(user);
                     Notification notification = Notification
                             .show("User created!");
                     notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
