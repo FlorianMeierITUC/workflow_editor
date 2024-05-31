@@ -2,6 +2,7 @@ package de.ketobi.vaadinspringdemo.apps.orders;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -28,7 +29,7 @@ public class ExecuteOrder extends VerticalLayout implements HasUrlParameter<Stri
     public ExecuteOrder(OrderService orderService, WorkflowItemService workflowItemService){
         this.orderService = orderService;
         add(new H3("Execute order"));
-        add(new Paragraph("Bitte führen sie die Bestellung durch."));
+        add(new H4("Please contact the supplier and place the order. After you have received the order number, please enter it here."));
         itemField = new TextField("Item");
         itemField.setReadOnly(true);
 

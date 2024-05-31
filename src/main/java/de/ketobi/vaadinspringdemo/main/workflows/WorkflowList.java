@@ -5,6 +5,7 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
@@ -21,8 +22,6 @@ import de.ketobi.vaadinspringdemo.main.user.services.UserService;
 import de.ketobi.vaadinspringdemo.main.workflows.entities.Workflow;
 import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowNode;
 import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowNodeTypes;
-import de.ketobi.vaadinspringdemo.main.workflows.repositories.WorkflowNodeRepository;
-import de.ketobi.vaadinspringdemo.main.workflows.repositories.WorkflowRepository;
 import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowNodeService;
 import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowService;
 import org.bson.types.ObjectId;
@@ -80,7 +79,7 @@ public class WorkflowList extends VerticalLayout implements BeforeEnterObserver 
         workflowView = wfGrid.setItems(workflowList);
 
         add(new H3("List of available workflows"));
-        add(new Paragraph("Create or display workflows"));
+        add(new H4("Create and display workflows"));
         add(new Paragraph("New Workflow:"));
         add(name);
         add(description);

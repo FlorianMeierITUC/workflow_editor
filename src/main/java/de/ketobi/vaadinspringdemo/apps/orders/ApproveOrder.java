@@ -2,7 +2,7 @@ package de.ketobi.vaadinspringdemo.apps.orders;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.*;
@@ -26,7 +26,7 @@ public class ApproveOrder extends VerticalLayout implements HasUrlParameter<Stri
     public ApproveOrder(OrderService orderService, WorkflowItemService workflowItemService){
         this.orderService = orderService;
         add(new H3("Approve Order"));
-        add(new Paragraph("Please review the order details."));
+        add(new H4("Please review the order details."));
         itemField = new TextField("Item");
         itemField.setReadOnly(true);
 

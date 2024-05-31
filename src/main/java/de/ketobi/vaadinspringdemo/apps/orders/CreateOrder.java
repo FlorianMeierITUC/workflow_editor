@@ -2,6 +2,8 @@ package de.ketobi.vaadinspringdemo.apps.orders;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextArea;
@@ -45,10 +47,11 @@ public class CreateOrder extends VerticalLayout implements BeforeEnterObserver {
     }
 
     public CreateOrder(OrderService orderService, WorkflowService workflowService, WorkflowItemService workflowItemService){
-
         this.orderService = orderService;
         this.workflowService = workflowService;
         this.workflowItemService = workflowItemService;
+        add(new H3("Create Order"));
+        add(new H4("Create a new order for an item you need. The order will be processed by the workflow system."));
         add(item);
         add(description);
         add(reason);

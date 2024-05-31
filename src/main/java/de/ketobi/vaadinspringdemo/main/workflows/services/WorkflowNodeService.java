@@ -26,12 +26,12 @@ public class WorkflowNodeService {
         nodeRepository.save(node);
     }
 
-    public WorkflowNode getById(String id) {
-        return nodeRepository.findById(new ObjectId(id)).orElseThrow();
+    public WorkflowNode getById(String nodeId) {
+        return nodeRepository.findById(new ObjectId(nodeId)).orElseThrow();
     }
 
-    public WorkflowNode getById(ObjectId id){
-        return nodeRepository.findById(id).orElseThrow();
+    public WorkflowNode getById(ObjectId nodeId){
+        return nodeRepository.findById(nodeId).orElseThrow();
     }
 
     public ArrayList<WorkflowNode> getAll(ObjectId workflowId) {

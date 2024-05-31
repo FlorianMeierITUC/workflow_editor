@@ -30,7 +30,7 @@ public class UserService {
     }
 
     public static User getCurrentUser() {
-        if(((User) VaadinSession.getCurrent().getAttribute("user"))!=null) {
+        if(VaadinSession.getCurrent().getAttribute("user") !=null) {
             System.out.println("Getting current user. " + ((User) VaadinSession.getCurrent().getAttribute("user")).getName());
         }
         return (User) VaadinSession.getCurrent().getAttribute("user");

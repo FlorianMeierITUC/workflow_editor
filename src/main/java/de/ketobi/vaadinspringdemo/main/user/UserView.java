@@ -5,6 +5,7 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
@@ -18,7 +19,6 @@ import com.vaadin.flow.router.Route;
 import de.ketobi.vaadinspringdemo.main.login.Login;
 import de.ketobi.vaadinspringdemo.main.ui.MainLayout;
 import de.ketobi.vaadinspringdemo.main.user.entities.User;
-import de.ketobi.vaadinspringdemo.main.user.repositories.UserRepository;
 import de.ketobi.vaadinspringdemo.main.user.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
@@ -65,6 +65,7 @@ public class UserView extends VerticalLayout implements BeforeEnterObserver {
         userView = userGrid.setItems(user);
 
         add(new H3("Users"));
+        add(new H4("The users in the system. You can create new users here."));
         add(new Paragraph("New User:"));
         add(name);
         add(email);

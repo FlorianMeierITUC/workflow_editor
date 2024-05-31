@@ -7,6 +7,8 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -63,6 +65,8 @@ public class WorkflowTicketList  extends VerticalLayout implements BeforeEnterOb
 
         workflowTicketsGrid = createMyWorkflowTicketsGrid();
         workflowTicketsView = workflowTicketsGrid.setItems(workflowTickets);
+        add(new H3("Workflow tickets"));
+        add(new H4("The workflow tickets assigned to me."));
         add(workflowTicketsGrid);
     }
 

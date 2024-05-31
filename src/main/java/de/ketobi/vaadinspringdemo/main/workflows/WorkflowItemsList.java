@@ -6,13 +6,16 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import de.ketobi.vaadinspringdemo.main.login.Login;
 import de.ketobi.vaadinspringdemo.main.ui.MainLayout;
+import de.ketobi.vaadinspringdemo.main.user.services.UserService;
 import de.ketobi.vaadinspringdemo.main.workflows.components.WorkflowItemHistoryDialog;
 import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowItem;
 import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowNode;
@@ -42,15 +45,19 @@ public class WorkflowItemsList extends VerticalLayout implements BeforeEnterObse
         this.workflowNodeService = workflowNodeService;
         this.myWorkflowItemsGrid = createMyWorkflowItemsGrid();
 
-        add(new H4("My workflow items:"));
+        add(new H3("Workflow items"));
+        add(new H4("The workflow items i created across all workflows."));
         add(myWorkflowItemsGrid);
     }
 
     @Override
-    public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
-        myWorkflowItemsGrid.setItems(workflowItemService.getAllWorkflowItemsAssignedToTheCurrentUser());
-        myWorkflowItems = workflowItemService.getAllWorkflowItemsCreatedByTheCurrentUser();
-        myWorkflowItemsView = myWorkflowItemsGrid.setItems(myWorkflowItems);
+    public void beforeEnter(BeforeEnterEvent event) {
+        if(UserService.getCurrentUser() == null){
+            event.forwardTo(Login.class);
+        } else {
+            myWorkflowItems = workflowItemService.getAllWorkflowItemsCreatedByTheCurrentUser();
+            myWorkflowItemsView = myWorkflowItemsGrid.setItems(myWorkflowItems);
+        }
     }
 
     private Grid<WorkflowItem> createMyWorkflowItemsGrid() {
