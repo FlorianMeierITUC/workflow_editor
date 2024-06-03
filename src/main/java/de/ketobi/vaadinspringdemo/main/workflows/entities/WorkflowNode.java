@@ -28,7 +28,6 @@ public class WorkflowNode {
     @NonNull
     WorkflowNodeTypes type;
 
-    String executorClass;
     ObjectId responsible;
     List<ObjectId> predecessorNodes = new ArrayList<>();
     List<ObjectId> successorNodes = new ArrayList<>();
@@ -41,5 +40,9 @@ public class WorkflowNode {
                 ", title='" + title + '\'' +
                 ", type=" + type +
                 '}';
+    }
+
+    public String getClassName() {
+        return id.toHexString();
     }
 }

@@ -22,14 +22,9 @@ import de.ketobi.vaadinspringdemo.main.login.Login;
 import de.ketobi.vaadinspringdemo.main.ui.MainLayout;
 import de.ketobi.vaadinspringdemo.main.user.entities.User;
 import de.ketobi.vaadinspringdemo.main.user.services.UserService;
-import de.ketobi.vaadinspringdemo.main.workflows.components.WorkflowItemHistoryDialog;
-import de.ketobi.vaadinspringdemo.main.workflows.entities.Workflow;
-import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowItem;
-import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowItemHistory;
-import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowNode;
-import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowItemService;
-import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowNodeService;
-import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowService;
+import de.ketobi.vaadinspringdemo.main.workflows.components.WorkflowTicketHistoryDialog;
+import de.ketobi.vaadinspringdemo.main.workflows.entities.*;
+import de.ketobi.vaadinspringdemo.main.workflows.services.*;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
 import java.time.LocalDateTime;
@@ -44,28 +39,34 @@ public class WorkflowTicketList  extends VerticalLayout implements BeforeEnterOb
     private final WorkflowNodeService workflowNodeService;
     private final UserService userService;
     private final MongoTemplate mongoTemplate;
+    private final WorkflowTicketService workflowTicketService;
+    private final WorkflowTicketHistoryService workflowTicketHistoryService;
 
-    private Grid<WorkflowItem> workflowTicketsGrid;
-    private List<WorkflowItem> workflowTickets = new ArrayList<>();
-    private GridListDataView<WorkflowItem> workflowTicketsView;
+    private Grid<WorkflowTicket> workflowTicketsGrid;
+    private List<WorkflowTicket> workflowTickets = new ArrayList<>();
+    private GridListDataView<WorkflowTicket> workflowTicketsView;
 
     public WorkflowTicketList(
             WorkflowItemService workflowItemService,
             WorkflowService workflowService,
             WorkflowNodeService workflowNodeService,
             UserService userService,
-            MongoTemplate mongoTemplate){
+            MongoTemplate mongoTemplate,
+            WorkflowTicketService workflowTicketService,
+            WorkflowTicketHistoryService workflowTicketHistoryService){
         this.workflowItemService = workflowItemService;
         this.workflowService = workflowService;
         this.workflowNodeService = workflowNodeService;
         this.userService = userService;
         this.mongoTemplate = mongoTemplate;
+        this.workflowTicketHistoryService = workflowTicketHistoryService;
 
         workflowTicketsGrid = createMyWorkflowTicketsGrid();
         workflowTicketsView = workflowTicketsGrid.setItems(workflowTickets);
         add(new H3("Workflow tickets"));
         add(new H4("The workflow tickets assigned to me."));
         add(workflowTicketsGrid);
+        this.workflowTicketService = workflowTicketService;
     }
 
     @Override
@@ -73,26 +74,28 @@ public class WorkflowTicketList  extends VerticalLayout implements BeforeEnterOb
         if(UserService.getCurrentUser() == null){
             event.forwardTo(Login.class);
         } else {
-            workflowTickets = workflowItemService.getAllWorkflowItemsAssignedToTheCurrentUser();
+            workflowTickets = workflowItemService.getAllWorkflowTicketsAssignedToTheCurrentUser();
             workflowTicketsView = workflowTicketsGrid.setItems(workflowTickets);
         }
     }
 
-    private Grid<WorkflowItem> createMyWorkflowTicketsGrid() {
-        Grid<WorkflowItem> workflowTicketsGrid = new Grid<>(WorkflowItem.class, false);
-        workflowTicketsGrid.addColumn(wfItem -> workflowService.getById(wfItem.getWorkflowId()).getName()).setHeader("Workflow").setAutoWidth(true);
-        workflowTicketsGrid.addColumn(wfItem -> workflowNodeService.getById(wfItem.getCurrentNode()).getTitle()).setHeader("Current Node").setAutoWidth(true);
-        workflowTicketsGrid.addColumn(WorkflowItem::getTitle).setHeader("Title").setAutoWidth(true);
-        workflowTicketsGrid.addComponentColumn(selectedWfItem -> {
+    private Grid<WorkflowTicket> createMyWorkflowTicketsGrid() {
+        Grid<WorkflowTicket> workflowTicketsGrid = new Grid<>(WorkflowTicket.class, false);
+        workflowTicketsGrid.addColumn(wfTicket -> workflowService.getById(wfTicket.getWorkflowId()).getName()).setHeader("Workflow").setAutoWidth(true);
+        workflowTicketsGrid.addColumn(wfTicket -> workflowNodeService.getById(wfTicket.getCurrentNodeId()).getTitle()).setHeader("Current Node").setAutoWidth(true);
+        workflowTicketsGrid.addColumn(wfTicket -> userService.getUserById(wfTicket.getCurrentResponsibleId()).getName()).setHeader("Current Responsible").setAutoWidth(true);
+        workflowTicketsGrid.addColumn(wfTicket -> WorkflowTypes.fromId(wfTicket.getWorkflowId()).getEntity().getName()).setHeader("Entity name").setAutoWidth(true);
+        //TODO add siblings column
+        workflowTicketsGrid.addComponentColumn(selectedWfTicket -> {
             Div buttonDiv = new Div();
             Button editButton = new Button("Edit");
             editButton.addClickListener(e -> {
-                WorkflowNode node = workflowNodeService.getById(selectedWfItem.getCurrentNode());
-                getUI().ifPresent(ui -> ui.navigate("/"+node.getId()+"/"+selectedWfItem.getId().toString()));
+                WorkflowNode node = workflowNodeService.getById(selectedWfTicket.getCurrentNodeId());
+                getUI().ifPresent(ui -> ui.navigate("/"+node.getId()+"/"+selectedWfTicket.getId()));
             });
             Button historyButton = new Button("Show history");
             historyButton.addClickListener(e -> {
-                WorkflowItemHistoryDialog dialog = new WorkflowItemHistoryDialog(workflowItemService.getWorkflowItemHistory(selectedWfItem));
+                WorkflowTicketHistoryDialog dialog = new WorkflowTicketHistoryDialog(workflowTicketHistoryService.getHistoryEntries(selectedWfTicket.getId()));
                 dialog.open();
             });
             Button forwardButton = new Button("Forward");
@@ -108,23 +111,22 @@ public class WorkflowTicketList  extends VerticalLayout implements BeforeEnterOb
                 responsible.setItemLabelGenerator(User::getName);
                 TextArea message = new TextArea();
                 Button saveButton = new Button("Save", e3 -> {
-                    selectedWfItem.setCurrentResponsible(responsible.getValue().getId());
-                    selectedWfItem.setMongoTemplate(mongoTemplate);
-                    selectedWfItem.save();
+                    selectedWfTicket.setCurrentResponsibleId(responsible.getValue().getId());
+                    workflowTicketService.save(selectedWfTicket);
                     User user = UserService.getCurrentUser();
-                    Workflow wf = workflowService.getById(selectedWfItem.getWorkflowId());
-                    WorkflowNode node = workflowNodeService.getById(selectedWfItem.getCurrentNode());
-                    WorkflowItemHistory history = WorkflowItemHistory.builder()
-                            .itemId(selectedWfItem.getId())
+                    Workflow wf = workflowService.getById(selectedWfTicket.getWorkflowId());
+                    WorkflowNode node = workflowNodeService.getById(selectedWfTicket.getCurrentNodeId());
+                    WorkflowTicketHistory history = WorkflowTicketHistory.builder()
+                            .ticketId(selectedWfTicket.getId())
                             .workflowName(wf.getName())
                             .nodeTitle(node.getTitle())
-                            .itemTitle(selectedWfItem.getTitle())
+                            .entityName(WorkflowTypes.fromId(selectedWfTicket.getWorkflowId()).getEntity().getName())
                             .message("Item forwarded: "+user.getName()+" -> "+responsible.getValue().getName()+". Message: "+message.getValue())
                             .responsibleUser(user.getName())
                             .createdAt(LocalDateTime.now())
                             .build();
                     workflowItemService.writeWorkflowHistoryEntry(history);
-                    workflowTicketsView.removeItem(selectedWfItem);
+                    workflowTicketsView.removeItem(selectedWfTicket);
                     dialog.close();
                 });
                 dialog.add(new Span("Forward item to:"));

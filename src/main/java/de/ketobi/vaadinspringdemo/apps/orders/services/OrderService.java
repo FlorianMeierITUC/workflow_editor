@@ -42,15 +42,15 @@ public class OrderService {
         return new ArrayList<>(orderRepository.findByCreatedBy(UserService.getCurrentUser().getId()));
     }
 
+    public User getCreatedBy(Order order) {
+        return userService.getUserById(order.getCreatedBy());
+    }
+
     public WorkflowNode getCurrentNode(Order order) {
-        return workflowNodeService.getById(order.getCurrentNode());
+        return null;
     }
 
     public User getCurrentResponsible(Order order) {
-        return userService.getUserById(order.getCurrentResponsible());
-    }
-
-    public User getCreatedBy(Order order) {
-        return userService.getUserById(order.getCreatedBy());
+        return null;
     }
 }

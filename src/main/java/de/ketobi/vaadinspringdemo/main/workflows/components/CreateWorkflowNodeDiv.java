@@ -13,12 +13,10 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
 import de.ketobi.vaadinspringdemo.main.user.entities.User;
-import de.ketobi.vaadinspringdemo.main.user.repositories.UserRepository;
 import de.ketobi.vaadinspringdemo.main.user.services.UserService;
 import de.ketobi.vaadinspringdemo.main.workflows.entities.Workflow;
 import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowNode;
 import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowNodeTypes;
-import de.ketobi.vaadinspringdemo.main.workflows.repositories.WorkflowNodeRepository;
 import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowNodeService;
 import org.bson.types.ObjectId;
 
@@ -36,7 +34,6 @@ public class CreateWorkflowNodeDiv extends Div{
     private TextField title = new TextField("Title *");
     private Select<WorkflowNodeTypes> type = new Select<>();
     private HorizontalLayout nodeDetailsInput = new HorizontalLayout();
-    private TextField executorClass = new TextField("Class");
     private Select<User> responsible = new Select<>();
     private Select<WorkflowNode> predecessor = new Select<>();
     private Select<WorkflowNode> successor = new Select<>();
@@ -210,25 +207,21 @@ public class CreateWorkflowNodeDiv extends Div{
                 div.add(predecessor);
                 div.add(successor_success);
                 div.add(successor_failure);
-                div.add(executorClass);
                 div.add(responsible);
                 break;
             case USER_ACTION:
                 div.add(predecessor);
                 div.add(successor);
-                div.add(executorClass);
                 div.add(responsible);
                 break;
             case BATCH_DECISION:
                 div.add(predecessor);
                 div.add(successor_success);
                 div.add(successor_failure);
-                div.add(executorClass);
                 break;
             case BATCH_ACTION:
                 div.add(predecessor);
                 div.add(successor);
-                div.add(executorClass);
                 break;
             default:
                 throw new IllegalStateException("Unexpected value: " + type);
@@ -256,7 +249,6 @@ public class CreateWorkflowNodeDiv extends Div{
                 node.setIdWorkflow(workFlow.getId());
                 node.setTitle(title.getValue());
                 node.setType(type.getValue());
-                node.setExecutorClass(executorClass.getValue());
                 if(responsible.getValue() != null) node.setResponsible(responsible.getValue().getId());
 
                 ArrayList<ObjectId> predecessors = new ArrayList<>();
@@ -322,7 +314,6 @@ public class CreateWorkflowNodeDiv extends Div{
 
                 //clear the input fields
                 title.clear();
-                executorClass.clear();
                 responsible.clear();
                 predecessor.clear();
                 multiplePredecessors.clear();

@@ -18,8 +18,8 @@ import de.ketobi.vaadinspringdemo.main.user.services.UserService;
 import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowItemService;
 import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowService;
 import org.bson.types.ObjectId;
+
 import java.time.LocalDateTime;
-import static de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowTypes.DEMO_WORKFLOW;
 
 @Route(value = "createdemoobject", layout = MainLayout.class)
 @PageTitle("Create a demo object")
@@ -47,8 +47,6 @@ public class CreateDemoObject extends VerticalLayout implements BeforeEnterObser
                     .createdAt(LocalDateTime.now())
                     .createdBy(UserService.getCurrentUser().getId())
                     .build();
-            demoObject.setWorkflow(workflowService.getByName(DEMO_WORKFLOW.getName()));
-            demoObject.setCurrentNode(workflowService.getStartNode(demoObject.getWorkflowId()));
             demoObjectService.save(demoObject);
             workflowItemService.startWorkflow(demoObject);
             nameField.clear();

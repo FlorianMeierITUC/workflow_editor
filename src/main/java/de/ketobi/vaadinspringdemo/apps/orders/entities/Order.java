@@ -1,6 +1,7 @@
 package de.ketobi.vaadinspringdemo.apps.orders.entities;
 
-import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowItem;
+import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowEntity;
+import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowTypes;
 import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -11,10 +12,8 @@ import java.time.LocalDateTime;
 
 @Data
 @Document
-@AllArgsConstructor
 @Builder
-@EqualsAndHashCode(callSuper=false)
-public class Order extends WorkflowItem {
+public class Order implements WorkflowEntity {
     @Id
     @EqualsAndHashCode.Include
     @NonNull
@@ -39,13 +38,14 @@ public class Order extends WorkflowItem {
 
     private ObjectId createdBy;
 
+
     @Override
-    public String getTitle() {
-        return item;
+    public WorkflowTypes getWorkflowType() {
+        return WorkflowTypes.ORDER_WORKFLOW;
     }
 
     @Override
-    public void saveItem() {
-        saveToDatabase(this);
+    public String getName() {
+        return item;
     }
 }

@@ -7,24 +7,24 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.Icon;
-import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowItemHistory;
+import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowTicketHistory;
 
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
-public class WorkflowItemHistoryDialog extends Dialog {
-    private Grid<WorkflowItemHistory> historyGrid;
+public class WorkflowTicketHistoryDialog extends Dialog {
+    private Grid<WorkflowTicketHistory> historyGrid;
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
 
-    public WorkflowItemHistoryDialog(ArrayList<WorkflowItemHistory> history) {
-        historyGrid = new Grid<>(WorkflowItemHistory.class, false);
+    public WorkflowTicketHistoryDialog(ArrayList<WorkflowTicketHistory> history) {
+        historyGrid = new Grid<>(WorkflowTicketHistory.class, false);
         historyGrid.setItems(history);
         historyGrid.addColumn(wfItemHistory -> wfItemHistory.getCreatedAt().format(formatter)).setHeader("Created At");
-        historyGrid.addColumn(WorkflowItemHistory::getWorkflowName).setHeader("Workflow");
-        historyGrid.addColumn(WorkflowItemHistory::getNodeTitle).setHeader("Node");
-        historyGrid.addColumn(WorkflowItemHistory::getItemTitle).setHeader("Item");
-        historyGrid.addColumn(WorkflowItemHistory::getMessage).setHeader("Message");
-        historyGrid.addColumn(WorkflowItemHistory::getResponsibleUser).setHeader("Responsible User");
+        historyGrid.addColumn(WorkflowTicketHistory::getWorkflowName).setHeader("Workflow");
+        historyGrid.addColumn(WorkflowTicketHistory::getNodeTitle).setHeader("Node");
+        historyGrid.addColumn(WorkflowTicketHistory::getEntityName).setHeader("Entity name");
+        historyGrid.addColumn(WorkflowTicketHistory::getMessage).setHeader("Message");
+        historyGrid.addColumn(WorkflowTicketHistory::getResponsibleUser).setHeader("Responsible User");
         historyGrid.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COMPACT);
         historyGrid.setAllRowsVisible(true);
 

@@ -52,6 +52,7 @@ public class WorkflowList extends VerticalLayout implements BeforeEnterObserver 
         this.workflowNodeService = workflowNodeService;
         ArrayList<Workflow> workflowList = new ArrayList<>(workflowService.findAll());
         Grid<Workflow> wfGrid = new Grid<>(Workflow.class, false);
+        wfGrid.addColumn(Workflow::getId).setHeader("ID").setAutoWidth(true);
         wfGrid.addColumn(Workflow::getName).setHeader("Name").setAutoWidth(true);
         wfGrid.addColumn(Workflow::getDescription).setHeader("Description").setAutoWidth(true);
         wfGrid.addComponentColumn(selectedWf -> {

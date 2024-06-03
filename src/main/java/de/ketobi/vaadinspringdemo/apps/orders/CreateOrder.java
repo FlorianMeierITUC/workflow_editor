@@ -72,8 +72,6 @@ public class CreateOrder extends VerticalLayout implements BeforeEnterObserver {
                     .createdBy(UserService.getCurrentUser().getId())
                     .createdAt(LocalDateTime.now())
                     .build();
-            order.setWorkflow(workflowService.getByName(ORDER_WORKFLOW.getName()));
-            order.setCurrentNode(workflowService.getStartNode(order.getWorkflowId()));
             orderService.save(order);
             workflowItemService.startWorkflow(order);
             item.clear();

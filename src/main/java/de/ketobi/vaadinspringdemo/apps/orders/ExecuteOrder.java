@@ -12,12 +12,17 @@ import de.ketobi.vaadinspringdemo.apps.orders.services.OrderService;
 import de.ketobi.vaadinspringdemo.main.login.Login;
 import de.ketobi.vaadinspringdemo.main.ui.MainLayout;
 import de.ketobi.vaadinspringdemo.main.user.services.UserService;
+import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowTicket;
 import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowItemService;
+import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowTicketService;
+import org.bson.types.ObjectId;
 
 @Route(value = "664dd9de49a7d57f42c0a1e7", layout = MainLayout.class)
 @PageTitle("Execute order")
 public class ExecuteOrder extends VerticalLayout implements HasUrlParameter<String>, BeforeEnterObserver {
     private final OrderService orderService;
+    private final WorkflowTicketService workflowTicketService;
+    private WorkflowTicket workflowTicket;
     private Order order;
     private TextField itemField;
     private TextField descriptionField;
@@ -26,8 +31,9 @@ public class ExecuteOrder extends VerticalLayout implements HasUrlParameter<Stri
     private TextField message;
     private TextField orderNumber;
 
-    public ExecuteOrder(OrderService orderService, WorkflowItemService workflowItemService){
+    public ExecuteOrder(OrderService orderService, WorkflowItemService workflowItemService, WorkflowTicketService workflowTicketService){
         this.orderService = orderService;
+        this.workflowTicketService = workflowTicketService;
         add(new H3("Execute order"));
         add(new H4("Please contact the supplier and place the order. After you have received the order number, please enter it here."));
         itemField = new TextField("Item");
@@ -49,7 +55,7 @@ public class ExecuteOrder extends VerticalLayout implements HasUrlParameter<Stri
         executedButton.addClickListener(e -> {
             order.setOrderNumber(orderNumber.getValue());
             orderService.save(order);
-            workflowItemService.nextNode(order, null,  message.getValue());
+            workflowItemService.nextNode(workflowTicket, null,  message.getValue());
             executedButton.getUI().ifPresent(ui -> ui.navigate("workflowtickets"));
         });
 
@@ -68,8 +74,9 @@ public class ExecuteOrder extends VerticalLayout implements HasUrlParameter<Stri
     }
 
     @Override
-    public void setParameter(BeforeEvent beforeEvent, String orderId) {
-        this.order = orderService.getOrderById(orderId);
+    public void setParameter(BeforeEvent beforeEvent, String ticketId) {
+        this.workflowTicket = workflowTicketService.getWorkflowTicket(new ObjectId(ticketId));
+        this.order = orderService.getOrderById(workflowTicket.getWorkflowEntityId());
         itemField.setValue(order.getItem());
         descriptionField.setValue(order.getDescription());
         supplierField.setValue(order.getSupplier());

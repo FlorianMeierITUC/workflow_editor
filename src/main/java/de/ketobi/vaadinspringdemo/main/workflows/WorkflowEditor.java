@@ -11,7 +11,6 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
-import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.*;
 import de.ketobi.vaadinspringdemo.main.login.Login;
 import de.ketobi.vaadinspringdemo.main.ui.MainLayout;
@@ -114,19 +113,13 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
                     if(node.getResponsible()!=null) {
                         responsible.setValue(userService.getUserById(node.getResponsible()));
                     }
-                    TextField executorClass = new TextField("Component");
-                    executorClass.setValue(node.getExecutorClass());
                     Button saveButton = new Button("Save", e -> {
-                        node.setExecutorClass(executorClass.getValue());
                         if(responsible.getValue()!=null) {
                             node.setResponsible(responsible.getValue().getId());
                         }
                         wfNodeService.save(node);
                         editNodeDialog.close();
                     });
-                    if(node.getType().equals(WorkflowNodeTypes.BATCH_ACTION) || node.getType().equals(WorkflowNodeTypes.BATCH_DECISION)) {
-                        editNodeLayout.add(executorClass);
-                    }
                     if(node.getType().equals(WorkflowNodeTypes.USER_ACTION) || node.getType().equals(WorkflowNodeTypes.USER_DECISION)) {
                         editNodeLayout.add(responsible);
                     }

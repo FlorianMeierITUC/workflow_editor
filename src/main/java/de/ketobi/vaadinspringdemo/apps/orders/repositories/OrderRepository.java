@@ -7,6 +7,6 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.List;
 
-public interface OrderRepository extends MongoRepository<Order, ObjectId>, WorkflowItemRepository<Order> {
+public interface OrderRepository extends MongoRepository<Order, ObjectId> {
     List<Order> findByCreatedBy(ObjectId userId);
 }

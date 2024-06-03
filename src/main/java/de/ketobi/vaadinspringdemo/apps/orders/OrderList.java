@@ -19,7 +19,7 @@ import de.ketobi.vaadinspringdemo.apps.orders.services.OrderService;
 import de.ketobi.vaadinspringdemo.main.login.Login;
 import de.ketobi.vaadinspringdemo.main.ui.MainLayout;
 import de.ketobi.vaadinspringdemo.main.user.services.UserService;
-import de.ketobi.vaadinspringdemo.main.workflows.components.WorkflowItemHistoryDialog;
+import de.ketobi.vaadinspringdemo.main.workflows.components.WorkflowTicketHistoryDialog;
 import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowNode;
 import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowItemService;
 import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowNodeService;
@@ -28,6 +28,8 @@ import de.ketobi.vaadinspringdemo.main.workflows.viewer.WorkflowView;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+
+import static de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowTypes.ORDER_WORKFLOW;
 
 @Route(value = "orderlist", layout = MainLayout.class)
 @PageTitle("My Orders")
@@ -82,13 +84,13 @@ public class OrderList extends VerticalLayout implements BeforeEnterObserver {
             Button editButton = new Button("Show workflow");
             editButton.addClickListener(e -> {
                 Dialog dialog = new Dialog();
-                List<WorkflowNode> nodes = workflowNodeService.getAll(selectedOrder.getWorkflowId());
-                dialog.add(new WorkflowView(nodes, workflowNodeService.getById(selectedOrder.getCurrentNode())));
+                List<WorkflowNode> nodes = workflowNodeService.getAll(ORDER_WORKFLOW.getId());
+                dialog.add(new WorkflowView(nodes, orderService.getCurrentNode(selectedOrder)));
                 dialog.open();
             });
             Button historyButton = new Button("Show history");
             historyButton.addClickListener(e -> {
-                WorkflowItemHistoryDialog dialog = new WorkflowItemHistoryDialog(workflowItemService.getWorkflowItemHistory(selectedOrder));
+                WorkflowTicketHistoryDialog dialog = new WorkflowTicketHistoryDialog(workflowItemService.getWorkflowItemHistory(selectedOrder));
                 dialog.open();
             });
             buttonDiv.add(editButton);

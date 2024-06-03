@@ -20,9 +20,9 @@ public class OrderDetailsDiv extends Div {
 
         setId("order-details-div");
         VerticalLayout layout = new VerticalLayout();
-        layout.add(new H4("Order details for order " + order.getTitle()));
+        layout.add(new H4("Order details for order " + order.getName()));
         layout.add(new Paragraph("ID: " + order.getId()));
-        layout.add(new Paragraph("Item: " + order.getTitle()));
+        layout.add(new Paragraph("Item: " + order.getItem()));
         layout.add(new Paragraph("Description: " + order.getDescription()));
         layout.add(new Paragraph("Reason: " + order.getReason()));
         layout.add(new Paragraph("Price: " + order.getPrice()));
@@ -32,5 +32,4 @@ public class OrderDetailsDiv extends Div {
         layout.add(new Paragraph("Order current responsible: " + orderService.getCurrentResponsible(order).getName()));
         add(layout);
     }
-
 }

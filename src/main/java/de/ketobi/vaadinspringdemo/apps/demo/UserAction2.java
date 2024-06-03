@@ -12,24 +12,30 @@ import de.ketobi.vaadinspringdemo.apps.demo.services.DemoObjectService;
 import de.ketobi.vaadinspringdemo.main.login.Login;
 import de.ketobi.vaadinspringdemo.main.ui.MainLayout;
 import de.ketobi.vaadinspringdemo.main.user.services.UserService;
+import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowTicket;
 import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowItemService;
+import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowTicketService;
+import org.bson.types.ObjectId;
 
 @Route(value = "6659d0582f3f524e48b12090", layout = MainLayout.class)
 @PageTitle("User Action 2")
 public class UserAction2 extends VerticalLayout implements HasUrlParameter<String>, BeforeEnterObserver {
     private final DemoObjectService demoService;
+    private final WorkflowTicketService workflowTicketService;
+    private WorkflowTicket workflowTicket;
     private DemoObject demoObject;
     private TextField message;
 
-    public UserAction2(DemoObjectService demoService, WorkflowItemService workflowItemService){
+    public UserAction2(DemoObjectService demoService, WorkflowItemService workflowItemService, WorkflowTicketService workflowTicketService){
         this.demoService = demoService;
+        this.workflowTicketService = workflowTicketService;
         add(new H3("User Action 2"));
         add(new H4("Please add a message and proceed to the next node."));
         message = new TextField("Message");
 
         Button nextNodeButton = new Button("Next Node");
         nextNodeButton.addClickListener(e -> {
-            workflowItemService.nextNode(demoObject, null, "Message: " + message.getValue());
+            workflowItemService.nextNode(workflowTicket, null, "Message: " + message.getValue());
             nextNodeButton.getUI().ifPresent(ui -> ui.navigate("workflowtickets"));
         });
 
@@ -39,8 +45,9 @@ public class UserAction2 extends VerticalLayout implements HasUrlParameter<Strin
     }
 
     @Override
-    public void setParameter(BeforeEvent beforeEvent, String demoObjectId) {
-        this.demoObject = demoService.getById(demoObjectId);
+    public void setParameter(BeforeEvent beforeEvent, String ticketId) {
+        this.workflowTicket = workflowTicketService.getWorkflowTicket(new ObjectId(ticketId));
+        this.demoObject = demoService.getById(workflowTicket.getWorkflowEntityId());
     }
 
     @Override

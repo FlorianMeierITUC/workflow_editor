@@ -2,6 +2,7 @@ package de.ketobi.vaadinspringdemo.main.workflows.services;
 
 import de.ketobi.vaadinspringdemo.main.workflows.entities.Workflow;
 import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowNode;
+import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowTypes;
 import de.ketobi.vaadinspringdemo.main.workflows.repositories.WorkflowNodeRepository;
 import de.ketobi.vaadinspringdemo.main.workflows.repositories.WorkflowRepository;
 import org.bson.types.ObjectId;
@@ -50,4 +51,10 @@ public class WorkflowService {
     public WorkflowNode getStartNode(ObjectId workflowId) {
         return nodeRepository.findByIdWorkflowAndType(workflowId, START).orElseThrow();
     }
+
+    public WorkflowNode getStartNode(WorkflowTypes workflow) {
+        Workflow wf = workflowRepository.findByName(workflow.getName()).orElseThrow();
+        return nodeRepository.findByIdWorkflowAndType(wf.getId(), START).orElseThrow();
+    }
+
 }
