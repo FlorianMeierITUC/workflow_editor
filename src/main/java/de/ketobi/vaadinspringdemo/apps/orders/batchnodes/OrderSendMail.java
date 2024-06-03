@@ -1,13 +1,14 @@
-package de.ketobi.vaadinspringdemo.main.workflows.batchnodes;
+package de.ketobi.vaadinspringdemo.apps.orders.batchnodes;
 
 import de.ketobi.vaadinspringdemo.apps.orders.entities.Order;
 import de.ketobi.vaadinspringdemo.apps.orders.repositories.OrderRepository;
+import de.ketobi.vaadinspringdemo.main.workflows.batchnodes.Batchnode;
 import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowItemService;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Component;
 
 @Component("OrderSendMail")
-public class OrderSendMail implements Batchnode{
+public class OrderSendMail implements Batchnode {
     WorkflowItemService workflowItemService;
     OrderRepository orderRepository;
 

@@ -1,9 +1,11 @@
 package de.ketobi.vaadinspringdemo.main.workflows.entities;
 
+import de.ketobi.vaadinspringdemo.apps.demo.entities.DemoObject;
 import de.ketobi.vaadinspringdemo.apps.orders.entities.Order;
 
 public enum WorkflowTypes {
-    ORDER_WORKFLOW("Order Workflow", Order.class);
+    ORDER_WORKFLOW("Order Workflow", Order.class),
+    DEMO_WORKFLOW("Test", DemoObject.class);
 
     private final String name;
     private final Class<? extends WorkflowItem> entity;

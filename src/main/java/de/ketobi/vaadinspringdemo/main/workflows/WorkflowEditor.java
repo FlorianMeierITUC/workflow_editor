@@ -16,22 +16,18 @@ import com.vaadin.flow.router.*;
 import de.ketobi.vaadinspringdemo.main.login.Login;
 import de.ketobi.vaadinspringdemo.main.ui.MainLayout;
 import de.ketobi.vaadinspringdemo.main.user.entities.User;
-import de.ketobi.vaadinspringdemo.main.user.repositories.UserRepository;
 import de.ketobi.vaadinspringdemo.main.user.services.UserService;
 import de.ketobi.vaadinspringdemo.main.workflows.components.CreateWorkflowNodeDiv;
+import de.ketobi.vaadinspringdemo.main.workflows.components.ScheduleWorkflowsDialog;
 import de.ketobi.vaadinspringdemo.main.workflows.entities.Workflow;
 import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowNode;
 import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowNodeTypes;
-import de.ketobi.vaadinspringdemo.main.workflows.repositories.WorkflowNodeRepository;
-import de.ketobi.vaadinspringdemo.main.workflows.repositories.WorkflowRepository;
 import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowNodeService;
 import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowService;
 import de.ketobi.vaadinspringdemo.main.workflows.viewer.WorkflowView;
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Route(value = "workfloweditor", layout = MainLayout.class)
 @PageTitle("Workflow editor")
@@ -73,7 +69,11 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
         nodeDiv.add(new Paragraph("Active: "+workFlow.isActive()));
         nodeDiv.add(new Paragraph("Name: "+workFlow.getName()));
         nodeDiv.add(new Paragraph("Description: "+workFlow.getDescription()));
-        nodeDiv.add(new Paragraph("Select here if the workflow is scheduled or event driven: "+workFlow.getName()));
+        nodeDiv.add(new Paragraph("Select here if the workflow is scheduled or event driven: "));
+        nodeDiv.add(new Button("Set Scheduled", e -> {
+            ScheduleWorkflowsDialog dialog = new ScheduleWorkflowsDialog();
+            dialog.open();
+        }));
         HorizontalLayout editNodes = new HorizontalLayout();
         editNodes.add(new Paragraph("Edit nodes: "));
         editNodeSelect.setItems(wfNodeService.getAllWithoutStartAndEnd(workFlow.getId()));

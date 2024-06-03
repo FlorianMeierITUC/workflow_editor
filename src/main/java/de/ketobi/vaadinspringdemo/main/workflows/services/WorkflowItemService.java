@@ -129,6 +129,7 @@ public class WorkflowItemService {
                 workflowItem.setCurrentNode(nextNode);
                 break;
             case END:
+                // This is the end node. Nothing to do here.
                 break;
             case AND:
                 ArrayList<WorkflowNode> successorNodes = currentNode.getSuccessorNodes().stream()

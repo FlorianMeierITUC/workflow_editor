@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Route(value = "todos", layout = MainLayout.class)
-@PageTitle("Todos and ideas")
+@PageTitle("My Todos and ideas")
 public class TodoList extends VerticalLayout implements BeforeEnterObserver {
     private final TodoService todoService;
     private final UserService userService;
@@ -60,8 +60,8 @@ public class TodoList extends VerticalLayout implements BeforeEnterObserver {
         this.todoService = todoService;
         this.userService = userService;
 
-        add(new H3("Todos and ideas for this site"));
-        add(new H4("New Todo:"));
+        add(new H3("Todos and ideas"));
+        add(new H4("Create quick notes and todos here. These are only visible to you and not part of any workflow."));
         add(name);
         add(description);
         add(new SaveTodoButton());
