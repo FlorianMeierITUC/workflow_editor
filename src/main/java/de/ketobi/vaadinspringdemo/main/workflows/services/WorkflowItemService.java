@@ -125,6 +125,7 @@ public class WorkflowItemService {
             case START:
             case USER_ACTION:
             case UNION:
+                //Check if all siblings are in this union node if so go to the next node otherwise stay in this node
                 nextNode = getWorkflowNodeById(currentNode.getSuccessorNodes().get(0));
                 workflowItem.setCurrentNode(nextNode);
                 break;
@@ -132,6 +133,7 @@ public class WorkflowItemService {
                 // This is the end node. Nothing to do here.
                 break;
             case AND:
+                //create the siblings and advance them to the next node
                 ArrayList<WorkflowNode> successorNodes = currentNode.getSuccessorNodes().stream()
                         .map(this::getWorkflowNodeById)
                         .collect(Collectors.toCollection(ArrayList::new));

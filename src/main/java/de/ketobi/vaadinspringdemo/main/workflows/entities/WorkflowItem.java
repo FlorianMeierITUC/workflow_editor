@@ -18,15 +18,19 @@ public abstract class WorkflowItem {
     @Autowired
     private transient MongoTemplate mongoTemplate;
 
-    public void save(){
-        saveItem();
-    }
-
     public abstract String getTitle();
 
     public abstract ObjectId getId();
 
     public abstract void saveItem();
+
+    public abstract ObjectId getCreatedBy();
+
+    public abstract LocalDateTime getCreatedAt();
+
+    public void save(){
+        saveItem();
+    }
 
     protected void saveToDatabase(Object item){
         mongoTemplate.save(item);
@@ -54,7 +58,4 @@ public abstract class WorkflowItem {
     public void setWorkflow(Workflow workflow) {
         this.workflowId = workflow.getId();
     }
-
-    public abstract ObjectId getCreatedBy();
-    public abstract LocalDateTime getCreatedAt();
 }
