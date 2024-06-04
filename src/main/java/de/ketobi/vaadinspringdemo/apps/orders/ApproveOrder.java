@@ -13,7 +13,7 @@ import de.ketobi.vaadinspringdemo.main.login.Login;
 import de.ketobi.vaadinspringdemo.main.ui.MainLayout;
 import de.ketobi.vaadinspringdemo.main.user.services.UserService;
 import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowTicket;
-import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowItemService;
+import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowEntityService;
 import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowTicketService;
 import org.bson.types.ObjectId;
 
@@ -30,7 +30,7 @@ public class ApproveOrder extends VerticalLayout implements HasUrlParameter<Stri
     private TextField priceField;
     private TextField message;
 
-    public ApproveOrder(OrderService orderService, WorkflowItemService workflowItemService, WorkflowTicketService workflowTicketService){
+    public ApproveOrder(OrderService orderService, WorkflowEntityService workflowEntityService, WorkflowTicketService workflowTicketService){
         this.orderService = orderService;
         this.workflowTicketService = workflowTicketService;
         add(new H3("Approve Order"));
@@ -51,13 +51,13 @@ public class ApproveOrder extends VerticalLayout implements HasUrlParameter<Stri
 
         Button approveButton = new Button("Approve");
         approveButton.addClickListener(e -> {
-            workflowItemService.nextNode(workflowTicket, true, "The order has been approved. Message: " + message.getValue());
+            workflowEntityService.nextNode(workflowTicket, true, "The order has been approved. Message: " + message.getValue());
             approveButton.getUI().ifPresent(ui -> ui.navigate("workflowtickets"));
         });
 
         Button declineButton = new Button("Decline");
         declineButton.addClickListener(e -> {
-            workflowItemService.nextNode(workflowTicket, false, "The order has been declined. Message: " + message.getValue());
+            workflowEntityService.nextNode(workflowTicket, false, "The order has been declined. Message: " + message.getValue());
             declineButton.getUI().ifPresent(ui -> ui.navigate("workflowtickets"));
         });
 
@@ -70,7 +70,7 @@ public class ApproveOrder extends VerticalLayout implements HasUrlParameter<Stri
     @Override
     public void setParameter(BeforeEvent beforeEvent, String ticketId) {
         this.workflowTicket = workflowTicketService.getWorkflowTicket(new ObjectId(ticketId));
-        this.order = orderService.getOrderById(workflowTicket.getWorkflowEntityId());
+        this.order = orderService.getOrderById(workflowTicket.getEntityId());
         itemField.setValue(order.getItem());
         descriptionField.setValue(order.getDescription());
         supplierField.setValue(order.getSupplier());

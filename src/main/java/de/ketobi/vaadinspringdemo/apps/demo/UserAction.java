@@ -13,7 +13,7 @@ import de.ketobi.vaadinspringdemo.main.login.Login;
 import de.ketobi.vaadinspringdemo.main.ui.MainLayout;
 import de.ketobi.vaadinspringdemo.main.user.services.UserService;
 import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowTicket;
-import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowItemService;
+import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowEntityService;
 import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowTicketService;
 import org.bson.types.ObjectId;
 
@@ -26,7 +26,7 @@ public class UserAction extends VerticalLayout implements HasUrlParameter<String
     private DemoObject demoObject;
     private TextField message;
 
-    public UserAction(DemoObjectService demoService, WorkflowItemService workflowItemService, WorkflowTicketService workflowTicketService){
+    public UserAction(DemoObjectService demoService, WorkflowEntityService workflowEntityService, WorkflowTicketService workflowTicketService){
         this.demoService = demoService;
         this.workflowTicketService = workflowTicketService;
         add(new H3("User Action"));
@@ -35,7 +35,7 @@ public class UserAction extends VerticalLayout implements HasUrlParameter<String
 
         Button nextNodeButton = new Button("Next Node");
         nextNodeButton.addClickListener(e -> {
-            workflowItemService.nextNode(workflowTicket, null, "Message: " + message.getValue());
+            workflowEntityService.nextNode(workflowTicket, null, "Message: " + message.getValue());
             nextNodeButton.getUI().ifPresent(ui -> ui.navigate("workflowtickets"));
         });
 
@@ -47,7 +47,7 @@ public class UserAction extends VerticalLayout implements HasUrlParameter<String
     @Override
     public void setParameter(BeforeEvent beforeEvent, String ticketId) {
         this.workflowTicket = workflowTicketService.getWorkflowTicket(new ObjectId(ticketId));
-        this.demoObject = demoService.getById(workflowTicket.getWorkflowEntityId());
+        this.demoObject = demoService.getById(workflowTicket.getEntityId());
     }
 
     @Override

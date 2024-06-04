@@ -13,7 +13,7 @@ import de.ketobi.vaadinspringdemo.main.login.Login;
 import de.ketobi.vaadinspringdemo.main.ui.MainLayout;
 import de.ketobi.vaadinspringdemo.main.user.services.UserService;
 import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowTicket;
-import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowItemService;
+import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowEntityService;
 import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowTicketService;
 import org.bson.types.ObjectId;
 
@@ -31,7 +31,7 @@ public class ExecuteOrder extends VerticalLayout implements HasUrlParameter<Stri
     private TextField message;
     private TextField orderNumber;
 
-    public ExecuteOrder(OrderService orderService, WorkflowItemService workflowItemService, WorkflowTicketService workflowTicketService){
+    public ExecuteOrder(OrderService orderService, WorkflowEntityService workflowEntityService, WorkflowTicketService workflowTicketService){
         this.orderService = orderService;
         this.workflowTicketService = workflowTicketService;
         add(new H3("Execute order"));
@@ -55,7 +55,7 @@ public class ExecuteOrder extends VerticalLayout implements HasUrlParameter<Stri
         executedButton.addClickListener(e -> {
             order.setOrderNumber(orderNumber.getValue());
             orderService.save(order);
-            workflowItemService.nextNode(workflowTicket, null,  message.getValue());
+            workflowEntityService.nextNode(workflowTicket, null,  message.getValue());
             executedButton.getUI().ifPresent(ui -> ui.navigate("workflowtickets"));
         });
 
@@ -76,7 +76,7 @@ public class ExecuteOrder extends VerticalLayout implements HasUrlParameter<Stri
     @Override
     public void setParameter(BeforeEvent beforeEvent, String ticketId) {
         this.workflowTicket = workflowTicketService.getWorkflowTicket(new ObjectId(ticketId));
-        this.order = orderService.getOrderById(workflowTicket.getWorkflowEntityId());
+        this.order = orderService.getOrderById(workflowTicket.getEntityId());
         itemField.setValue(order.getItem());
         descriptionField.setValue(order.getDescription());
         supplierField.setValue(order.getSupplier());

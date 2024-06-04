@@ -15,7 +15,7 @@ import de.ketobi.vaadinspringdemo.apps.demo.services.DemoObjectService;
 import de.ketobi.vaadinspringdemo.main.login.Login;
 import de.ketobi.vaadinspringdemo.main.ui.MainLayout;
 import de.ketobi.vaadinspringdemo.main.user.services.UserService;
-import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowItemService;
+import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowEntityService;
 import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowService;
 import org.bson.types.ObjectId;
 
@@ -26,14 +26,14 @@ import java.time.LocalDateTime;
 public class CreateDemoObject extends VerticalLayout implements BeforeEnterObserver {
     private final DemoObjectService demoObjectService;
     private final WorkflowService workflowService;
-    private final WorkflowItemService workflowItemService;
+    private final WorkflowEntityService workflowEntityService;
     private final TextField nameField;
     private final TextArea descriptionField;
 
-    public CreateDemoObject(DemoObjectService demoObjectService, WorkflowService workflowService, WorkflowItemService workflowItemService){
+    public CreateDemoObject(DemoObjectService demoObjectService, WorkflowService workflowService, WorkflowEntityService workflowEntityService){
         this.demoObjectService = demoObjectService;
         this.workflowService = workflowService;
-        this.workflowItemService = workflowItemService;
+        this.workflowEntityService = workflowEntityService;
         add(new H3("Create Demo Object"));
         add(new H4("Create a new demo object to show the capabilities of the workflow engine."));
         nameField = new TextField("Name");
@@ -48,7 +48,7 @@ public class CreateDemoObject extends VerticalLayout implements BeforeEnterObser
                     .createdBy(UserService.getCurrentUser().getId())
                     .build();
             demoObjectService.save(demoObject);
-            workflowItemService.startWorkflow(demoObject);
+            workflowEntityService.startWorkflow(demoObject);
             nameField.clear();
             descriptionField.clear();
         }));

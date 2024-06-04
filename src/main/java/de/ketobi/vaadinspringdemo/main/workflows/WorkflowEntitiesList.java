@@ -19,7 +19,7 @@ import de.ketobi.vaadinspringdemo.main.user.services.UserService;
 import de.ketobi.vaadinspringdemo.main.workflows.components.WorkflowTicketHistoryDialog;
 import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowEntity;
 import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowNode;
-import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowItemService;
+import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowEntityService;
 import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowNodeService;
 import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowService;
 
@@ -29,8 +29,8 @@ import java.util.List;
 
 @Route(value = "workflowentities", layout = MainLayout.class)
 @PageTitle("My Workflow Entities")
-public class WorkflowItemsList extends VerticalLayout implements BeforeEnterObserver {
-    private final WorkflowItemService workflowItemService;
+public class WorkflowEntitiesList extends VerticalLayout implements BeforeEnterObserver {
+    private final WorkflowEntityService workflowEntityService;
     private final WorkflowService workflowService;
     private final WorkflowNodeService workflowNodeService;
     private Grid<WorkflowEntity> myWorkflowEntitiesGrid;
@@ -38,8 +38,8 @@ public class WorkflowItemsList extends VerticalLayout implements BeforeEnterObse
     private GridListDataView<WorkflowEntity> myWorkflowEntitiesView;
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
 
-    public WorkflowItemsList(WorkflowItemService workflowItemService, WorkflowService workflowService, WorkflowNodeService workflowNodeService) {
-        this.workflowItemService = workflowItemService;
+    public WorkflowEntitiesList(WorkflowEntityService workflowEntityService, WorkflowService workflowService, WorkflowNodeService workflowNodeService) {
+        this.workflowEntityService = workflowEntityService;
         this.workflowService = workflowService;
         this.workflowNodeService = workflowNodeService;
         this.myWorkflowEntitiesGrid = createMyWorkflowEntitiesGrid();
@@ -54,7 +54,7 @@ public class WorkflowItemsList extends VerticalLayout implements BeforeEnterObse
         if(UserService.getCurrentUser() == null){
             event.forwardTo(Login.class);
         } else {
-            myWorkflowEntities = workflowItemService.getAllWorkflowEntitiesCreatedByTheCurrentUser();
+            myWorkflowEntities = workflowEntityService.getAllWorkflowEntitiesCreatedByTheCurrentUser();
             myWorkflowEntitiesView = myWorkflowEntitiesGrid.setItems(myWorkflowEntities);
         }
     }
@@ -79,7 +79,7 @@ public class WorkflowItemsList extends VerticalLayout implements BeforeEnterObse
             });
             Button historyButton = new Button("Show history");
             historyButton.addClickListener(e -> {
-                WorkflowTicketHistoryDialog dialog = new WorkflowTicketHistoryDialog(workflowItemService.getWorkflowItemHistory(selectedWfEntity));
+                WorkflowTicketHistoryDialog dialog = new WorkflowTicketHistoryDialog(workflowEntityService.getWorkflowItemHistory(selectedWfEntity));
                 dialog.open();
             });
             buttonDiv.add(editButton);

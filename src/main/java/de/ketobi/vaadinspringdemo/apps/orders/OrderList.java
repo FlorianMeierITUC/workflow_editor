@@ -21,7 +21,7 @@ import de.ketobi.vaadinspringdemo.main.ui.MainLayout;
 import de.ketobi.vaadinspringdemo.main.user.services.UserService;
 import de.ketobi.vaadinspringdemo.main.workflows.components.WorkflowTicketHistoryDialog;
 import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowNode;
-import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowItemService;
+import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowEntityService;
 import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowNodeService;
 import de.ketobi.vaadinspringdemo.main.workflows.viewer.WorkflowView;
 
@@ -36,16 +36,16 @@ import static de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowTypes.O
 public class OrderList extends VerticalLayout implements BeforeEnterObserver {
     private final OrderService orderService;
     private final WorkflowNodeService workflowNodeService;
-    private final WorkflowItemService workflowItemService;
+    private final WorkflowEntityService workflowEntityService;
     private Grid<Order> ordersGrid;
     private List<Order> orders = new ArrayList<>();
     private GridListDataView<Order> ordersView;
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
 
-    public OrderList(OrderService orderService, WorkflowNodeService workflowNodeService, WorkflowItemService workflowItemService) {
+    public OrderList(OrderService orderService, WorkflowNodeService workflowNodeService, WorkflowEntityService workflowEntityService) {
         this.orderService = orderService;
         this.workflowNodeService = workflowNodeService;
-        this.workflowItemService = workflowItemService;
+        this.workflowEntityService = workflowEntityService;
         this.ordersGrid = createOrdersGrid();
         add(new H3("My Orders"));
         add(new H4("These are the orders i created."));
@@ -90,7 +90,7 @@ public class OrderList extends VerticalLayout implements BeforeEnterObserver {
             });
             Button historyButton = new Button("Show history");
             historyButton.addClickListener(e -> {
-                WorkflowTicketHistoryDialog dialog = new WorkflowTicketHistoryDialog(workflowItemService.getWorkflowItemHistory(selectedOrder));
+                WorkflowTicketHistoryDialog dialog = new WorkflowTicketHistoryDialog(workflowEntityService.getWorkflowItemHistory(selectedOrder));
                 dialog.open();
             });
             buttonDiv.add(editButton);

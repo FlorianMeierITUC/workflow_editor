@@ -6,6 +6,7 @@ import de.ketobi.vaadinspringdemo.main.user.entities.User;
 import de.ketobi.vaadinspringdemo.main.user.services.UserService;
 import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowNode;
 import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowNodeService;
+import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowTicketService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,12 +18,14 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final WorkflowNodeService workflowNodeService;
+    private final WorkflowTicketService workflowTicketService;
     private final UserService userService;
 
     @Autowired
-    public OrderService(OrderRepository orderRepository, WorkflowNodeService workflowNodeService, UserService userService) {
+    public OrderService(OrderRepository orderRepository, WorkflowNodeService workflowNodeService, UserService userService, WorkflowTicketService workflowTicketService) {
         this.orderRepository = orderRepository;
         this.workflowNodeService = workflowNodeService;
+        this.workflowTicketService = workflowTicketService;
         this.userService = userService;
     }
 
@@ -47,10 +50,10 @@ public class OrderService {
     }
 
     public WorkflowNode getCurrentNode(Order order) {
-        return null;
+        return workflowTicketService.getCurrentNode(order.getId());
     }
 
     public User getCurrentResponsible(Order order) {
-        return null;
+        return workflowTicketService.getCurrentResponsible(order.getId());
     }
 }

@@ -34,7 +34,7 @@ import java.util.List;
 @Route(value = "workflowtickets", layout = MainLayout.class)
 @PageTitle("My Workflow Tickets")
 public class WorkflowTicketList  extends VerticalLayout implements BeforeEnterObserver {
-    private final WorkflowItemService workflowItemService;
+    private final WorkflowEntityService workflowEntityService;
     private final WorkflowService workflowService;
     private final WorkflowNodeService workflowNodeService;
     private final UserService userService;
@@ -47,14 +47,14 @@ public class WorkflowTicketList  extends VerticalLayout implements BeforeEnterOb
     private GridListDataView<WorkflowTicket> workflowTicketsView;
 
     public WorkflowTicketList(
-            WorkflowItemService workflowItemService,
+            WorkflowEntityService workflowEntityService,
             WorkflowService workflowService,
             WorkflowNodeService workflowNodeService,
             UserService userService,
             MongoTemplate mongoTemplate,
             WorkflowTicketService workflowTicketService,
             WorkflowTicketHistoryService workflowTicketHistoryService){
-        this.workflowItemService = workflowItemService;
+        this.workflowEntityService = workflowEntityService;
         this.workflowService = workflowService;
         this.workflowNodeService = workflowNodeService;
         this.userService = userService;
@@ -74,7 +74,7 @@ public class WorkflowTicketList  extends VerticalLayout implements BeforeEnterOb
         if(UserService.getCurrentUser() == null){
             event.forwardTo(Login.class);
         } else {
-            workflowTickets = workflowItemService.getAllWorkflowTicketsAssignedToTheCurrentUser();
+            workflowTickets = workflowEntityService.getAllWorkflowTicketsAssignedToTheCurrentUser();
             workflowTicketsView = workflowTicketsGrid.setItems(workflowTickets);
         }
     }
@@ -125,7 +125,7 @@ public class WorkflowTicketList  extends VerticalLayout implements BeforeEnterOb
                             .responsibleUser(user.getName())
                             .createdAt(LocalDateTime.now())
                             .build();
-                    workflowItemService.writeWorkflowHistoryEntry(history);
+                    workflowEntityService.writeWorkflowHistoryEntry(history);
                     workflowTicketsView.removeItem(selectedWfTicket);
                     dialog.close();
                 });

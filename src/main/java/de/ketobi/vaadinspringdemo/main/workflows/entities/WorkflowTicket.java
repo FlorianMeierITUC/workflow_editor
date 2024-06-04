@@ -21,6 +21,6 @@ public class WorkflowTicket {
     private ObjectId workflowId;
     private ObjectId currentResponsibleId;
     private ObjectId currentNodeId;
-    private ObjectId workflowEntityId;
+    private ObjectId entityId;
     private List<ObjectId> siblingIds;
 }

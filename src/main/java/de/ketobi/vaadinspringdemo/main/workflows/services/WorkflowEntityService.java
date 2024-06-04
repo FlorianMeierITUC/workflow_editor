@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
-public class WorkflowItemService {
+public class WorkflowEntityService {
     private final WorkflowService workflowService;
     private final WorkflowTicketHistoryRepository historyRepository;
     private final WorkflowNodeRepository nodeRepository;
@@ -34,7 +34,7 @@ public class WorkflowItemService {
 
 
     @Autowired
-    public WorkflowItemService(
+    public WorkflowEntityService(
             WorkflowTicketHistoryRepository historyRepository,
             WorkflowNodeRepository nodeRepository,
             WorkflowTicketRepository workflowTicketRepository,
@@ -83,7 +83,7 @@ public class WorkflowItemService {
                 .workflowId(workflowEntity.getWorkflowType().getId())
                 .currentResponsibleId(startNode.getResponsible())
                 .currentNodeId(startNode.getId())
-                .workflowEntityId(workflowEntity.getId())
+                .entityId(workflowEntity.getId())
                 .build();
         workflowTicketRepository.save(ticket);
         nextNode(ticket, null, "Workflow started");
@@ -130,6 +130,9 @@ public class WorkflowItemService {
             case BATCH_ACTION:
             case START:
             case USER_ACTION:
+                nextNodeId = currentNode.getSuccessorNodes().get(0);
+                workflowTicket.setCurrentNodeId(nextNodeId);
+                break;
             case UNION:
                 //Check if all siblings are in this union node if so go to the next node otherwise stay in this node
                 boolean canAdvance = true;
@@ -166,7 +169,7 @@ public class WorkflowItemService {
                             .workflowId(workflowTicket.getWorkflowId())
                             .currentResponsibleId(successorNode.getResponsible())
                             .currentNodeId(successorNode.getId())
-                            .workflowEntityId(workflowTicket.getWorkflowEntityId())
+                            .entityId(workflowTicket.getEntityId())
                             .siblingIds(workflowTicket.getSiblingIds())
                             .build();
                     siblingMap.put(ticketId, sibling);

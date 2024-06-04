@@ -17,21 +17,19 @@ import de.ketobi.vaadinspringdemo.apps.orders.services.OrderService;
 import de.ketobi.vaadinspringdemo.main.login.Login;
 import de.ketobi.vaadinspringdemo.main.ui.MainLayout;
 import de.ketobi.vaadinspringdemo.main.user.services.UserService;
-import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowItemService;
+import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowEntityService;
 import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowService;
 import org.bson.types.ObjectId;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-import static de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowTypes.ORDER_WORKFLOW;
-
 @Route(value = "createorder", layout = MainLayout.class)
 @PageTitle("Create order")
 public class CreateOrder extends VerticalLayout implements BeforeEnterObserver {
     private final OrderService orderService;
     private final WorkflowService workflowService;
-    private final WorkflowItemService workflowItemService;
+    private final WorkflowEntityService workflowEntityService;
     private TextField item = new TextField("Item to order *");
     private TextArea description = new TextArea("Description");
     private TextArea reason = new TextArea("Reason");
@@ -46,10 +44,10 @@ public class CreateOrder extends VerticalLayout implements BeforeEnterObserver {
         }
     }
 
-    public CreateOrder(OrderService orderService, WorkflowService workflowService, WorkflowItemService workflowItemService){
+    public CreateOrder(OrderService orderService, WorkflowService workflowService, WorkflowEntityService workflowEntityService){
         this.orderService = orderService;
         this.workflowService = workflowService;
-        this.workflowItemService = workflowItemService;
+        this.workflowEntityService = workflowEntityService;
         add(new H3("Create Order"));
         add(new H4("Create a new order for an item you need. The order will be processed by the workflow system."));
         add(item);
@@ -73,7 +71,7 @@ public class CreateOrder extends VerticalLayout implements BeforeEnterObserver {
                     .createdAt(LocalDateTime.now())
                     .build();
             orderService.save(order);
-            workflowItemService.startWorkflow(order);
+            workflowEntityService.startWorkflow(order);
             item.clear();
             description.clear();
             reason.clear();
