@@ -4,8 +4,8 @@ import de.ketobi.vaadinspringdemo.main.user.entities.User;
 import de.ketobi.vaadinspringdemo.main.user.services.UserService;
 import de.ketobi.vaadinspringdemo.main.workflows.batchnodes.Batchnode;
 import de.ketobi.vaadinspringdemo.main.workflows.entities.*;
-import de.ketobi.vaadinspringdemo.main.workflows.repositories.WorkflowTicketHistoryRepository;
 import de.ketobi.vaadinspringdemo.main.workflows.repositories.WorkflowNodeRepository;
+import de.ketobi.vaadinspringdemo.main.workflows.repositories.WorkflowTicketHistoryRepository;
 import de.ketobi.vaadinspringdemo.main.workflows.repositories.WorkflowTicketRepository;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +55,7 @@ public class WorkflowEntityService {
     }
 
     public ArrayList<WorkflowTicketHistory> getWorkflowItemHistory(WorkflowEntity workflowEntity) {
-        return historyRepository.findByTicketId(workflowEntity.getId());
+        return historyRepository.findByEntityId(workflowEntity.getId());
     }
 
     public List<WorkflowTicket> getAllWorkflowTicketsAssignedToTheCurrentUser() {
@@ -74,6 +74,9 @@ public class WorkflowEntityService {
             }
         }
         return workflowEntities;
+    }
+    public WorkflowEntity getWorkflowEntity(ObjectId workflowEntityId, ObjectId workflowId) {
+        return mongoTemplate.findById(workflowEntityId, WorkflowTypes.fromId(workflowId).getEntity());
     }
 
     public void startWorkflow(WorkflowEntity workflowEntity) {
@@ -95,6 +98,7 @@ public class WorkflowEntityService {
             throw new RuntimeException("Current node is null! That should not be possible... Database corrupted?");
         }
         Workflow wf = workflowService.getById(workflowTicket.getWorkflowId());
+        System.out.println("Workflow: "+wf.getName()+" Current node: " + currentNode.getTitle());
         User responsible;
         if(currentNode.getResponsible()==null) {
             responsible = UserService.getSystemUser();
@@ -103,14 +107,16 @@ public class WorkflowEntityService {
         } else {
             responsible = userService.getUserById(workflowTicket.getCurrentResponsibleId());
         }
+        System.out.println("Responsible: "+responsible.getName());
 
         WorkflowEntity workflowEntity = workflowTicketService.getWorkflowEntity(workflowTicket);
+        System.out.println("Entity: "+workflowEntity.getName());
 
         WorkflowTicketHistory history = WorkflowTicketHistory.builder()
                 .ticketId(workflowTicket.getId())
                 .workflowName(wf.getName())
                 .nodeTitle(currentNode.getTitle())
-                .entityName(workflowEntity.getName())
+                .entityId(workflowEntity.getId())
                 .message(message)
                 .responsibleUser(responsible.getName())
                 .createdAt(LocalDateTime.now())
@@ -120,20 +126,25 @@ public class WorkflowEntityService {
         switch (currentNode.getType()) {
             case BATCH_DECISION:
             case USER_DECISION:
+                System.out.println("Decision node");
                 if (success) {
                     nextNodeId = currentNode.getSuccessorNode_success();
                 } else {
                     nextNodeId = currentNode.getSuccessorNode_failure();
                 }
                 workflowTicket.setCurrentNodeId(nextNodeId);
+                processNextNode(nextNodeId, workflowTicket, wf, workflowEntity);
                 break;
             case BATCH_ACTION:
             case START:
             case USER_ACTION:
+                System.out.println("Start or Action node");
                 nextNodeId = currentNode.getSuccessorNodes().get(0);
                 workflowTicket.setCurrentNodeId(nextNodeId);
+                processNextNode(nextNodeId, workflowTicket, wf, workflowEntity);
                 break;
             case UNION:
+                System.out.println("Union node");
                 //Check if all siblings are in this union node if so go to the next node otherwise stay in this node
                 boolean canAdvance = true;
                 List<ObjectId> siblings = workflowTicket.getSiblingIds();
@@ -151,18 +162,32 @@ public class WorkflowEntityService {
                 if (canAdvance) {
                     nextNodeId = currentNode.getSuccessorNodes().get(0);
                     workflowTicket.setCurrentNodeId(nextNodeId);
+                    WorkflowTicketHistory historyUnion = WorkflowTicketHistory.builder()
+                            .ticketId(workflowTicket.getId())
+                            .workflowName(wf.getName())
+                            .nodeTitle(currentNode.getTitle())
+                            .entityId(workflowEntity.getId())
+                            .message("Union node passed")
+                            .responsibleUser(responsible.getName())
+                            .createdAt(LocalDateTime.now())
+                            .build();
+                    historyRepository.save(historyUnion);
+                    processNextNode(nextNodeId, workflowTicket, wf, workflowEntity);
                 }
                 break;
             case END:
-                // This is the end node. Nothing to do here.
+                System.out.println("End node");
+                //Do nothing
                 break;
             case AND:
+                System.out.println("And node");
                 //create the siblings and advance them to the next node
                 ArrayList<WorkflowNode> successorNodes = currentNode.getSuccessorNodes().stream()
                         .map(this::getWorkflowNodeById)
                         .collect(Collectors.toCollection(ArrayList::new));
                 Map<ObjectId, WorkflowTicket> siblingMap = new HashMap<>();
                 for (WorkflowNode successorNode : successorNodes) {
+                    System.out.println("Creating sibling for node: "+successorNode.getTitle());
                     ObjectId ticketId = ObjectId.get();
                     WorkflowTicket sibling = WorkflowTicket.builder()
                             .id(ticketId)
@@ -179,41 +204,12 @@ public class WorkflowEntityService {
                 }
                 //Update the siblings in all sibling tickets
                 workflowTicketRepository.saveAll(siblingMap.values());
-                for (WorkflowTicket sibling : siblingMap.values()) {
-                    nextNode(sibling, null, "Sibling created");
-                }
+                //for (WorkflowTicket sibling : siblingMap.values()) {
+                //    nextNode(sibling, null, "Sibling created");
+                //}
                 break;
             default:
                 throw new RuntimeException("Unknown node type");
-        }
-
-        if (nextNodeId == null) {
-            throw new RuntimeException("No next node found. Maybe nextNode() was called on an end node.");
-        }
-        WorkflowNode nextNode = getWorkflowNodeById(nextNodeId);
-        if(nextNode.getType() == WorkflowNodeTypes.END){
-            WorkflowTicketHistory historyEnd = WorkflowTicketHistory.builder()
-                    .id(workflowTicket.getId())
-                    .workflowName(wf.getName())
-                    .nodeTitle(nextNode.getTitle())
-                    .entityName(workflowEntity.getName())
-                    .message("Workflow finished")
-                    .responsibleUser(UserService.getSystemUser().getName())
-                    .createdAt(LocalDateTime.now())
-                    .build();
-            historyRepository.save(historyEnd);
-        }
-
-        workflowTicket.setCurrentResponsibleId(nextNode.getResponsible());
-        workflowTicketRepository.save(workflowTicket);
-
-        if(nextNode.getType() == WorkflowNodeTypes.BATCH_DECISION || nextNode.getType() == WorkflowNodeTypes.BATCH_ACTION){
-            Batchnode batchnode = (Batchnode) context.getBean(nextNode.getClassName());
-            try {
-                batchnode.execute(workflowTicket.getId());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         }
     }
 
@@ -223,5 +219,41 @@ public class WorkflowEntityService {
 
     public void writeWorkflowHistoryEntry(WorkflowTicketHistory history) {
         historyRepository.save(history);
+    }
+
+    private void processNextNode(ObjectId nextNodeId, WorkflowTicket workflowTicket, Workflow wf, WorkflowEntity workflowEntity){
+        if (nextNodeId == null) {
+            throw new RuntimeException("No next node found. Maybe nextNode() was called on an end node.");
+        }
+        WorkflowNode nextNode = getWorkflowNodeById(nextNodeId);
+        if (nextNode.getType() == WorkflowNodeTypes.END) {
+            WorkflowTicketHistory historyEnd = WorkflowTicketHistory.builder()
+                    .id(workflowTicket.getId())
+                    .workflowName(wf.getName())
+                    .nodeTitle(nextNode.getTitle())
+                    .entityId(workflowEntity.getId())
+                    .message("Workflow finished")
+                    .responsibleUser(UserService.getSystemUser().getName())
+                    .createdAt(LocalDateTime.now())
+                    .build();
+            historyRepository.save(historyEnd);
+        }
+        workflowTicket.setCurrentResponsibleId(nextNode.getResponsible());
+        workflowTicketRepository.save(workflowTicket);
+
+        if (nextNode.getType() == WorkflowNodeTypes.BATCH_DECISION || nextNode.getType() == WorkflowNodeTypes.BATCH_ACTION) {
+            Batchnode batchnode = (Batchnode) context.getBean(nextNode.getClassName());
+            try {
+                batchnode.execute(workflowTicket.getId());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        if (nextNode.getType() == WorkflowNodeTypes.AND) {
+            nextNode(workflowTicket, null, "And node entered");
+        }
+        if (nextNode.getType() == WorkflowNodeTypes.UNION) {
+            nextNode(workflowTicket, null, "Union node entered");
+        }
     }
 }

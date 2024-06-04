@@ -79,7 +79,7 @@ public class WorkflowEntitiesList extends VerticalLayout implements BeforeEnterO
             });
             Button historyButton = new Button("Show history");
             historyButton.addClickListener(e -> {
-                WorkflowTicketHistoryDialog dialog = new WorkflowTicketHistoryDialog(workflowEntityService.getWorkflowItemHistory(selectedWfEntity));
+                WorkflowTicketHistoryDialog dialog = new WorkflowTicketHistoryDialog(workflowEntityService.getWorkflowItemHistory(selectedWfEntity), workflowEntityService);
                 dialog.open();
             });
             buttonDiv.add(editButton);

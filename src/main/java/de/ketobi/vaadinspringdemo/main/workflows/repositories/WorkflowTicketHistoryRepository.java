@@ -7,5 +7,6 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import java.util.ArrayList;
 
 public interface WorkflowTicketHistoryRepository extends MongoRepository<WorkflowTicketHistory, ObjectId> {
-    ArrayList<WorkflowTicketHistory> findByTicketId(ObjectId id);
+    ArrayList<WorkflowTicketHistory> findByTicketId(ObjectId ticketId);
+    ArrayList<WorkflowTicketHistory> findByEntityId(ObjectId entityId);
 }

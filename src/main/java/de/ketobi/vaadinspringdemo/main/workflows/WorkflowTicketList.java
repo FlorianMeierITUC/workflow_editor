@@ -23,9 +23,11 @@ import de.ketobi.vaadinspringdemo.main.ui.MainLayout;
 import de.ketobi.vaadinspringdemo.main.user.entities.User;
 import de.ketobi.vaadinspringdemo.main.user.services.UserService;
 import de.ketobi.vaadinspringdemo.main.workflows.components.WorkflowTicketHistoryDialog;
-import de.ketobi.vaadinspringdemo.main.workflows.entities.*;
+import de.ketobi.vaadinspringdemo.main.workflows.entities.Workflow;
+import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowNode;
+import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowTicket;
+import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowTicketHistory;
 import de.ketobi.vaadinspringdemo.main.workflows.services.*;
-import org.springframework.data.mongodb.core.MongoTemplate;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -38,7 +40,6 @@ public class WorkflowTicketList  extends VerticalLayout implements BeforeEnterOb
     private final WorkflowService workflowService;
     private final WorkflowNodeService workflowNodeService;
     private final UserService userService;
-    private final MongoTemplate mongoTemplate;
     private final WorkflowTicketService workflowTicketService;
     private final WorkflowTicketHistoryService workflowTicketHistoryService;
 
@@ -51,14 +52,12 @@ public class WorkflowTicketList  extends VerticalLayout implements BeforeEnterOb
             WorkflowService workflowService,
             WorkflowNodeService workflowNodeService,
             UserService userService,
-            MongoTemplate mongoTemplate,
             WorkflowTicketService workflowTicketService,
             WorkflowTicketHistoryService workflowTicketHistoryService){
         this.workflowEntityService = workflowEntityService;
         this.workflowService = workflowService;
         this.workflowNodeService = workflowNodeService;
         this.userService = userService;
-        this.mongoTemplate = mongoTemplate;
         this.workflowTicketHistoryService = workflowTicketHistoryService;
 
         workflowTicketsGrid = createMyWorkflowTicketsGrid();
@@ -84,7 +83,7 @@ public class WorkflowTicketList  extends VerticalLayout implements BeforeEnterOb
         workflowTicketsGrid.addColumn(wfTicket -> workflowService.getById(wfTicket.getWorkflowId()).getName()).setHeader("Workflow").setAutoWidth(true);
         workflowTicketsGrid.addColumn(wfTicket -> workflowNodeService.getById(wfTicket.getCurrentNodeId()).getTitle()).setHeader("Current Node").setAutoWidth(true);
         workflowTicketsGrid.addColumn(wfTicket -> userService.getUserById(wfTicket.getCurrentResponsibleId()).getName()).setHeader("Current Responsible").setAutoWidth(true);
-        workflowTicketsGrid.addColumn(wfTicket -> WorkflowTypes.fromId(wfTicket.getWorkflowId()).getEntity().getName()).setHeader("Entity name").setAutoWidth(true);
+        workflowTicketsGrid.addColumn(wfTicket -> workflowTicketService.getWorkflowEntity(wfTicket).getName()).setHeader("Entity name").setAutoWidth(true);
         //TODO add siblings column
         workflowTicketsGrid.addComponentColumn(selectedWfTicket -> {
             Div buttonDiv = new Div();
@@ -95,7 +94,7 @@ public class WorkflowTicketList  extends VerticalLayout implements BeforeEnterOb
             });
             Button historyButton = new Button("Show history");
             historyButton.addClickListener(e -> {
-                WorkflowTicketHistoryDialog dialog = new WorkflowTicketHistoryDialog(workflowTicketHistoryService.getHistoryEntries(selectedWfTicket.getId()));
+                WorkflowTicketHistoryDialog dialog = new WorkflowTicketHistoryDialog(workflowTicketHistoryService.getHistoryEntries(selectedWfTicket.getId()), workflowEntityService);
                 dialog.open();
             });
             Button forwardButton = new Button("Forward");
@@ -120,7 +119,7 @@ public class WorkflowTicketList  extends VerticalLayout implements BeforeEnterOb
                             .ticketId(selectedWfTicket.getId())
                             .workflowName(wf.getName())
                             .nodeTitle(node.getTitle())
-                            .entityName(WorkflowTypes.fromId(selectedWfTicket.getWorkflowId()).getEntity().getName())
+                            .entityId(workflowTicketService.getWorkflowEntity(selectedWfTicket).getId())
                             .message("Item forwarded: "+user.getName()+" -> "+responsible.getValue().getName()+". Message: "+message.getValue())
                             .responsibleUser(user.getName())
                             .createdAt(LocalDateTime.now())

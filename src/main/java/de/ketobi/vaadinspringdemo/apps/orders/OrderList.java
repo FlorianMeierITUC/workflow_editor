@@ -90,7 +90,7 @@ public class OrderList extends VerticalLayout implements BeforeEnterObserver {
             });
             Button historyButton = new Button("Show history");
             historyButton.addClickListener(e -> {
-                WorkflowTicketHistoryDialog dialog = new WorkflowTicketHistoryDialog(workflowEntityService.getWorkflowItemHistory(selectedOrder));
+                WorkflowTicketHistoryDialog dialog = new WorkflowTicketHistoryDialog(workflowEntityService.getWorkflowItemHistory(selectedOrder), workflowEntityService);
                 dialog.open();
             });
             buttonDiv.add(editButton);

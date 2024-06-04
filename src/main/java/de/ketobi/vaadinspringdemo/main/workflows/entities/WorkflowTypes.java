@@ -38,4 +38,22 @@ public enum WorkflowTypes {
         }
         return null;
     }
+
+    public static WorkflowTypes fromEntity(Class<? extends WorkflowEntity> entity) {
+        for (WorkflowTypes type : WorkflowTypes.values()) {
+            if (type.getEntity().equals(entity)) {
+                return type;
+            }
+        }
+        return null;
+    }
+
+    public static WorkflowTypes fromName(String name) {
+        for (WorkflowTypes type : WorkflowTypes.values()) {
+            if (type.getName().equals(name)) {
+                return type;
+            }
+        }
+        return null;
+    }
 }

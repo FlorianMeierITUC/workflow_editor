@@ -13,9 +13,9 @@ import java.time.LocalDateTime;
 public class WorkflowTicketHistory {
     private ObjectId id;
     private ObjectId ticketId;
+    private ObjectId entityId;
     private String workflowName;
     private String nodeTitle;
-    private String entityName;
     private String message;
     private String responsibleUser;
     private LocalDateTime createdAt;
