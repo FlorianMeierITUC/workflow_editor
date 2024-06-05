@@ -6,6 +6,7 @@ import com.vaadin.flow.component.svg.elements.Line;
 import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowNode;
 import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowNodeTypes;
 import lombok.Getter;
+import lombok.NonNull;
 import org.bson.types.ObjectId;
 
 import java.util.*;
@@ -17,7 +18,7 @@ public class WorkflowView extends Svg {
     private final List<Node> nodes = new ArrayList<>();
     private final Map<ObjectId, Node> idToNode = new HashMap<>();
     private int maxYLevel = 0;
-    private Node highlightNode;
+    private List<ObjectId> highlightNodesIds;
 
     /**
      * The WorkflowView object is a canvas that displays the workflow
@@ -28,14 +29,12 @@ public class WorkflowView extends Svg {
      * @param nodes - an unsorted list of WorkflowNode objects
      */
     public WorkflowView(List<WorkflowNode> nodes) {
-        this(nodes, null);
+        this(nodes, new ArrayList<>());
     }
 
-    public WorkflowView(List<WorkflowNode> nodes, WorkflowNode highlightNode) {
+    public WorkflowView(List<WorkflowNode> nodes, @NonNull List<ObjectId> highlightNodesIds) {
         super();
-        if(highlightNode!= null){
-            this.highlightNode = createNode(highlightNode);
-        }
+        this.highlightNodesIds = highlightNodesIds;
         for (WorkflowNode node : nodes) {
             if(node!=null) {
                 this.nodes.add(createNode(node));
@@ -290,7 +289,7 @@ public class WorkflowView extends Svg {
      */
     private void drawNodes() {
         for (Node node : this.nodes) {
-            if (highlightNode != null && node.getNode().getId().equals(highlightNode.getNode().getId())) {
+            if(highlightNodesIds.contains(node.getNode().getId())){
                 node.getShape().setFillColor("yellow");
             }
             node.move(node.getXLevel() * HORIZONTAL_SPACING, node.getYLevel() * VERTICAL_SPACING);

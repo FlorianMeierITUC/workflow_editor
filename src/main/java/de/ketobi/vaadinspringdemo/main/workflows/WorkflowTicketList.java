@@ -28,6 +28,7 @@ import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowNode;
 import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowTicket;
 import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowTicketHistory;
 import de.ketobi.vaadinspringdemo.main.workflows.services.*;
+import de.ketobi.vaadinspringdemo.main.workflows.viewer.WorkflowView;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -82,19 +83,25 @@ public class WorkflowTicketList  extends VerticalLayout implements BeforeEnterOb
         Grid<WorkflowTicket> workflowTicketsGrid = new Grid<>(WorkflowTicket.class, false);
         workflowTicketsGrid.addColumn(wfTicket -> workflowService.getById(wfTicket.getWorkflowId()).getName()).setHeader("Workflow").setAutoWidth(true);
         workflowTicketsGrid.addColumn(wfTicket -> workflowNodeService.getById(wfTicket.getCurrentNodeId()).getTitle()).setHeader("Current Node").setAutoWidth(true);
-        workflowTicketsGrid.addColumn(wfTicket -> userService.getUserById(wfTicket.getCurrentResponsibleId()).getName()).setHeader("Current Responsible").setAutoWidth(true);
         workflowTicketsGrid.addColumn(wfTicket -> workflowTicketService.getWorkflowEntity(wfTicket).getName()).setHeader("Entity name").setAutoWidth(true);
-        //TODO add siblings column
-        workflowTicketsGrid.addComponentColumn(selectedWfTicket -> {
+        workflowTicketsGrid.addColumn(wfTicket -> workflowTicketService.getOpenSinceDays(wfTicket)).setHeader("Open since # days").setAutoWidth(true);
+        workflowTicketsGrid.addComponentColumn(wfTicket -> {
             Div buttonDiv = new Div();
             Button editButton = new Button("Edit");
             editButton.addClickListener(e -> {
-                WorkflowNode node = workflowNodeService.getById(selectedWfTicket.getCurrentNodeId());
-                getUI().ifPresent(ui -> ui.navigate("/"+node.getId()+"/"+selectedWfTicket.getId()));
+                WorkflowNode node = workflowNodeService.getById(wfTicket.getCurrentNodeId());
+                getUI().ifPresent(ui -> ui.navigate("/"+node.getId()+"/"+wfTicket.getId()));
             });
-            Button historyButton = new Button("Show history");
+            Button historyButton = new Button("History");
             historyButton.addClickListener(e -> {
-                WorkflowTicketHistoryDialog dialog = new WorkflowTicketHistoryDialog(workflowTicketHistoryService.getHistoryEntries(selectedWfTicket.getId()), workflowEntityService);
+                WorkflowTicketHistoryDialog dialog = new WorkflowTicketHistoryDialog(workflowEntityService.getWorkflowEntityHistory(workflowTicketService.getWorkflowEntity(wfTicket)), workflowEntityService);
+                dialog.open();
+            });
+            Button workflowViewButton = new Button("Workflow");
+            workflowViewButton.addClickListener(e -> {
+                Dialog dialog = new Dialog();
+                List<WorkflowNode> nodes = workflowNodeService.getAll(workflowService.getById(wfTicket.getWorkflowId()).getId());
+                dialog.add(new WorkflowView(nodes, List.of(wfTicket.getCurrentNodeId())));
                 dialog.open();
             });
             Button forwardButton = new Button("Forward");
@@ -110,22 +117,22 @@ public class WorkflowTicketList  extends VerticalLayout implements BeforeEnterOb
                 responsible.setItemLabelGenerator(User::getName);
                 TextArea message = new TextArea();
                 Button saveButton = new Button("Save", e3 -> {
-                    selectedWfTicket.setCurrentResponsibleId(responsible.getValue().getId());
-                    workflowTicketService.save(selectedWfTicket);
+                    wfTicket.setCurrentResponsibleId(responsible.getValue().getId());
+                    workflowTicketService.save(wfTicket);
                     User user = UserService.getCurrentUser();
-                    Workflow wf = workflowService.getById(selectedWfTicket.getWorkflowId());
-                    WorkflowNode node = workflowNodeService.getById(selectedWfTicket.getCurrentNodeId());
+                    Workflow wf = workflowService.getById(wfTicket.getWorkflowId());
+                    WorkflowNode node = workflowNodeService.getById(wfTicket.getCurrentNodeId());
                     WorkflowTicketHistory history = WorkflowTicketHistory.builder()
-                            .ticketId(selectedWfTicket.getId())
+                            .ticketId(wfTicket.getId())
                             .workflowName(wf.getName())
                             .nodeTitle(node.getTitle())
-                            .entityId(workflowTicketService.getWorkflowEntity(selectedWfTicket).getId())
+                            .entityId(workflowTicketService.getWorkflowEntity(wfTicket).getId())
                             .message("Item forwarded: "+user.getName()+" -> "+responsible.getValue().getName()+". Message: "+message.getValue())
                             .responsibleUser(user.getName())
                             .createdAt(LocalDateTime.now())
                             .build();
                     workflowEntityService.writeWorkflowHistoryEntry(history);
-                    workflowTicketsView.removeItem(selectedWfTicket);
+                    workflowTicketsView.removeItem(wfTicket);
                     dialog.close();
                 });
                 dialog.add(new Span("Forward item to:"));
@@ -137,6 +144,7 @@ public class WorkflowTicketList  extends VerticalLayout implements BeforeEnterOb
             });
             buttonDiv.add(editButton);
             buttonDiv.add(forwardButton);
+            buttonDiv.add(workflowViewButton);
             buttonDiv.add(historyButton);
             return buttonDiv;
         });

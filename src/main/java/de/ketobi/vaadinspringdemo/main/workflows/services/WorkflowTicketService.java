@@ -11,6 +11,11 @@ import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 public class WorkflowTicketService {
     private final MongoTemplate mongoTemplate;
@@ -33,17 +38,29 @@ public class WorkflowTicketService {
         return workflowTicketRepository.findById(workflowTicketId).orElseThrow();
     }
 
-    public void save(WorkflowTicket selectedWfTicket) {
-        workflowTicketRepository.save(selectedWfTicket);
+    public void save(WorkflowTicket workflowTicket) {
+        workflowTicketRepository.save(workflowTicket);
     }
 
-    public WorkflowNode getCurrentNode(ObjectId workflowEntityId) {
-        WorkflowTicket ticket = workflowTicketRepository.findByEntityId(workflowEntityId).orElseThrow();
-        return workflowNodeService.getById(ticket.getCurrentNodeId());
+    public ArrayList<WorkflowNode> getCurrentNodes(ObjectId workflowEntityId) {
+        List<WorkflowTicket> tickets = workflowTicketRepository.findByEntityId(workflowEntityId);
+        ArrayList<WorkflowNode> nodes = new ArrayList<>();
+        for (WorkflowTicket ticket : tickets) {
+            nodes.add(workflowNodeService.getById(ticket.getCurrentNodeId()));
+        }
+        return nodes;
     }
 
-    public User getCurrentResponsible(ObjectId workflowEntityId) {
-        WorkflowTicket ticket = workflowTicketRepository.findByEntityId(workflowEntityId).orElseThrow();
+    public List<WorkflowTicket> getWorkflowTickets(ObjectId workflowEntityId) {
+        return workflowTicketRepository.findByEntityId(workflowEntityId);
+    }
+
+    public User getCurrentResponsible(ObjectId workflowTicketId) {
+        WorkflowTicket ticket = workflowTicketRepository.findById(workflowTicketId).orElseThrow();
         return userService.getUserById(ticket.getCurrentResponsibleId());
+    }
+
+    public long getOpenSinceDays(WorkflowTicket workflowTicket) {
+        return ChronoUnit.DAYS.between(workflowTicket.getCreatedAt(), LocalDateTime.now());
     }
 }

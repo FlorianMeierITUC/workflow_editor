@@ -15,6 +15,8 @@ span {
   font-weight:bold;
 }
 
+vaadin-button { --lumo-button-size:var(--lumo-size-xs); }
+
 vaadin-button.navigation-layout-button-1 {
   --lumo-button-size:var(--lumo-size-xs);
   border-radius:var(--lumo-border-radius-m);

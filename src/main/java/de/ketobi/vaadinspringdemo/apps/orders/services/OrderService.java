@@ -50,10 +50,11 @@ public class OrderService {
     }
 
     public WorkflowNode getCurrentNode(Order order) {
-        return workflowTicketService.getCurrentNode(order.getId());
+        return workflowTicketService.getCurrentNodes(order.getId()).get(0);
     }
 
     public User getCurrentResponsible(Order order) {
+        //TODO this must be called with a ticket ID! Only tickets have responsibles!
         return workflowTicketService.getCurrentResponsible(order.getId());
     }
 }

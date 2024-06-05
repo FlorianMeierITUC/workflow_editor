@@ -22,16 +22,16 @@ public class WorkflowNodeService {
         this.nodeRepository = nodeRepository;
     }
 
-    public void save(WorkflowNode node) {
-        nodeRepository.save(node);
+    public void save(WorkflowNode workflowNode) {
+        nodeRepository.save(workflowNode);
     }
 
-    public WorkflowNode getById(String nodeId) {
-        return nodeRepository.findById(new ObjectId(nodeId)).orElseThrow();
+    public WorkflowNode getById(String workflowNodeId) {
+        return nodeRepository.findById(new ObjectId(workflowNodeId)).orElseThrow();
     }
 
-    public WorkflowNode getById(ObjectId nodeId){
-        return nodeRepository.findById(nodeId).orElseThrow();
+    public WorkflowNode getById(ObjectId workflowNodeId){
+        return nodeRepository.findById(workflowNodeId).orElseThrow();
     }
 
     public ArrayList<WorkflowNode> getAll(ObjectId workflowId) {

@@ -52,8 +52,8 @@ public class WorkflowService {
         return nodeRepository.findByIdWorkflowAndType(workflowId, START).orElseThrow();
     }
 
-    public WorkflowNode getStartNode(WorkflowTypes workflow) {
-        Workflow wf = workflowRepository.findByName(workflow.getName()).orElseThrow();
+    public WorkflowNode getStartNode(WorkflowTypes workflowType) {
+        Workflow wf = workflowRepository.findByName(workflowType.getName()).orElseThrow();
         return nodeRepository.findByIdWorkflowAndType(wf.getId(), START).orElseThrow();
     }
 

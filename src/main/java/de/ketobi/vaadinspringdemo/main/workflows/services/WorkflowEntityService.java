@@ -54,8 +54,21 @@ public class WorkflowEntityService {
         this.workflowNodeService = workflowNodeService;
     }
 
-    public ArrayList<WorkflowTicketHistory> getWorkflowItemHistory(WorkflowEntity workflowEntity) {
+    public ArrayList<WorkflowTicketHistory> getWorkflowEntityHistory(WorkflowEntity workflowEntity) {
         return historyRepository.findByEntityId(workflowEntity.getId());
+    }
+
+    public String getWorkflowEntityStatus(WorkflowEntity workflowEntity) {
+        List<WorkflowTicket> tickets = workflowTicketRepository.findByEntityId(workflowEntity.getId());
+        if (tickets.size() == 0) {
+            return "Not started";
+        }
+        WorkflowTicket lastTicket = tickets.get(tickets.size() - 1);
+        WorkflowNode lastNode = nodeRepository.findById(lastTicket.getCurrentNodeId()).orElseThrow();
+        if (lastNode.getType() == WorkflowNodeTypes.END) {
+            return "Finished";
+        }
+        return "In progress";
     }
 
     public List<WorkflowTicket> getAllWorkflowTicketsAssignedToTheCurrentUser() {
@@ -87,6 +100,7 @@ public class WorkflowEntityService {
                 .currentResponsibleId(startNode.getResponsible())
                 .currentNodeId(startNode.getId())
                 .entityId(workflowEntity.getId())
+                .createdAt(LocalDateTime.now())
                 .build();
         workflowTicketRepository.save(ticket);
         nextNode(ticket, null, "Workflow started");
@@ -190,12 +204,17 @@ public class WorkflowEntityService {
                 for (WorkflowNode successorNode : successorNodes) {
                     System.out.println("Creating sibling for node: "+successorNode.getTitle());
                     ObjectId ticketId = ObjectId.get();
+                    ObjectId responsibleId = successorNode.getResponsible();
+                    if(successorNode.getResponsible()==null){
+                        responsibleId = UserService.getSystemUser().getId();
+                    }
                     WorkflowTicket sibling = WorkflowTicket.builder()
                             .id(ticketId)
                             .workflowId(workflowTicket.getWorkflowId())
-                            .currentResponsibleId(successorNode.getResponsible())
+                            .currentResponsibleId(responsibleId)
                             .currentNodeId(successorNode.getId())
                             .entityId(workflowTicket.getEntityId())
+                            .createdAt(LocalDateTime.now())
                             .siblingIds(workflowTicket.getSiblingIds())
                             .build();
                     siblingMap.put(ticketId, sibling);
@@ -246,7 +265,11 @@ public class WorkflowEntityService {
                     .build();
             historyRepository.save(historyEnd);
         }
-        workflowTicket.setCurrentResponsibleId(nextNode.getResponsible());
+        if(nextNode.getResponsible()==null){
+            workflowTicket.setCurrentResponsibleId(UserService.getSystemUser().getId());
+        } else {
+            workflowTicket.setCurrentResponsibleId(nextNode.getResponsible());
+        }
         workflowTicketRepository.save(workflowTicket);
 
         if (nextNode.getType() == WorkflowNodeTypes.BATCH_DECISION || nextNode.getType() == WorkflowNodeTypes.BATCH_ACTION) {
