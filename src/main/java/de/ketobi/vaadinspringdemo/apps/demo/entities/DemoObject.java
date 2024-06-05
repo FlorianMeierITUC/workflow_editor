@@ -25,6 +25,7 @@ public class DemoObject implements WorkflowEntity {
     private String resultUserAction1;
     private String resultUserAction2;
     private String resultBatchAction;
+    private String resultBatchAction2;
     private LocalDateTime createdAt;
     private ObjectId createdBy;
 

@@ -186,6 +186,7 @@ public class WorkflowEntityService {
                         .map(this::getWorkflowNodeById)
                         .collect(Collectors.toCollection(ArrayList::new));
                 Map<ObjectId, WorkflowTicket> siblingMap = new HashMap<>();
+                Map<WorkflowNode, WorkflowTicket> successorNodeToTicketMap = new HashMap<>();
                 for (WorkflowNode successorNode : successorNodes) {
                     System.out.println("Creating sibling for node: "+successorNode.getTitle());
                     ObjectId ticketId = ObjectId.get();
@@ -198,15 +199,22 @@ public class WorkflowEntityService {
                             .siblingIds(workflowTicket.getSiblingIds())
                             .build();
                     siblingMap.put(ticketId, sibling);
+                    successorNodeToTicketMap.put(successorNode, sibling);
                 }
                 for (WorkflowTicket sibling : siblingMap.values()) {
                     sibling.setSiblingIds(new ArrayList<>(siblingMap.keySet()));
                 }
-                //Update the siblings in all sibling tickets
                 workflowTicketRepository.saveAll(siblingMap.values());
-                //for (WorkflowTicket sibling : siblingMap.values()) {
-                //    nextNode(sibling, null, "Sibling created");
-                //}
+                for(WorkflowNode successorNode : successorNodes){
+                    if (successorNode.getType() == WorkflowNodeTypes.BATCH_DECISION || successorNode.getType() == WorkflowNodeTypes.BATCH_ACTION) {
+                        Batchnode batchnode = (Batchnode) context.getBean(successorNode.getClassName());
+                        try {
+                            batchnode.execute(successorNodeToTicketMap.get(successorNode).getId());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
                 break;
             default:
                 throw new RuntimeException("Unknown node type");

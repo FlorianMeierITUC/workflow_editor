@@ -25,20 +25,26 @@ public class UserAction extends VerticalLayout implements HasUrlParameter<String
     private WorkflowTicket workflowTicket;
     private DemoObject demoObject;
     private TextField message;
+    private TextField result;
 
     public UserAction(DemoObjectService demoService, WorkflowEntityService workflowEntityService, WorkflowTicketService workflowTicketService){
         this.demoService = demoService;
         this.workflowTicketService = workflowTicketService;
         add(new H3("User Action"));
-        add(new H4("Please add a message and proceed to the next node."));
+        add(new H4("Please add a result and a message and proceed to the next node."));
+        result = new TextField("Result");
         message = new TextField("Message");
 
         Button nextNodeButton = new Button("Next Node");
         nextNodeButton.addClickListener(e -> {
+            demoObject.setResultUserAction1(result.getValue());
+            demoService.save(demoObject);
             workflowEntityService.nextNode(workflowTicket, null, "Message: " + message.getValue());
             nextNodeButton.getUI().ifPresent(ui -> ui.navigate("workflowtickets"));
         });
 
+        add(new Paragraph("Please add a result (any string). This result will be visible to the next user in the workflow."));
+        add(result);
         add(new Paragraph("Please add a message. This message will be visible to the next user in the workflow."));
         add(message);
         add(nextNodeButton);
