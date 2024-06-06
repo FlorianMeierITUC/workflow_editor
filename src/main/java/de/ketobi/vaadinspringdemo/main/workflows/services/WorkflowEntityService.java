@@ -187,6 +187,7 @@ public class WorkflowEntityService {
                             .build();
                     historyRepository.save(historyUnion);
                     processNextNode(nextNodeId, workflowTicket, wf, workflowEntity);
+                    cleanUpTickets(workflowTicket, siblings);
                 }
                 break;
             case END:
@@ -234,9 +235,20 @@ public class WorkflowEntityService {
                         }
                     }
                 }
+                //Delete the ticket still stuck in the AND node
+                workflowTicketRepository.deleteById(workflowTicket.getId());
                 break;
             default:
                 throw new RuntimeException("Unknown node type");
+        }
+    }
+
+    private void cleanUpTickets(WorkflowTicket workflowTicket, List<ObjectId> siblings) {
+        //Delete siblings still stuck in the union node
+        for (ObjectId siblingId : siblings) {
+            if (!siblingId.equals(workflowTicket.getId())) {
+                workflowTicketRepository.deleteById(siblingId);
+            }
         }
     }
 
