@@ -127,7 +127,8 @@ public class TodoList extends VerticalLayout implements BeforeEnterObserver {
             Button editButton = new Button("Edit");
             editButton.addClickListener(e -> {
                 Dialog dialog = new Dialog();
-                dialog.add(new H3("Edit Todo"));
+                VerticalLayout dialogLayout = new VerticalLayout();
+                dialog.getHeader().add(new H3("Edit Todo"));
                 TextField nameField = new TextField("Name");
                 nameField.setValue(selectedTodo.getName());
                 TextArea descriptionField = new TextArea("Description");
@@ -143,7 +144,10 @@ public class TodoList extends VerticalLayout implements BeforeEnterObserver {
                     dialog.close();
                     todoView.refreshItem(selectedTodo);
                 });
-                dialog.add(nameField, descriptionField, saveButton);
+                dialogLayout.add(nameField, descriptionField);
+                dialog.add(dialogLayout);
+                dialog.getFooter().add(saveButton);
+                dialog.getElement().getThemeList().add("custom-dialog-overlay");
                 dialog.open();
             });
             Button deleteButton = new Button("Delete");
