@@ -64,20 +64,6 @@ public class WorkflowEntitiesList extends VerticalLayout implements BeforeEnterO
     }
 
     private Grid<WorkflowEntity> createMyWorkflowEntitiesGrid() {
-        //--------Entity------
-        //Created at
-        //Workflow
-        //Entity Name
-        //Workflow status
-
-        //--------Actions-----
-        //Tickets ->
-            //Current Node
-            //Current Responsible
-            //Open since # days
-        //Workflow
-        //History
-
         Grid<WorkflowEntity> myWorkflowEntitiesGrid = new Grid<>();
         myWorkflowEntitiesGrid.addColumn(wfEntity -> wfEntity.getCreatedAt().format(formatter)).setHeader("Created at").setAutoWidth(true);
         myWorkflowEntitiesGrid.addColumn(wfEntity -> wfEntity.getWorkflowType().getName()).setHeader("Workflow").setAutoWidth(true);

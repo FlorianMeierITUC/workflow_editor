@@ -1,6 +1,8 @@
 package de.ketobi.vaadinspringdemo.apps.todos;
 
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
@@ -9,10 +11,10 @@ import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.renderer.LitRenderer;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
@@ -111,8 +113,39 @@ public class TodoList extends VerticalLayout implements BeforeEnterObserver {
         todoGrid.addColumn(Todo::getDescription).setHeader("Description").setAutoWidth(true);
         todoGrid.addColumn(todo -> userService.getUserById(todo.getCreatedBy()).getName()).setHeader("Creator").setAutoWidth(true);
         todoGrid.addColumn(todo -> todo.getCreatedAt().format(formatter)).setHeader("Created at").setAutoWidth(true);
-        todoGrid.addColumn(LitRenderer.<Todo>of("<vaadin-checkbox ?checked=${item.done}></vaadin-checkbox>").withProperty("done", Todo::isDone)).setHeader("Done").setAutoWidth(true);
+        todoGrid.addComponentColumn(todo -> {
+            Checkbox doneCheckbox = new Checkbox();
+            doneCheckbox.setValue(todo.isDone());
+            doneCheckbox.addValueChangeListener(e -> {
+                todo.setDone(e.getValue());
+                todoService.save(todo);
+            });
+            return doneCheckbox;
+        }).setHeader("Done").setAutoWidth(true);
         todoGrid.addComponentColumn(selectedTodo -> {
+            HorizontalLayout actionsLayout = new HorizontalLayout();
+            Button editButton = new Button("Edit");
+            editButton.addClickListener(e -> {
+                Dialog dialog = new Dialog();
+                dialog.add(new H3("Edit Todo"));
+                TextField nameField = new TextField("Name");
+                nameField.setValue(selectedTodo.getName());
+                TextArea descriptionField = new TextArea("Description");
+                descriptionField.setValue(selectedTodo.getDescription());
+                Button saveButton = new Button("Save");
+                saveButton.addClickListener(saveEvent -> {
+                    selectedTodo.setName(nameField.getValue());
+                    selectedTodo.setDescription(descriptionField.getValue());
+                    todoService.save(selectedTodo);
+                    Notification notification = Notification
+                            .show("Todo updated!");
+                    notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                    dialog.close();
+                    todoView.refreshItem(selectedTodo);
+                });
+                dialog.add(nameField, descriptionField, saveButton);
+                dialog.open();
+            });
             Button deleteButton = new Button("Delete");
             deleteButton.addClickListener(e -> {
                 todoService.delete(selectedTodo);
@@ -121,8 +154,10 @@ public class TodoList extends VerticalLayout implements BeforeEnterObserver {
                 notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
                 todoView.removeItem(selectedTodo);
             });
-            return deleteButton;
-        });
+            actionsLayout.add(editButton);
+            actionsLayout.add(deleteButton);
+            return actionsLayout;
+        }).setHeader("Actions").setAutoWidth(true);
         todoGrid.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COMPACT);
         todoGrid.setAllRowsVisible(true);
         return todoGrid;

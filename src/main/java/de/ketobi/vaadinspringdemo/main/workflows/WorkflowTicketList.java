@@ -147,7 +147,7 @@ public class WorkflowTicketList  extends VerticalLayout implements BeforeEnterOb
             buttonDiv.add(workflowViewButton);
             buttonDiv.add(historyButton);
             return buttonDiv;
-        });
+        }).setHeader("Actions").setAutoWidth(true);
         workflowTicketsGrid.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COMPACT);
         workflowTicketsGrid.setAllRowsVisible(true);
         return workflowTicketsGrid;

@@ -64,7 +64,7 @@ public class OrderList extends VerticalLayout implements BeforeEnterObserver {
     private Grid<Order> createOrdersGrid() {
         Grid<Order> ordersGrid = new Grid<>(Order.class, false);
         ordersGrid.addComponentColumn(selectedOrder -> {
-            Button detailsButton = new Button("Show details");
+            Button detailsButton = new Button("Details");
             detailsButton.addClickListener(e -> {
                 Dialog dialog = new Dialog();
                 dialog.add(new OrderDetailsDiv(selectedOrder, orderService));
@@ -81,14 +81,14 @@ public class OrderList extends VerticalLayout implements BeforeEnterObserver {
         ordersGrid.addColumn(order -> orderService.getCurrentResponsible(order).getName()).setHeader("Responsible").setAutoWidth(true);
         ordersGrid.addComponentColumn(selectedOrder -> {
             Div buttonDiv = new Div();
-            Button editButton = new Button("Show workflow");
+            Button editButton = new Button("Workflow");
             editButton.addClickListener(e -> {
                 Dialog dialog = new Dialog();
                 List<WorkflowNode> nodes = workflowNodeService.getAll(ORDER_WORKFLOW.getId());
                 dialog.add(new WorkflowView(nodes, new ArrayList<>(List.of(orderService.getCurrentNode(selectedOrder).getId()))));
                 dialog.open();
             });
-            Button historyButton = new Button("Show history");
+            Button historyButton = new Button("History");
             historyButton.addClickListener(e -> {
                 WorkflowTicketHistoryDialog dialog = new WorkflowTicketHistoryDialog(workflowEntityService.getWorkflowEntityHistory(selectedOrder), workflowEntityService);
                 dialog.open();
