@@ -39,9 +39,4 @@ vaadin-icon { font-size:8px; }
 
 vaadin-side-nav-item::part(link) { font-size:var(--lumo-font-size-s); }
 
-vaadin-text-area::part(input-field) {
-  height:100px;
-  width:300px;
-}
-
 vaadin-text-field::part(input-field) { height:var(--lumo-size-m); }
