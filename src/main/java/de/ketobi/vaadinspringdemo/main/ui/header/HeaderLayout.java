@@ -37,7 +37,7 @@ public class HeaderLayout extends HorizontalLayout implements BeforeEnterObserve
 
     public void refresh(){
         removeAll();
-        add(new H3("Vaadin Spring Demo"));
+        add(new H3("Workflow Ticket System"));
         Button userButton = new Button(new Icon(VaadinIcon.USER));
         //<theme-editor-local-classname>
         userButton.addClassName("header-layout-button-1");
