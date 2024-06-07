@@ -17,6 +17,8 @@ span {
 
 vaadin-button { --lumo-button-size:var(--lumo-size-xs); }
 
+vaadin-button.header-layout-button-1 { --lumo-button-size:var(--lumo-size-m); }
+
 vaadin-button.navigation-layout-button-1 {
   --lumo-button-size:var(--lumo-size-xs);
   border-radius:var(--lumo-border-radius-m);
@@ -36,6 +38,8 @@ vaadin-grid::part(header-cell) {
 }
 
 vaadin-icon { font-size:8px; }
+
+vaadin-icon.header-layout-button-1 { font-size:var(--lumo-font-size-m); }
 
 vaadin-side-nav-item::part(link) { font-size:var(--lumo-font-size-s); }
 

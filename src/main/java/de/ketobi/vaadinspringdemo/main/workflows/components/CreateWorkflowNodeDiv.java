@@ -52,7 +52,10 @@ public class CreateWorkflowNodeDiv extends Div{
         this.drawWorkflow = drawWorkflow;
 
         responsible.setLabel("Responsible");
-        responsible.setItems(userService.getAll());
+        ArrayList<User> users = new ArrayList<>();
+        users.add(UserService.getEntityCreator());
+        users.addAll(userService.getAll());
+        responsible.setItems(users);
         responsible.setItemLabelGenerator(User::getName);
 
         List<WorkflowNode> predecessorNodes = wfNodeService.getAllWithoutEnd(workFlow.getId());

@@ -26,6 +26,8 @@ public class User {
     @NonNull
     String password;
 
+    ObjectId substituteUserId;
+
     @Override
     public String toString() {
         return name+" ("+email+")";

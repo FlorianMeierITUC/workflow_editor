@@ -44,11 +44,12 @@ public class UserView extends VerticalLayout implements BeforeEnterObserver {
     @Autowired
     public UserView(UserService userService){
         this.userService = userService;
-        ArrayList<User> user = new ArrayList<>(userService.getAll());
+        ArrayList<User> users = new ArrayList<>(userService.getAll());
         Grid<User> userGrid = new Grid<>(User.class, false);
         userGrid.addColumn(User::getId).setHeader("ID").setAutoWidth(true);
         userGrid.addColumn(User::getName).setHeader("Name").setAutoWidth(true);
         userGrid.addColumn(User::getEmail).setHeader("Email").setAutoWidth(true);
+        userGrid.addColumn(user -> user.getSubstituteUserId()!=null ? userService.getUserById(user.getSubstituteUserId()).getName() : "Not set").setHeader("Substitute User").setAutoWidth(true);
         userGrid.addComponentColumn(selectedUser -> {
                     Button deleteButton = new Button("Delete");
                     deleteButton.addClickListener(e -> {
@@ -62,7 +63,7 @@ public class UserView extends VerticalLayout implements BeforeEnterObserver {
                 });
         userGrid.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COMPACT);
 
-        userView = userGrid.setItems(user);
+        userView = userGrid.setItems(users);
 
         add(new H3("Users"));
         add(new H4("The users in the system. You can create new users here."));

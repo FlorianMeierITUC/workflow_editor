@@ -26,6 +26,7 @@ import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowService;
 import de.ketobi.vaadinspringdemo.main.workflows.viewer.WorkflowView;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Route(value = "workfloweditor", layout = MainLayout.class)
@@ -108,10 +109,17 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
 
                     Select<User> responsible = new Select<>();
                     responsible.setLabel("Responsible");
-                    responsible.setItems(userService.getAll());
+                    ArrayList<User> users = new ArrayList<>();
+                    users.add(UserService.getEntityCreator());
+                    users.addAll(userService.getAll());
+                    responsible.setItems(users);
                     responsible.setItemLabelGenerator(User::getName);
                     if(node.getResponsible()!=null) {
-                        responsible.setValue(userService.getUserById(node.getResponsible()));
+                        if (node.getResponsible().equals(UserService.getEntityCreator().getId())) {
+                            responsible.setValue(UserService.getEntityCreator());
+                        } else {
+                            responsible.setValue(userService.getUserById(node.getResponsible()));
+                        }
                     }
                     Button saveButton = new Button("Save", e -> {
                         if(responsible.getValue()!=null) {

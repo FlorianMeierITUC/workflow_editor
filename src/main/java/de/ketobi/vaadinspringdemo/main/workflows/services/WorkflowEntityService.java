@@ -30,8 +30,6 @@ public class WorkflowEntityService {
     private final UserService userService;
     private final MongoTemplate mongoTemplate;
     private final ApplicationContext context;
-    private final WorkflowNodeService workflowNodeService;
-
 
     @Autowired
     public WorkflowEntityService(
@@ -42,7 +40,7 @@ public class WorkflowEntityService {
             UserService userService,
             WorkflowService workflowService,
             MongoTemplate mongoTemplate,
-            ApplicationContext context, WorkflowNodeService workflowNodeService) {
+            ApplicationContext context) {
         this.workflowService = workflowService;
         this.historyRepository = historyRepository;
         this.nodeRepository = nodeRepository;
@@ -51,7 +49,6 @@ public class WorkflowEntityService {
         this.userService = userService;
         this.mongoTemplate = mongoTemplate;
         this.context = context;
-        this.workflowNodeService = workflowNodeService;
     }
 
     public ArrayList<WorkflowTicketHistory> getWorkflowEntityHistory(WorkflowEntity workflowEntity) {
@@ -73,6 +70,10 @@ public class WorkflowEntityService {
 
     public List<WorkflowTicket> getAllWorkflowTicketsAssignedToTheCurrentUser() {
         return workflowTicketRepository.findByCurrentResponsibleId(UserService.getCurrentUser().getId());
+    }
+
+    public List<WorkflowTicket> getAllWorkflowTicketsAssignedTo(User user) {
+        return workflowTicketRepository.findByCurrentResponsibleId(user.getId());
     }
 
     public List<WorkflowEntity> getAllWorkflowEntitiesCreatedByTheCurrentUser() {
@@ -113,18 +114,25 @@ public class WorkflowEntityService {
         }
         Workflow wf = workflowService.getById(workflowTicket.getWorkflowId());
         System.out.println("Workflow: "+wf.getName()+" Current node: " + currentNode.getTitle());
-        User responsible;
-        if(currentNode.getResponsible()==null) {
-            responsible = UserService.getSystemUser();
-        } else if (currentNode.getResponsible().equals(UserService.getSystemUser().getId())) {
-            responsible = UserService.getSystemUser();
-        } else {
-            responsible = userService.getUserById(workflowTicket.getCurrentResponsibleId());
-        }
-        System.out.println("Responsible: "+responsible.getName());
-
         WorkflowEntity workflowEntity = workflowTicketService.getWorkflowEntity(workflowTicket);
         System.out.println("Entity: "+workflowEntity.getName());
+        User responsible;
+        String doneBySubstitute = "";
+        if(currentNode.getResponsible()==null || currentNode.getResponsible().equals(UserService.getSystemUser().getId())) {
+            responsible = UserService.getSystemUser();
+        } else if (currentNode.getResponsible().equals(UserService.getEntityCreator().getId())) {
+            responsible = userService.getUserById(workflowEntity.getCreatedBy());
+            if(responsible.getId()!=UserService.getCurrentUser().getId()){
+                doneBySubstitute = " (done by "+UserService.getCurrentUser()+")";
+            }
+        } else {
+            responsible = userService.getUserById(workflowTicket.getCurrentResponsibleId());
+            if(responsible.getId()!=UserService.getCurrentUser().getId()){
+                doneBySubstitute = " (done by "+UserService.getCurrentUser()+")";
+            }
+        }
+
+        System.out.println("Responsible: "+responsible.getName());
 
         WorkflowTicketHistory history = WorkflowTicketHistory.builder()
                 .ticketId(workflowTicket.getId())
@@ -132,7 +140,7 @@ public class WorkflowEntityService {
                 .nodeTitle(currentNode.getTitle())
                 .entityId(workflowEntity.getId())
                 .message(message)
-                .responsibleUser(responsible.getName())
+                .responsibleUser(responsible.getName()+doneBySubstitute)
                 .createdAt(LocalDateTime.now())
                 .build();
         historyRepository.save(history);
@@ -208,6 +216,8 @@ public class WorkflowEntityService {
                     ObjectId responsibleId = successorNode.getResponsible();
                     if(successorNode.getResponsible()==null){
                         responsibleId = UserService.getSystemUser().getId();
+                    } else if (successorNode.getResponsible().equals(UserService.getEntityCreator().getId())) {
+                        responsibleId = workflowEntity.getCreatedBy();
                     }
                     WorkflowTicket sibling = WorkflowTicket.builder()
                             .id(ticketId)
@@ -279,6 +289,8 @@ public class WorkflowEntityService {
         }
         if(nextNode.getResponsible()==null){
             workflowTicket.setCurrentResponsibleId(UserService.getSystemUser().getId());
+        } else if(nextNode.getResponsible().equals(UserService.getEntityCreator().getId())){
+            workflowTicket.setCurrentResponsibleId(workflowEntity.getCreatedBy());
         } else {
             workflowTicket.setCurrentResponsibleId(nextNode.getResponsible());
         }

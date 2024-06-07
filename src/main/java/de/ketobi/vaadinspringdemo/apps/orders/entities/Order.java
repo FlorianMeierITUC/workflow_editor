@@ -38,6 +38,8 @@ public class Order implements WorkflowEntity {
 
     private ObjectId createdBy;
 
+    private boolean itemReceived;
+
 
     @Override
     public WorkflowTypes getWorkflowType() {

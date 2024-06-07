@@ -42,6 +42,15 @@ public class UserService {
         return system;
     }
 
+    public static User getEntityCreator() {
+        User entityCreator = new User();
+        entityCreator.setId(new ObjectId("000000000000000000000001"));
+        entityCreator.setName("Variable: ENTITY_CREATOR");
+        entityCreator.setEmail("no-reply");
+        entityCreator.setPassword("null");
+        return entityCreator;
+    }
+
     public User getUserById(ObjectId id){
         if(id.equals(new ObjectId("000000000000000000000000"))) {
             return getSystemUser();
@@ -64,5 +73,9 @@ public class UserService {
 
     public User save(User user) {
         return userRepository.save(user);
+    }
+
+    public ArrayList<User> getAllSubstitutions(User user) {
+        return new ArrayList<>(userRepository.findAllBySubstituteUserId(user.getId()));
     }
 }

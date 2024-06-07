@@ -3,6 +3,7 @@ package de.ketobi.vaadinspringdemo.main.workflows;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.H4;
+import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
@@ -19,25 +20,31 @@ import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowNodeService;
 import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowService;
 import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowTicketService;
 
-@Route(value = "workflowtickets", layout = MainLayout.class)
-@PageTitle("My Workflow Tickets")
-public class WorkflowTicketList  extends VerticalLayout implements BeforeEnterObserver {
+import java.util.List;
+
+@Route(value = "workflowticketsubstitutions", layout = MainLayout.class)
+@PageTitle("Workflow Ticket Substitutions")
+public class WorkflowTicketSubstitutionsList  extends VerticalLayout implements BeforeEnterObserver {
     private final WorkflowEntityService workflowEntityService;
     private final UserService userService;
     private final WorkflowService workflowService;
     private final WorkflowNodeService workflowNodeService;
     private final WorkflowTicketService workflowTicketService;
 
-    public WorkflowTicketList(WorkflowEntityService workflowEntityService,
-                              UserService userService,
-                              WorkflowService workflowService,
-                              WorkflowNodeService workflowNodeService,
-                              WorkflowTicketService workflowTicketService){
+    public WorkflowTicketSubstitutionsList(WorkflowEntityService workflowEntityService,
+                                           UserService userService,
+                                           WorkflowService workflowService,
+                                           WorkflowNodeService workflowNodeService,
+                                           WorkflowTicketService workflowTicketService){
         this.workflowEntityService = workflowEntityService;
         this.userService = userService;
         this.workflowService = workflowService;
         this.workflowNodeService = workflowNodeService;
         this.workflowTicketService = workflowTicketService;
+
+        add(new H3("Workflow tickets substitutions"));
+        add(new H4("The workflow tickets assigned to me because i am the substitute for the specified user."));
+
     }
 
     @Override
@@ -45,21 +52,19 @@ public class WorkflowTicketList  extends VerticalLayout implements BeforeEnterOb
         if(UserService.getCurrentUser() == null){
             event.forwardTo(Login.class);
         } else {
-            Grid<WorkflowTicket> workflowTicketsGrid = new WorkflowTicketsGrid(
-                            workflowEntityService.getAllWorkflowTicketsAssignedToTheCurrentUser(),
-                            workflowService,
-                            workflowNodeService,
-                            workflowTicketService,
-                            workflowEntityService,
-                            userService);
-
-            add(new H3("Workflow tickets"));
-            add(new H4("The workflow tickets assigned to me."));
-            if(UserService.getCurrentUser() != null && UserService.getCurrentUser().getSubstituteUserId() != null) {
-                User substitute = userService.getUserById(UserService.getCurrentUser().getSubstituteUserId());
-                add(new H4(substitute+" is set as a substitute for you. Your workflow tickets are visible and editable by your substitute."));
+            for (User user : userService.getAllSubstitutions(UserService.getCurrentUser())) {
+                List<WorkflowTicket> workflowTickets = workflowEntityService.getAllWorkflowTicketsAssignedTo(user);
+                Grid<WorkflowTicket> workflowTicketsGrid = new WorkflowTicketsGrid(
+                        workflowTickets,
+                        workflowService,
+                        workflowNodeService,
+                        workflowTicketService,
+                        workflowEntityService,
+                        userService);
+                add(new H4("Tickets of: " + user));
+                add(workflowTicketsGrid);
+                add(new Hr());
             }
-            add(workflowTicketsGrid);
         }
     }
 }
