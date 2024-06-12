@@ -25,6 +25,6 @@ public class Workflow {
 
     User createdBy;
 
-    Long schedule;
+    boolean schedule;
 
 }

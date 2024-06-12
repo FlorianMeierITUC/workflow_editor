@@ -55,6 +55,7 @@ public class WorkflowList extends VerticalLayout implements BeforeEnterObserver 
         wfGrid.addColumn(Workflow::getId).setHeader("ID").setAutoWidth(true);
         wfGrid.addColumn(Workflow::getName).setHeader("Name").setAutoWidth(true);
         wfGrid.addColumn(Workflow::getDescription).setHeader("Description").setAutoWidth(true);
+        wfGrid.addColumn(Workflow::getCreatedBy).setHeader("Created by").setAutoWidth(true);
         wfGrid.addComponentColumn(selectedWf -> {
             Button editButton = new Button("Edit");
             editButton.addClickListener(e -> {

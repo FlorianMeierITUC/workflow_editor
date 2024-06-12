@@ -70,6 +70,7 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
         nodeDiv.add(new Paragraph("Name: "+workFlow.getName()));
         nodeDiv.add(new Paragraph("Description: "+workFlow.getDescription()));
         nodeDiv.add(new Paragraph("Select here if the workflow is scheduled or event driven: "));
+        //TODO if a workflow is not scheduled anymore the schedule must be deleted!
         nodeDiv.add(new Button("Set Scheduled", e -> {
             ScheduleWorkflowsDialog dialog = new ScheduleWorkflowsDialog();
             dialog.open();

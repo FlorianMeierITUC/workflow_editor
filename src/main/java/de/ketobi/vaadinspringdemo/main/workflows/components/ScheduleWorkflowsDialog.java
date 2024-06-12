@@ -34,8 +34,10 @@ public class ScheduleWorkflowsDialog extends Dialog {
                 showWeeklyOptions();
             } else if (event.getValue().equals("Monthly")) {
                 // Show monthly options
+                showMonthlyOptions();
             } else if (event.getValue().equals("Yearly")) {
                 // Show yearly options
+                showYearlyOptions();
             }
         });
 
@@ -112,5 +114,43 @@ public class ScheduleWorkflowsDialog extends Dialog {
         VerticalLayout daysLayout = new VerticalLayout(monday, tuesday, wednesday, thursday, friday, saturday, sunday);
         patternOptions.add(numberOfWeeksLayout);
         patternOptions.add(daysLayout);
+    }
+
+    private void showMonthlyOptions() {
+        patternOptions.removeAll();
+        Div numberFieldDiv = new Div();
+        RadioButtonGroup<String> monthlyOptions = new RadioButtonGroup<>();
+        monthlyOptions.setItems("Day # of every month", "The # day of every month", "The last day of every month");
+        monthlyOptions.setValue("Day # of every month");
+        monthlyOptions.addValueChangeListener(event -> {
+            if (event.getValue().equals("Day # of every month")) {
+                numberFieldDiv.removeAll();
+                NumberField dayField = new NumberField("Day #");
+                dayField.setValue(1d);
+                numberFieldDiv.add(dayField);
+            } else {
+                numberFieldDiv.removeAll();
+            }
+        });
+        patternOptions.add(monthlyOptions, numberFieldDiv);
+    }
+
+    private void showYearlyOptions() {
+        patternOptions.removeAll();
+        Div numberFieldDiv = new Div();
+        RadioButtonGroup<String> yearlyOptions = new RadioButtonGroup<>();
+        yearlyOptions.setItems("Every # years", "The # day of the # month every year", "The last day of the # month every year");
+        yearlyOptions.setValue("Every # years");
+        yearlyOptions.addValueChangeListener(event -> {
+            if (event.getValue().equals("Every # years")) {
+                numberFieldDiv.removeAll();
+                NumberField yearField = new NumberField("#");
+                yearField.setValue(1d);
+                numberFieldDiv.add(yearField);
+            } else {
+                numberFieldDiv.removeAll();
+            }
+        });
+        patternOptions.add(yearlyOptions, numberFieldDiv);
     }
 }

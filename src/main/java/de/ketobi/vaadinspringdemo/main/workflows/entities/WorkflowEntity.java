@@ -10,4 +10,5 @@ public interface WorkflowEntity {
     String getName();
     ObjectId getCreatedBy();
     LocalDateTime getCreatedAt();
+    WorkflowEntity getScheduledWorkflowStartEntity();
 }

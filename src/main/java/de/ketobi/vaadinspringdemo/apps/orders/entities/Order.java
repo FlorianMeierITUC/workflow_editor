@@ -13,6 +13,8 @@ import java.time.LocalDateTime;
 @Data
 @Document
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Order implements WorkflowEntity {
     @Id
     @EqualsAndHashCode.Include
@@ -49,5 +51,10 @@ public class Order implements WorkflowEntity {
     @Override
     public String getName() {
         return item;
+    }
+
+    @Override
+    public WorkflowEntity getScheduledWorkflowStartEntity() {
+        return this;
     }
 }

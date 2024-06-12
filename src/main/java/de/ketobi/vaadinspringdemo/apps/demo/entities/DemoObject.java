@@ -2,10 +2,7 @@ package de.ketobi.vaadinspringdemo.apps.demo.entities;
 
 import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowEntity;
 import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowTypes;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NonNull;
+import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -15,6 +12,8 @@ import java.time.LocalDateTime;
 @Data
 @Document
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class DemoObject implements WorkflowEntity {
     @Id
     @EqualsAndHashCode.Include
@@ -32,5 +31,11 @@ public class DemoObject implements WorkflowEntity {
     @Override
     public WorkflowTypes getWorkflowType() {
         return WorkflowTypes.DEMO_WORKFLOW;
+    }
+
+    @Override
+    public WorkflowEntity getScheduledWorkflowStartEntity() {
+        //logic to create the object
+        return this;
     }
 }
