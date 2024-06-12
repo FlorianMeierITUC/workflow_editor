@@ -56,4 +56,20 @@ public class WorkflowScheduleService {
             e.printStackTrace();
         }
     }
+
+    public void save(WorkflowSchedule schedule) {
+        scheduleRepository.save(schedule);
+    }
+
+    public boolean workflowIsScheduled(ObjectId workflowId) {
+        return scheduleRepository.existsByWorkflowId(workflowId);
+    }
+
+    public WorkflowSchedule get(ObjectId workflowId) {
+        return scheduleRepository.findByWorkflowId(workflowId);
+    }
+
+    public void delete(ObjectId workflowId) {
+        scheduleRepository.deleteByWorkflowId(workflowId);
+    }
 }

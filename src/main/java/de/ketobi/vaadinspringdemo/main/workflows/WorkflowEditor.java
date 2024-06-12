@@ -22,6 +22,7 @@ import de.ketobi.vaadinspringdemo.main.workflows.entities.Workflow;
 import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowNode;
 import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowNodeTypes;
 import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowNodeService;
+import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowScheduleService;
 import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowService;
 import de.ketobi.vaadinspringdemo.main.workflows.viewer.WorkflowView;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,7 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
     private final WorkflowService wfService;
     private final WorkflowNodeService wfNodeService;
     private final UserService userService;
+    private final WorkflowScheduleService workflowScheduleService;
     private Workflow workFlow;
     private String idWorkflow;
     private Div nodeDiv = new Div();
@@ -47,16 +49,19 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
             event.forwardTo(Login.class);
         }
     }
+
     @Autowired
-    public WorkflowEditor(WorkflowService wfService, WorkflowNodeService wfNodeService, UserService userService){
+    public WorkflowEditor(WorkflowService wfService, WorkflowNodeService wfNodeService, UserService userService, WorkflowScheduleService workflowScheduleService){
         this.wfService = wfService;
         this.wfNodeService = wfNodeService;
         this.userService = userService;
+        this.workflowScheduleService = workflowScheduleService;
         add(new H3("Workflow editor"));
         add(new Paragraph("Edit a workflow and its workflow nodes."));
         add(nodeDiv);
         add(treeDiv);
     }
+
     @Override
     public void setParameter(BeforeEvent event, String parameter) {
         this.idWorkflow = parameter;
@@ -70,11 +75,16 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
         nodeDiv.add(new Paragraph("Name: "+workFlow.getName()));
         nodeDiv.add(new Paragraph("Description: "+workFlow.getDescription()));
         nodeDiv.add(new Paragraph("Select here if the workflow is scheduled or event driven: "));
-        //TODO if a workflow is not scheduled anymore the schedule must be deleted!
         nodeDiv.add(new Button("Set Scheduled", e -> {
-            ScheduleWorkflowsDialog dialog = new ScheduleWorkflowsDialog();
+            ScheduleWorkflowsDialog dialog = new ScheduleWorkflowsDialog(workFlow.getId(), workflowScheduleService);
             dialog.open();
         }));
+        if(workflowScheduleService.workflowIsScheduled(workFlow.getId())){
+            nodeDiv.add(new Paragraph("Scheduled: "+workflowScheduleService.get(workFlow.getId()).getPattern().toString()));
+            nodeDiv.add(new Button("Unset Scheduled", e -> {
+                workflowScheduleService.delete(workFlow.getId());
+            }));
+        }
         HorizontalLayout editNodes = new HorizontalLayout();
         editNodes.add(new Paragraph("Edit nodes: "));
         editNodeSelect.setItems(wfNodeService.getAllWithoutStartAndEnd(workFlow.getId()));
