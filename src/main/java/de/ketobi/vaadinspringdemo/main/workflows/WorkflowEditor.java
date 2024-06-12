@@ -1,12 +1,9 @@
 package de.ketobi.vaadinspringdemo.main.workflows;
 
-import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -42,6 +39,7 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
     private Div nodeDiv = new Div();
     private Div treeDiv = new Div();
     private Select<WorkflowNode> editNodeSelect = new Select<>();
+    private Paragraph scheduleInfo = new Paragraph();
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
@@ -57,7 +55,7 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
         this.userService = userService;
         this.workflowScheduleService = workflowScheduleService;
         add(new H3("Workflow editor"));
-        add(new Paragraph("Edit a workflow and its workflow nodes."));
+        add(new H4("Edit a workflow and its workflow nodes."));
         add(nodeDiv);
         add(treeDiv);
     }
@@ -71,20 +69,32 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
     }
 
     private void fillNodeDiv(){
+        nodeDiv.add(new H5("Workflow details"));
         nodeDiv.add(new Paragraph("Active: "+workFlow.isActive()));
         nodeDiv.add(new Paragraph("Name: "+workFlow.getName()));
         nodeDiv.add(new Paragraph("Description: "+workFlow.getDescription()));
+
+        nodeDiv.add(new Hr());
+        nodeDiv.add(new H5("Workflow scheduling"));
         nodeDiv.add(new Paragraph("Select here if the workflow is scheduled or event driven: "));
-        nodeDiv.add(new Button("Set Scheduled", e -> {
-            ScheduleWorkflowsDialog dialog = new ScheduleWorkflowsDialog(workFlow.getId(), workflowScheduleService);
+        nodeDiv.add(scheduleInfo);
+        //TODO add a button div to update after a schedule was created and switch from "Set schedule" to "Edit schedule"
+        nodeDiv.add(new Button("Edit schedule", e -> {
+            ScheduleWorkflowsDialog dialog = new ScheduleWorkflowsDialog(workFlow.getId(), workflowScheduleService, this::updateScheduleInfo);
             dialog.open();
         }));
         if(workflowScheduleService.workflowIsScheduled(workFlow.getId())){
-            nodeDiv.add(new Paragraph("Scheduled: "+workflowScheduleService.get(workFlow.getId()).getPattern().toString()));
-            nodeDiv.add(new Button("Unset Scheduled", e -> {
+            scheduleInfo.setText("Scheduled: "+workflowScheduleService.get(workFlow.getId()).getPattern().toString());
+            nodeDiv.add(new Button("Remove Schedule", e -> {
                 workflowScheduleService.delete(workFlow.getId());
+                scheduleInfo.setText("Event driven: This workflow will be started by a user.");
             }));
+        } else {
+            scheduleInfo.setText("Event driven: This workflow will be started by a user.");
         }
+
+        nodeDiv.add(new Hr());
+        nodeDiv.add(new H5("Workflow nodes configuration"));
         HorizontalLayout editNodes = new HorizontalLayout();
         editNodes.add(new Paragraph("Edit nodes: "));
         editNodeSelect.setItems(wfNodeService.getAllWithoutStartAndEnd(workFlow.getId()));
@@ -92,7 +102,6 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
         editNodes.add(editNodeSelect);
         editNodes.add(new EditNodeButton());
         nodeDiv.add(editNodes);
-        nodeDiv.add(new Html("<HR>"));
         nodeDiv.add(new CreateWorkflowNodeDiv(workFlow, wfNodeService, userService, this::drawWorkflow));
     }
 
@@ -148,5 +157,9 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
                 }
             });
         }
+    }
+
+    public void updateScheduleInfo(){
+        scheduleInfo.setText("Scheduled: "+workflowScheduleService.get(workFlow.getId()).getPattern().toString());
     }
 }

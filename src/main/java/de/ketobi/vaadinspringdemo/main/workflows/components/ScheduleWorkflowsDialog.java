@@ -10,7 +10,7 @@ import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
-import com.vaadin.flow.component.textfield.NumberField;
+import com.vaadin.flow.component.textfield.IntegerField;
 import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowSchedule;
 import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowScheduleService;
 import org.bson.types.ObjectId;
@@ -23,7 +23,7 @@ public class ScheduleWorkflowsDialog extends Dialog {
     private final Div durationOptions = new Div();
     private final ObjectId workflowId;
     private final WorkflowScheduleService workflowScheduleService;
-    private final NumberField intervalField = new NumberField();
+    private final IntegerField intervalField = new IntegerField();
     private final Checkbox excludeWeekends = new Checkbox("Exclude weekends");
     private final Checkbox monday = new Checkbox("Monday");
     private final Checkbox tuesday = new Checkbox("Tuesday");
@@ -32,13 +32,31 @@ public class ScheduleWorkflowsDialog extends Dialog {
     private final Checkbox friday = new Checkbox("Friday");
     private final Checkbox saturday = new Checkbox("Saturday");
     private final Checkbox sunday = new Checkbox("Sunday");
-    private final NumberField dayOfMonthField = new NumberField();
-    private final NumberField dayInAMonthField = new NumberField();
-    private final NumberField monthField = new NumberField();
+    private final IntegerField dayOfMonthField = new IntegerField();
+    private final IntegerField dayInAMonthField = new IntegerField();
+    private final IntegerField monthField = new IntegerField();
 
-    public ScheduleWorkflowsDialog(ObjectId workflowId, WorkflowScheduleService workflowScheduleService) {
+    public ScheduleWorkflowsDialog(ObjectId workflowId, WorkflowScheduleService workflowScheduleService, Runnable updateScheduleInfo) {
         this.workflowId = workflowId;
         this.workflowScheduleService = workflowScheduleService;
+
+        intervalField.setValue(1);
+        intervalField.setMin(1);
+        intervalField.setStepButtonsVisible(true);
+        dayOfMonthField.setValue(1);
+        dayOfMonthField.setMin(1);
+        dayOfMonthField.setMax(31);
+        dayOfMonthField.setStepButtonsVisible(true);
+        dayInAMonthField.setValue(1);
+        dayInAMonthField.setMin(1);
+        dayInAMonthField.setMax(31);
+        dayInAMonthField.setStepButtonsVisible(true);
+        monthField.setValue(1);
+        monthField.setMin(1);
+        monthField.setMax(12);
+        monthField.setStepButtonsVisible(true);
+        excludeWeekends.setValue(true);
+
         getHeader().add(new H3("Schedule workflow execution"));
         //Pattern section
         RadioButtonGroup<String> patternGroup = new RadioButtonGroup<>();
@@ -87,8 +105,20 @@ public class ScheduleWorkflowsDialog extends Dialog {
 
         // Buttons
         Button okButton = new Button("Save", event -> {
-            //Create the pattern
-            WorkflowSchedule.SchedulePattern pattern = new WorkflowSchedule.SchedulePattern();
+            WorkflowSchedule.SchedulePattern pattern;
+            WorkflowSchedule schedule;
+            if(workflowScheduleService.workflowIsScheduled(workflowId)){
+                schedule = workflowScheduleService.get(workflowId);
+                pattern = schedule.getPattern();
+            } else {
+                pattern = new WorkflowSchedule.SchedulePattern();
+                schedule = new WorkflowSchedule();
+                schedule.setId(ObjectId.get());
+                schedule.setWorkflowId(workflowId);
+            }
+            schedule.setStart(startDatePicker.getValue());
+            schedule.setEnd(durationGroup.getValue().equals("Ends on") ? endDatePicker.getValue() : null);
+
             pattern.setType(patternGroup.getValue());
             pattern.setInterval(intervalField.getValue().intValue());
             if (patternGroup.getValue().equals("Daily")) {
@@ -97,13 +127,13 @@ public class ScheduleWorkflowsDialog extends Dialog {
             } else if (patternGroup.getValue().equals("Weekly")) {
                 // Set weekly options
                 pattern.setDaysOfWeek(List.of(
-                        monday.getValue() ? 1 : null,
-                        tuesday.getValue() ? 2 : null,
-                        wednesday.getValue() ? 3 : null,
-                        thursday.getValue() ? 4 : null,
-                        friday.getValue() ? 5 : null,
-                        saturday.getValue() ? 6 : null,
-                        sunday.getValue() ? 7 : null
+                        monday.getValue() ? 1 : 0,
+                        tuesday.getValue() ? 2 : 0,
+                        wednesday.getValue() ? 3 : 0,
+                        thursday.getValue() ? 4 : 0,
+                        friday.getValue() ? 5 : 0,
+                        saturday.getValue() ? 6 : 0,
+                        sunday.getValue() ? 7 : 0
                 ));
             } else if (patternGroup.getValue().equals("Monthly")) {
                 // Set monthly options
@@ -113,16 +143,9 @@ public class ScheduleWorkflowsDialog extends Dialog {
                 pattern.setDayInAMonth(dayInAMonthField.getValue().intValue());
                 pattern.setMonthInAYear(monthField.getValue().intValue());
             }
-            // Save the schedule
-            WorkflowSchedule schedule = WorkflowSchedule.builder()
-                    .id(ObjectId.get())
-                    .workflowId(workflowId)
-                    .start(startDatePicker.getValue())
-                    .end(endDatePicker.getValue())
-                    .pattern(pattern)
-                    .build();
-
+            schedule.setPattern(pattern);
             workflowScheduleService.save(schedule);
+            updateScheduleInfo.run();
             close();
         });
 
@@ -138,20 +161,27 @@ public class ScheduleWorkflowsDialog extends Dialog {
         if(workflowScheduleService.workflowIsScheduled(workflowId)){
             WorkflowSchedule schedule = workflowScheduleService.get(workflowId);
             patternGroup.setValue(schedule.getPattern().getType());
-            intervalField.setValue((double) schedule.getPattern().getInterval());
+            intervalField.setValue(schedule.getPattern().getInterval());
             excludeWeekends.setValue(schedule.getPattern().isExcludeWeekends());
-            monday.setValue(schedule.getPattern().getDaysOfWeek().contains(1));
-            tuesday.setValue(schedule.getPattern().getDaysOfWeek().contains(2));
-            wednesday.setValue(schedule.getPattern().getDaysOfWeek().contains(3));
-            thursday.setValue(schedule.getPattern().getDaysOfWeek().contains(4));
-            friday.setValue(schedule.getPattern().getDaysOfWeek().contains(5));
-            saturday.setValue(schedule.getPattern().getDaysOfWeek().contains(6));
-            sunday.setValue(schedule.getPattern().getDaysOfWeek().contains(7));
-            dayOfMonthField.setValue((double) schedule.getPattern().getDayOfMonth());
-            dayInAMonthField.setValue((double) schedule.getPattern().getDayInAMonth());
-            monthField.setValue((double) schedule.getPattern().getMonthInAYear());
+            if(schedule.getPattern().getDaysOfWeek()!=null) {
+                monday.setValue(schedule.getPattern().getDaysOfWeek().contains(1));
+                tuesday.setValue(schedule.getPattern().getDaysOfWeek().contains(2));
+                wednesday.setValue(schedule.getPattern().getDaysOfWeek().contains(3));
+                thursday.setValue(schedule.getPattern().getDaysOfWeek().contains(4));
+                friday.setValue(schedule.getPattern().getDaysOfWeek().contains(5));
+                saturday.setValue(schedule.getPattern().getDaysOfWeek().contains(6));
+                sunday.setValue(schedule.getPattern().getDaysOfWeek().contains(7));
+            }
+            dayOfMonthField.setValue(schedule.getPattern().getDayOfMonth());
+            dayInAMonthField.setValue(schedule.getPattern().getDayInAMonth());
+            monthField.setValue(schedule.getPattern().getMonthInAYear());
             startDatePicker.setValue(schedule.getStart());
-            endDatePicker.setValue(schedule.getEnd());
+            if(schedule.getEnd()==null){
+                durationGroup.setValue("No end date");
+            } else {
+                durationGroup.setValue("Ends on");
+                endDatePicker.setValue(schedule.getEnd());
+            }
         }
     }
 

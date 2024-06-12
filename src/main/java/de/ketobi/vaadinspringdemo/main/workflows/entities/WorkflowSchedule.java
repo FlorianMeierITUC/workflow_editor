@@ -1,9 +1,6 @@
 package de.ketobi.vaadinspringdemo.main.workflows.entities;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NonNull;
+import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -13,7 +10,7 @@ import java.util.List;
 
 @Data
 @Document
-@Builder
+@NoArgsConstructor
 public class WorkflowSchedule {
     @EqualsAndHashCode.Include
     @Id
@@ -35,13 +32,13 @@ public class WorkflowSchedule {
     @Document
     public static class SchedulePattern {
         private String type; // Daily, Weekly, Monthly, Yearly
-        private int interval; // Interval count, applicable for any type like 'Every N weeks/days/months/years'
+        private Integer interval; // Interval count, applicable for any type like 'Every N weeks/days/months/years'
         private boolean excludeWeekends; // Whether to exclude weekends
 
-        private int dayOfMonth; // For monthly schedules, can handle cases like "on the 15th"
+        private Integer dayOfMonth; // For monthly schedules, can handle cases like "on the 15th"
         private List<Integer> daysOfWeek; // Applicable for weekly schedules
-        private int dayInAMonth; // For yearly schedules, can handle cases like "on the 3rd of May"
-        private int monthInAYear; // For yearly schedules, can handle cases like "on the 3rd of May"
+        private Integer dayInAMonth; // For yearly schedules, can handle cases like "on the 3rd of May"
+        private Integer monthInAYear; // For yearly schedules, can handle cases like "on the 3rd of May"
 
         //Override the toString Method to display the schedule pattern in a human-readable format
         @Override

@@ -22,7 +22,8 @@ public class WorkflowScheduleService {
     @Autowired
     private WorkflowEntityService workflowEntityService;
 
-    @Scheduled(fixedRate = 3600000) // Every hour
+    //@Scheduled(fixedRate = 60*60*1000) // Every hour
+    @Scheduled(fixedRate = 60*1000) // Every minute //TODO change this after testing
     public void checkAndExecuteTasks() {
         List<WorkflowSchedule> schedules = scheduleRepository.findAll();
         LocalDate now = LocalDate.now();
