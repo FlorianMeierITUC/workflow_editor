@@ -1,5 +1,7 @@
 package de.ketobi.vaadinspringdemo.main.ui;
 
+import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
@@ -18,6 +20,10 @@ public class WelcomeView extends VerticalLayout implements BeforeEnterObserver {
         }
     }
     public WelcomeView() {
-        add("Welcome to the Vaadin Spring Demo Application!");
+        add(new H4("Welcome to the Vaadin Spring Demo Application!"));
+        add(new H3("Please note that this is a demo application in the early stages of development."));
+        add(new H3("Please feel free to explore the application and provide feedback."));
+        add(new H3("Not only errors and bugs might occur but you may also encounter unfinished features."));
+        add(new H3("Thank you for your interest in this project!"));
     }
 }

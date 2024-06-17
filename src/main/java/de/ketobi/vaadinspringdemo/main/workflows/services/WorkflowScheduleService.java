@@ -42,8 +42,8 @@ public class WorkflowScheduleService {
         for (WorkflowSchedule schedule : schedules) {
             Workflow workflow = workflowRepository.findById(schedule.getWorkflowId()).orElse(null);
             if(workflow == null){
-                System.out.println("Workflow "+workflow.getName()+" not found in the database. Removing schedule");
-                delete(workflow.getId());
+                System.out.println("Workflow "+schedule.getWorkflowId()+" not found in the database. Removing schedule");
+                delete(schedule.getWorkflowId());
                 continue;
             }
             System.out.println("Checking schedule for workflow "+schedule.getWorkflowId());
