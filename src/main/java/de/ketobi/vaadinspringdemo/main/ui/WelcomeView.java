@@ -20,10 +20,10 @@ public class WelcomeView extends VerticalLayout implements BeforeEnterObserver {
         }
     }
     public WelcomeView() {
-        add(new H4("Welcome to the Vaadin Spring Demo Application!"));
-        add(new H3("Please note that this is a demo application in the early stages of development."));
-        add(new H3("Please feel free to explore the application and provide feedback."));
-        add(new H3("Not only errors and bugs might occur but you may also encounter unfinished features."));
-        add(new H3("Thank you for your interest in this project!"));
+        add(new H3("Welcome to the Vaadin Spring Demo Application - Workflow Ticket System!"));
+        add(new H4("Please note that this is a demo application in the early stages of development."));
+        add(new H4("Please feel free to explore the application and provide feedback."));
+        add(new H4("Not only errors and bugs might occur but you may also encounter unfinished features."));
+        add(new H4("Thank you for your interest in this project!"));
     }
 }
