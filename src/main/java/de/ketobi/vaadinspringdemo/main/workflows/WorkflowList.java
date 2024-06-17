@@ -23,6 +23,7 @@ import de.ketobi.vaadinspringdemo.main.workflows.entities.Workflow;
 import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowNode;
 import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowNodeTypes;
 import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowNodeService;
+import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowScheduleService;
 import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,7 @@ import java.util.ArrayList;
 public class WorkflowList extends VerticalLayout implements BeforeEnterObserver {
     private final WorkflowService workflowService;
     private final WorkflowNodeService workflowNodeService;
+    private final WorkflowScheduleService workflowScheduleService;
     private GridListDataView<Workflow> workflowView;
     private TextField name = new TextField("Name *");
     private TextArea description = new TextArea("Description");
@@ -47,7 +49,7 @@ public class WorkflowList extends VerticalLayout implements BeforeEnterObserver 
     }
 
     @Autowired
-    public WorkflowList(WorkflowService workflowService, WorkflowNodeService workflowNodeService){
+    public WorkflowList(WorkflowService workflowService, WorkflowNodeService workflowNodeService, WorkflowScheduleService workflowScheduleService){
         this.workflowService = workflowService;
         this.workflowNodeService = workflowNodeService;
         ArrayList<Workflow> workflowList = new ArrayList<>(workflowService.findAll());
@@ -69,6 +71,7 @@ public class WorkflowList extends VerticalLayout implements BeforeEnterObserver 
             Button deleteButton = new Button("Delete");
             deleteButton.addClickListener(e -> {
                 workflowNodeService.deleteAllFromWorkflow(selectedWf.getId());
+                workflowScheduleService.delete(selectedWf.getId());
                 workflowService.delete(selectedWf);
                 Notification notification = Notification
                         .show("Workflow deleted!");
@@ -87,6 +90,7 @@ public class WorkflowList extends VerticalLayout implements BeforeEnterObserver 
         add(description);
         add(new SaveButton());
         add(wfGrid);
+        this.workflowScheduleService = workflowScheduleService;
     }
 
     private class SaveButton extends Button {

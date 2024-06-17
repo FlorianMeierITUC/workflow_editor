@@ -1,5 +1,6 @@
 package de.ketobi.vaadinspringdemo.main.workflows;
 
+import com.vaadin.flow.component.HtmlComponent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -69,12 +70,15 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
     }
 
     private void fillNodeDiv(){
+        nodeDiv.add(new HtmlComponent("br"));
         nodeDiv.add(new H5("Workflow details"));
+        nodeDiv.add(new Paragraph("ID: "+workFlow.getId()));
         nodeDiv.add(new Paragraph("Active: "+workFlow.isActive()));
         nodeDiv.add(new Paragraph("Name: "+workFlow.getName()));
         nodeDiv.add(new Paragraph("Description: "+workFlow.getDescription()));
-
+        nodeDiv.add(new HtmlComponent("br"));
         nodeDiv.add(new Hr());
+        nodeDiv.add(new HtmlComponent("br"));
         nodeDiv.add(new H5("Workflow scheduling"));
         nodeDiv.add(new Paragraph("Select here if the workflow is scheduled or event driven: "));
         nodeDiv.add(scheduleInfo);
@@ -92,8 +96,10 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
         } else {
             scheduleInfo.setText("Event driven: This workflow will be started by a user.");
         }
-
+        nodeDiv.add(new HtmlComponent("br"));
+        nodeDiv.add(new HtmlComponent("br"));
         nodeDiv.add(new Hr());
+        nodeDiv.add(new HtmlComponent("br"));
         nodeDiv.add(new H5("Workflow nodes configuration"));
         HorizontalLayout editNodes = new HorizontalLayout();
         editNodes.add(new Paragraph("Edit nodes: "));

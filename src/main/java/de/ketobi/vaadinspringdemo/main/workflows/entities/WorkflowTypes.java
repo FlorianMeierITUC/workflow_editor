@@ -2,11 +2,13 @@ package de.ketobi.vaadinspringdemo.main.workflows.entities;
 
 import de.ketobi.vaadinspringdemo.apps.demo.entities.DemoObject;
 import de.ketobi.vaadinspringdemo.apps.orders.entities.Order;
+import de.ketobi.vaadinspringdemo.apps.scheduledWorkflow.entities.ScheduledWorkflowEntity;
 import org.bson.types.ObjectId;
 
 public enum WorkflowTypes {
     ORDER_WORKFLOW("Order Workflow", Order.class, new ObjectId("664dd9c649a7d57f42c0a1e4")),
-    DEMO_WORKFLOW("Test", DemoObject.class, new ObjectId("664d996ae4d3377dc1403c41"));
+    DEMO_WORKFLOW("Test", DemoObject.class, new ObjectId("664d996ae4d3377dc1403c41")),
+    SCHEDULED_WORKFLOW("Scheduled Workflow", ScheduledWorkflowEntity.class, new ObjectId("666966be31d9cd79d67771d7"));
 
     private final String name;
     private final Class<? extends WorkflowEntity> entity;
@@ -33,15 +35,6 @@ public enum WorkflowTypes {
     public static WorkflowTypes fromId(ObjectId id) {
         for (WorkflowTypes type : WorkflowTypes.values()) {
             if (type.getId().equals(id)) {
-                return type;
-            }
-        }
-        return null;
-    }
-
-    public static WorkflowTypes fromEntity(Class<? extends WorkflowEntity> entity) {
-        for (WorkflowTypes type : WorkflowTypes.values()) {
-            if (type.getEntity().equals(entity)) {
                 return type;
             }
         }

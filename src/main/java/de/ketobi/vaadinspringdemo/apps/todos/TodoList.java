@@ -113,11 +113,17 @@ public class TodoList extends VerticalLayout implements BeforeEnterObserver {
         todoGrid.addColumn(Todo::getDescription).setHeader("Description").setAutoWidth(true);
         todoGrid.addColumn(todo -> userService.getUserById(todo.getCreatedBy()).getName()).setHeader("Creator").setAutoWidth(true);
         todoGrid.addColumn(todo -> todo.getCreatedAt().format(formatter)).setHeader("Created at").setAutoWidth(true);
+        todoGrid.addColumn(todo -> todo.getDoneAt() != null ? todo.getDoneAt().format(formatter) : "").setHeader("Done at").setAutoWidth(true);
         todoGrid.addComponentColumn(todo -> {
             Checkbox doneCheckbox = new Checkbox();
             doneCheckbox.setValue(todo.isDone());
             doneCheckbox.addValueChangeListener(e -> {
                 todo.setDone(e.getValue());
+                if(e.getValue()){
+                    todo.setDoneAt(LocalDateTime.now());
+                } else {
+                    todo.setDoneAt(null);
+                }
                 todoService.save(todo);
             });
             return doneCheckbox;

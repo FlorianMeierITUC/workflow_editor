@@ -10,8 +10,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class ScheduleCalculator {
-    //TODO exclude weekends
+
     public static LocalDate calculateNextRun(LocalDate start, WorkflowSchedule.SchedulePattern pattern, LocalDate now) {
+        System.out.println("Calculating next run for pattern "+pattern+" with start date "+start+" and now "+now);
         if (start == null || now.isBefore(start)) {
             return null; // No run scheduled before the start date
         }
@@ -85,5 +86,23 @@ public class ScheduleCalculator {
             return LocalDate.of(date.getYear(), pattern.getMonthInAYear(), day);
         }
         return date;
+    }
+
+    public boolean workflowIsDue(WorkflowSchedule schedule){
+        //TODO exclude weekends if it is set
+        //TODO exclude inactive workflows
+        //TODO calculate if a workflow is due on this day
+        //TODO check if the workflow ran on this day
+        //TODO check if the end date was reached
+        //TODO check if the start date is set and reached
+        //TODO calculate the last due date and check if the workflow ran on that day if not execute the workflow immediately
+        //without any changes to the schedule
+
+        LocalDate now = LocalDate.now();
+        LocalDate start = schedule.getStart();
+        LocalDate end = schedule.getEnd();
+        LocalDate lastRun = schedule.getLastRun();
+
+        return true;
     }
 }
