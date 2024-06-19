@@ -25,5 +25,6 @@ public class WelcomeView extends VerticalLayout implements BeforeEnterObserver {
         add(new H4("Please feel free to explore the application and provide feedback."));
         add(new H4("Not only errors and bugs might occur but you may also encounter unfinished features."));
         add(new H4("Thank you for your interest in this project!"));
+        
     }
 }
