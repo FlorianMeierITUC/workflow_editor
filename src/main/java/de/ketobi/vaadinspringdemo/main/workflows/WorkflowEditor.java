@@ -1,15 +1,31 @@
 package de.ketobi.vaadinspringdemo.main.workflows;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.vaadin.flow.component.HtmlComponent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.html.*;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.H4;
+import com.vaadin.flow.component.html.H5;
+import com.vaadin.flow.component.html.Hr;
+import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
-import com.vaadin.flow.router.*;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
+import com.vaadin.flow.router.BeforeEvent;
+import com.vaadin.flow.router.HasUrlParameter;
+import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.Route;
+
 import de.ketobi.vaadinspringdemo.main.login.Login;
 import de.ketobi.vaadinspringdemo.main.ui.MainLayout;
 import de.ketobi.vaadinspringdemo.main.user.entities.User;
@@ -23,10 +39,6 @@ import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowNodeService;
 import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowScheduleService;
 import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowService;
 import de.ketobi.vaadinspringdemo.main.workflows.viewer.WorkflowView;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Route(value = "workfloweditor", layout = MainLayout.class)
 @PageTitle("Workflow editor")
@@ -44,13 +56,14 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
-        if(UserService.getCurrentUser() == null){
+        if (UserService.getCurrentUser() == null) {
             event.forwardTo(Login.class);
         }
     }
 
     @Autowired
-    public WorkflowEditor(WorkflowService wfService, WorkflowNodeService wfNodeService, UserService userService, WorkflowScheduleService workflowScheduleService){
+    public WorkflowEditor(WorkflowService wfService, WorkflowNodeService wfNodeService, UserService userService,
+            WorkflowScheduleService workflowScheduleService) {
         this.wfService = wfService;
         this.wfNodeService = wfNodeService;
         this.userService = userService;
@@ -60,14 +73,31 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
         add(nodeDiv);
         add(treeDiv);
 
-        Button validateWorkflowButton = new Button("Validate Workflow", event-> validateWorkflow());
+        Button validateWorkflowButton = new Button("Validate Workflow", event -> validateWorkflow());
         add(validateWorkflowButton);
     }
 
-    private void validateWorkflow(){
-        System.out.println("Validate workflow");
+    private void validateWorkflow() {
+        try {
+            List<WorkflowNode> nodes = wfNodeService.getAll(workFlow.getId());
+            validateNodes(nodes);
+            System.out.println(nodes.size());
+
+        } catch (Exception e) {
+            System.out.println("Exception");
+        }
     }
 
+    private boolean validateNodes(List<WorkflowNode> nodes) {
+
+        for (int i = 0; i < nodes.size(); i++) {
+            System.out.println(i);
+            WorkflowNode node = nodes.get(i);
+            System.out.println(node.validateNode());
+        }
+
+        return true;
+    }
 
     @Override
     public void setParameter(BeforeEvent event, String parameter) {
@@ -77,26 +107,28 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
         drawWorkflow();
     }
 
-    private void fillNodeDiv(){
+    private void fillNodeDiv() {
         nodeDiv.add(new HtmlComponent("br"));
         nodeDiv.add(new H5("Workflow details"));
-        nodeDiv.add(new Paragraph("ID: "+workFlow.getId()));
-        nodeDiv.add(new Paragraph("Active: "+workFlow.isActive()));
-        nodeDiv.add(new Paragraph("Name: "+workFlow.getName()));
-        nodeDiv.add(new Paragraph("Description: "+workFlow.getDescription()));
+        nodeDiv.add(new Paragraph("ID: " + workFlow.getId()));
+        nodeDiv.add(new Paragraph("Active: " + workFlow.isActive()));
+        nodeDiv.add(new Paragraph("Name: " + workFlow.getName()));
+        nodeDiv.add(new Paragraph("Description: " + workFlow.getDescription()));
         nodeDiv.add(new HtmlComponent("br"));
         nodeDiv.add(new Hr());
         nodeDiv.add(new HtmlComponent("br"));
         nodeDiv.add(new H5("Workflow scheduling"));
         nodeDiv.add(new Paragraph("Select here if the workflow is scheduled or event driven: "));
         nodeDiv.add(scheduleInfo);
-        //TODO add a button div to update after a schedule was created and switch from "Set schedule" to "Edit schedule"
+        // TODO add a button div to update after a schedule was created and switch from
+        // "Set schedule" to "Edit schedule"
         nodeDiv.add(new Button("Edit schedule", e -> {
-            ScheduleWorkflowsDialog dialog = new ScheduleWorkflowsDialog(workFlow.getId(), workflowScheduleService, this::updateScheduleInfo);
+            ScheduleWorkflowsDialog dialog = new ScheduleWorkflowsDialog(workFlow.getId(), workflowScheduleService,
+                    this::updateScheduleInfo);
             dialog.open();
         }));
-        if(workflowScheduleService.workflowIsScheduled(workFlow.getId())){
-            scheduleInfo.setText("Scheduled: "+workflowScheduleService.get(workFlow.getId()).getPattern().toString());
+        if (workflowScheduleService.workflowIsScheduled(workFlow.getId())) {
+            scheduleInfo.setText("Scheduled: " + workflowScheduleService.get(workFlow.getId()).getPattern().toString());
             nodeDiv.add(new Button("Remove Schedule", e -> {
                 workflowScheduleService.delete(workFlow.getId());
                 scheduleInfo.setText("Event driven: This workflow will be started by a user.");
@@ -119,23 +151,23 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
         nodeDiv.add(new CreateWorkflowNodeDiv(workFlow, wfNodeService, userService, this::drawWorkflow));
     }
 
-    public void drawWorkflow(){
+    public void drawWorkflow() {
         treeDiv.removeAll();
         List<WorkflowNode> nodes = wfNodeService.getAll(workFlow.getId());
         treeDiv.add(new WorkflowView(nodes));
     }
 
     private class EditNodeButton extends Button {
-        EditNodeButton(){
+        EditNodeButton() {
             setText("Edit");
             addClickListener(clickEvent -> {
                 WorkflowNode node = editNodeSelect.getValue();
-                if(node!=null){
+                if (node != null) {
                     Dialog editNodeDialog = new Dialog();
                     VerticalLayout editNodeLayout = new VerticalLayout();
-                    editNodeLayout.add(new Paragraph("Edit node: "+node.getTitle()));
-                    editNodeLayout.add(new Paragraph("ID: "+node.getId()));
-                    editNodeLayout.add(new Paragraph("Type: "+node.getType()));
+                    editNodeLayout.add(new Paragraph("Edit node: " + node.getTitle()));
+                    editNodeLayout.add(new Paragraph("ID: " + node.getId()));
+                    editNodeLayout.add(new Paragraph("Type: " + node.getType()));
                     Button closeButton = new Button(new Icon("lumo", "cross"),
                             (e) -> editNodeDialog.close());
                     closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
@@ -148,7 +180,7 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
                     users.addAll(userService.getAll());
                     responsible.setItems(users);
                     responsible.setItemLabelGenerator(User::getName);
-                    if(node.getResponsible()!=null) {
+                    if (node.getResponsible() != null) {
                         if (node.getResponsible().equals(UserService.getEntityCreator().getId())) {
                             responsible.setValue(UserService.getEntityCreator());
                         } else {
@@ -156,13 +188,14 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
                         }
                     }
                     Button saveButton = new Button("Save", e -> {
-                        if(responsible.getValue()!=null) {
+                        if (responsible.getValue() != null) {
                             node.setResponsible(responsible.getValue().getId());
                         }
                         wfNodeService.save(node);
                         editNodeDialog.close();
                     });
-                    if(node.getType().equals(WorkflowNodeTypes.USER_ACTION) || node.getType().equals(WorkflowNodeTypes.USER_DECISION)) {
+                    if (node.getType().equals(WorkflowNodeTypes.USER_ACTION)
+                            || node.getType().equals(WorkflowNodeTypes.USER_DECISION)) {
                         editNodeLayout.add(responsible);
                     }
                     editNodeDialog.add(editNodeLayout);
@@ -173,7 +206,7 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
         }
     }
 
-    public void updateScheduleInfo(){
-        scheduleInfo.setText("Scheduled: "+workflowScheduleService.get(workFlow.getId()).getPattern().toString());
+    public void updateScheduleInfo() {
+        scheduleInfo.setText("Scheduled: " + workflowScheduleService.get(workFlow.getId()).getPattern().toString());
     }
 }
