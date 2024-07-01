@@ -3,6 +3,7 @@ package de.ketobi.vaadinspringdemo.main.workflows;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.flow.component.HtmlComponent;
@@ -16,6 +17,7 @@ import com.vaadin.flow.component.html.H5;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
@@ -77,23 +79,63 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
         add(validateWorkflowButton);
     }
 
-    private void validateWorkflow() {
+    private boolean validateWorkflow() {
+        boolean nodesValid = false;
         try {
             List<WorkflowNode> nodes = wfNodeService.getAll(workFlow.getId());
-            validateNodes(nodes);
-            System.out.println(nodes.size());
+
+            nodesValid = validateNodes(nodes);
+            // boolean allAndNodesEndInUnionNode = validateAndNodeEndsInUnionNode(nodes);
+            // System.out.println(allAndNodesEndInUnionNode);
 
         } catch (Exception e) {
             System.out.println("Exception");
         }
+
+        // nofify user
+        Notification.show("Workflow is valid: " + nodesValid);
+
+        return nodesValid;
+    }
+
+    private boolean checkSuccessorForUnionNode(ObjectId node) {
+        WorkflowNode successorNode = wfNodeService.getById(node);
+        if (successorNode.getType().equals(WorkflowNodeTypes.UNION)) {
+            return true;
+        }
+
+        for (ObjectId successor : successorNode.getSuccessorNodes()) {
+            if (checkSuccessorForUnionNode(successor)) {
+                return true;
+            }
+        }
+        return true;
+    }
+
+    public boolean validateAndNodeEndsInUnionNode(WorkflowNode startNode) {
+
+        for (ObjectId successor : startNode.getSuccessorNodes()) {
+            if (checkSuccessorForUnionNode(successor)) {
+                return true;
+            }
+        }
+        return false;
+
     }
 
     private boolean validateNodes(List<WorkflowNode> nodes) {
 
         for (int i = 0; i < nodes.size(); i++) {
-            System.out.println(i);
             WorkflowNode node = nodes.get(i);
-            System.out.println(node.validateNode());
+            if (!node.validateNode()) {
+                return false;
+            }
+
+            if (node.getType() == WorkflowNodeTypes.AND) {
+                if (!validateAndNodeEndsInUnionNode(node)) {
+                    return false;
+                }
+            }
         }
 
         return true;
@@ -148,7 +190,8 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
         editNodes.add(editNodeSelect);
         editNodes.add(new EditNodeButton());
         nodeDiv.add(editNodes);
-        nodeDiv.add(new CreateWorkflowNodeDiv(workFlow, wfNodeService, userService, this::drawWorkflow, this::refreshEditNodeSelectItems));
+        nodeDiv.add(new CreateWorkflowNodeDiv(workFlow, wfNodeService, userService, this::drawWorkflow,
+                this::refreshEditNodeSelectItems));
     }
 
     public void drawWorkflow() {
@@ -212,7 +255,7 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
         scheduleInfo.setText("Scheduled: " + workflowScheduleService.get(workFlow.getId()).getPattern().toString());
     }
 
-    public void refreshEditNodeSelectItems(){
+    public void refreshEditNodeSelectItems() {
         editNodeSelect.setItems(wfNodeService.getAllWithoutStartAndEnd(workFlow.getId()));
-    }   
+    }
 }
