@@ -172,7 +172,6 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
     }
 
     public void refreshEditNodeSelectItems(){
-        System.out.println("Refreshing editNodeSelect items");
         editNodeSelect.setItems(wfNodeService.getAllWithoutStartAndEnd(workFlow.getId()));
     }   
 }
