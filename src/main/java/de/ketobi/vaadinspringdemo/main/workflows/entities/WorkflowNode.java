@@ -79,6 +79,7 @@ public class WorkflowNode {
         if (decisionTypes.contains(type) && (successorNode_success == null || successorNode_failure == null)) {
             return false;
         }
+
         return true;
     }
 }
