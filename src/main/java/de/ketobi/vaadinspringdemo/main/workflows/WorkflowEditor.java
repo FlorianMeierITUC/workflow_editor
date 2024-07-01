@@ -59,7 +59,15 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
         add(new H4("Edit a workflow and its workflow nodes."));
         add(nodeDiv);
         add(treeDiv);
+
+        Button validateWorkflowButton = new Button("Validate Workflow", event-> validateWorkflow());
+        add(validateWorkflowButton);
     }
+
+    private void validateWorkflow(){
+        System.out.println("Validate workflow");
+    }
+
 
     @Override
     public void setParameter(BeforeEvent event, String parameter) {
