@@ -148,7 +148,7 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
         editNodes.add(editNodeSelect);
         editNodes.add(new EditNodeButton());
         nodeDiv.add(editNodes);
-        nodeDiv.add(new CreateWorkflowNodeDiv(workFlow, wfNodeService, userService, this::drawWorkflow));
+        nodeDiv.add(new CreateWorkflowNodeDiv(workFlow, wfNodeService, userService, this::drawWorkflow, this::refreshEditNodeSelectItems));
     }
 
     public void drawWorkflow() {
@@ -193,6 +193,8 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
                         }
                         wfNodeService.save(node);
                         editNodeDialog.close();
+                        refreshEditNodeSelectItems();
+
                     });
                     if (node.getType().equals(WorkflowNodeTypes.USER_ACTION)
                             || node.getType().equals(WorkflowNodeTypes.USER_DECISION)) {
@@ -209,4 +211,8 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
     public void updateScheduleInfo() {
         scheduleInfo.setText("Scheduled: " + workflowScheduleService.get(workFlow.getId()).getPattern().toString());
     }
+
+    public void refreshEditNodeSelectItems(){
+        editNodeSelect.setItems(wfNodeService.getAllWithoutStartAndEnd(workFlow.getId()));
+    }   
 }

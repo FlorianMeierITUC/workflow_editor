@@ -18,11 +18,13 @@ import de.ketobi.vaadinspringdemo.main.workflows.entities.Workflow;
 import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowNode;
 import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowNodeTypes;
 import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowNodeService;
+import de.ketobi.vaadinspringdemo.main.workflows.components.CreateWorkflowNodeDiv;
 import org.bson.types.ObjectId;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import java.util.function.Consumer;
 
 import static de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowNodeTypes.END;
 import static de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowNodeTypes.START;
@@ -42,14 +44,17 @@ public class CreateWorkflowNodeDiv extends Div{
     private MultiSelectComboBox<WorkflowNode> multiplePredecessors = new MultiSelectComboBox<>("Predecessor nodes");
     private MultiSelectComboBox<WorkflowNode> multipleSuccessors = new MultiSelectComboBox<>("Successor nodes");
     private Runnable drawWorkflow;
+    private Runnable refreshEditNodeSelectItems;
     private Map<WorkflowNode, Boolean> nodeParentSuccessRelation = new ConcurrentHashMap<>();
     private boolean removeRelationToEndNode = false;
 
-    public CreateWorkflowNodeDiv(Workflow wf, WorkflowNodeService wfNodeService, UserService userService, Runnable drawWorkflow){
+
+    public CreateWorkflowNodeDiv(Workflow wf, WorkflowNodeService wfNodeService, UserService userService, Runnable drawWorkflow, Runnable refreshEditNodeSelectItems){
         this.workFlow = wf;
         this.wfNodeService = wfNodeService;
         this.userService = userService;
         this.drawWorkflow = drawWorkflow;
+        this.refreshEditNodeSelectItems = refreshEditNodeSelectItems;
 
         responsible.setLabel("Responsible");
         ArrayList<User> users = new ArrayList<>();
@@ -305,6 +310,7 @@ public class CreateWorkflowNodeDiv extends Div{
                 node.setSuccessorNodes(successors);
 
                 wfNodeService.save(node);
+                refreshEditNodeSelectItems.run();
                 List<WorkflowNode> predecessorNodes = wfNodeService.getAllWithoutEnd(workFlow.getId());
                 List<WorkflowNode> successorNodes = wfNodeService.getAllWithoutStart(workFlow.getId());
 
@@ -395,5 +401,6 @@ public class CreateWorkflowNodeDiv extends Div{
                 drawWorkflow.run();
             });
         }
+
     }
 }
