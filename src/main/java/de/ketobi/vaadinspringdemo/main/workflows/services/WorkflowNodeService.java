@@ -30,7 +30,7 @@ public class WorkflowNodeService {
         return nodeRepository.findById(new ObjectId(workflowNodeId)).orElseThrow();
     }
 
-    public WorkflowNode getById(ObjectId workflowNodeId){
+    public WorkflowNode getById(ObjectId workflowNodeId) {
         return nodeRepository.findById(workflowNodeId).orElseThrow();
     }
 
@@ -39,15 +39,27 @@ public class WorkflowNodeService {
     }
 
     public ArrayList<WorkflowNode> getAllWithoutEnd(ObjectId workflowId) {
-        return new ArrayList<>(nodeRepository.findByIdWorkflow(workflowId).stream().filter(n -> n.getType()!= END).collect(Collectors.toList()));
+        return new ArrayList<>(nodeRepository.findByIdWorkflow(workflowId).stream().filter(n -> n.getType() != END)
+                .collect(Collectors.toList()));
     }
 
     public ArrayList<WorkflowNode> getAllWithoutStart(ObjectId workflowId) {
-        return new ArrayList<>(nodeRepository.findByIdWorkflow(workflowId).stream().filter(n -> n.getType()!= START).collect(Collectors.toList()));
+        return new ArrayList<>(nodeRepository.findByIdWorkflow(workflowId).stream().filter(n -> n.getType() != START)
+                .collect(Collectors.toList()));
     }
 
     public ArrayList<WorkflowNode> getAllWithoutStartAndEnd(ObjectId workflowId) {
-        return new ArrayList<>(nodeRepository.findByIdWorkflow(workflowId).stream().filter(node -> !node.getType().equals(WorkflowNodeTypes.START) && !node.getType().equals(WorkflowNodeTypes.END)).collect(Collectors.toList()));
+        return new ArrayList<>(nodeRepository.findByIdWorkflow(workflowId).stream()
+                .filter(node -> !node.getType().equals(WorkflowNodeTypes.START)
+                        && !node.getType().equals(WorkflowNodeTypes.END))
+                .collect(Collectors.toList()));
+    }
+
+    public ArrayList<WorkflowNode> getAllBatchNodes(ObjectId workflowId) {
+        return new ArrayList<>(nodeRepository.findByIdWorkflow(workflowId).stream()
+                .filter(node -> node.getType().equals(WorkflowNodeTypes.BATCH_ACTION)
+                        || node.getType().equals(WorkflowNodeTypes.BATCH_DECISION))
+                .collect(Collectors.toList()));
     }
 
     public WorkflowNode getStartNode(ObjectId workflowId) {
