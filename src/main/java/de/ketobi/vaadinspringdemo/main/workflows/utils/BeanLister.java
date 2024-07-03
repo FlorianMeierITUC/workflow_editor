@@ -1,4 +1,4 @@
-package de.ketobi.vaadinspringdemo.main.workflows.services;
+package de.ketobi.vaadinspringdemo.main.workflows.utils;
 
 import org.springframework.context.ApplicationContext;
 
