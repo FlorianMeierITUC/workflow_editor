@@ -38,10 +38,10 @@ import de.ketobi.vaadinspringdemo.main.workflows.components.ScheduleWorkflowsDia
 import de.ketobi.vaadinspringdemo.main.workflows.entities.Workflow;
 import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowNode;
 import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowNodeTypes;
-import de.ketobi.vaadinspringdemo.main.workflows.services.BeanLister;
 import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowNodeService;
 import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowScheduleService;
 import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowService;
+import de.ketobi.vaadinspringdemo.main.workflows.utils.BeanLister;
 import de.ketobi.vaadinspringdemo.main.workflows.viewer.WorkflowView;
 
 @Route(value = "workfloweditor", layout = MainLayout.class)
