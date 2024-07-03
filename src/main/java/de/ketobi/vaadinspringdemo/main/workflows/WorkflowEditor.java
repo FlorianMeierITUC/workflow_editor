@@ -1,6 +1,7 @@
 package de.ketobi.vaadinspringdemo.main.workflows;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.bson.types.ObjectId;
@@ -37,6 +38,7 @@ import de.ketobi.vaadinspringdemo.main.workflows.components.ScheduleWorkflowsDia
 import de.ketobi.vaadinspringdemo.main.workflows.entities.Workflow;
 import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowNode;
 import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowNodeTypes;
+import de.ketobi.vaadinspringdemo.main.workflows.services.BeanLister;
 import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowNodeService;
 import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowScheduleService;
 import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowService;
@@ -79,12 +81,14 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
         add(validateWorkflowButton);
     }
 
-    private boolean validateWorkflow() {
+    private void validateWorkflow() {
         boolean nodesValid = false;
         try {
             List<WorkflowNode> nodes = wfNodeService.getAll(workFlow.getId());
+            List<WorkflowNode> batchNodes = wfNodeService.getAllBatchNodes(workFlow.getId());
 
-            nodesValid = validateNodes(nodes);
+            nodesValid = validateNodes(nodes) && allBatchNodesImplemented(batchNodes);
+
             // boolean allAndNodesEndInUnionNode = validateAndNodeEndsInUnionNode(nodes);
             // System.out.println(allAndNodesEndInUnionNode);
 
@@ -93,9 +97,28 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
         }
 
         // nofify user
-        Notification.show("Workflow is valid: " + nodesValid);
+        if (nodesValid) {
+            Notification.show("Workflow is valid");
+        } else {
+            Notification.show("Workflow is not valid");
+        }
 
-        return nodesValid;
+        // System.out.println("Batch nodes" + batchNodes);
+
+    }
+
+    private boolean allBatchNodesImplemented(List<WorkflowNode> batchNodes) {
+
+        String[] beanNames = new BeanLister().listAllBeans();
+        List<String> beanNamesList = Arrays.asList(beanNames);
+
+        for (WorkflowNode batchNode : batchNodes) {
+            System.out.println("Batch node: " + batchNode.getId().toString());
+            if (!beanNamesList.contains(batchNode.getId().toString())) {
+                Notification.show("Batch action not found: " + batchNode.getTitle());
+            }
+        }
+        return true;
     }
 
     private boolean checkSuccessorForUnionNode(ObjectId node) {
@@ -109,17 +132,17 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
                 return true;
             }
         }
-        return true;
+        return false;
     }
 
     public boolean validateAndNodeEndsInUnionNode(WorkflowNode startNode) {
 
         for (ObjectId successor : startNode.getSuccessorNodes()) {
-            if (checkSuccessorForUnionNode(successor)) {
-                return true;
+            if (!checkSuccessorForUnionNode(successor)) {
+                return false;
             }
         }
-        return false;
+        return true;
 
     }
 
@@ -170,7 +193,8 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
             dialog.open();
         }));
         if (workflowScheduleService.workflowIsScheduled(workFlow.getId())) {
-            scheduleInfo.setText("Scheduled: " + workflowScheduleService.get(workFlow.getId()).getPattern().toString());
+            scheduleInfo
+                    .setText("Scheduled: " + workflowScheduleService.get(workFlow.getId()).getPattern().toString());
             nodeDiv.add(new Button("Remove Schedule", e -> {
                 workflowScheduleService.delete(workFlow.getId());
                 scheduleInfo.setText("Event driven: This workflow will be started by a user.");
