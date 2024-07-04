@@ -1,10 +1,8 @@
 package de.ketobi.vaadinspringdemo.main.workflows;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.flow.component.HtmlComponent;
@@ -18,7 +16,6 @@ import com.vaadin.flow.component.html.H5;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
@@ -41,7 +38,6 @@ import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowNodeTypes;
 import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowNodeService;
 import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowScheduleService;
 import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowService;
-import de.ketobi.vaadinspringdemo.main.workflows.utils.BeanLister;
 import de.ketobi.vaadinspringdemo.main.workflows.viewer.WorkflowView;
 
 @Route(value = "workfloweditor", layout = MainLayout.class)
@@ -77,91 +73,6 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
         add(nodeDiv);
         add(treeDiv);
 
-        Button validateWorkflowButton = new Button("Validate Workflow", event -> validateWorkflow());
-        add(validateWorkflowButton);
-    }
-
-    private void validateWorkflow() {
-        boolean nodesValid = false;
-        try {
-            List<WorkflowNode> nodes = wfNodeService.getAll(workFlow.getId());
-            List<WorkflowNode> batchNodes = wfNodeService.getAllBatchNodes(workFlow.getId());
-
-            nodesValid = validateNodes(nodes) && allBatchNodesImplemented(batchNodes);
-
-            // boolean allAndNodesEndInUnionNode = validateAndNodeEndsInUnionNode(nodes);
-            // System.out.println(allAndNodesEndInUnionNode);
-
-        } catch (Exception e) {
-            System.out.println("Exception");
-        }
-
-        // nofify user
-        if (nodesValid) {
-            Notification.show("Workflow is valid");
-        } else {
-            Notification.show("Workflow is not valid");
-        }
-
-        // System.out.println("Batch nodes" + batchNodes);
-
-    }
-
-    private boolean allBatchNodesImplemented(List<WorkflowNode> batchNodes) {
-
-        String[] beanNames = new BeanLister().listAllBeans();
-        List<String> beanNamesList = Arrays.asList(beanNames);
-
-        for (WorkflowNode batchNode : batchNodes) {
-            System.out.println("Batch node: " + batchNode.getId().toString());
-            if (!beanNamesList.contains(batchNode.getId().toString())) {
-                Notification.show("Batch action not found: " + batchNode.getTitle());
-            }
-        }
-        return true;
-    }
-
-    private boolean checkSuccessorForUnionNode(ObjectId node) {
-        WorkflowNode successorNode = wfNodeService.getById(node);
-        if (successorNode.getType().equals(WorkflowNodeTypes.UNION)) {
-            return true;
-        }
-
-        for (ObjectId successor : successorNode.getSuccessorNodes()) {
-            if (checkSuccessorForUnionNode(successor)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public boolean validateAndNodeEndsInUnionNode(WorkflowNode startNode) {
-
-        for (ObjectId successor : startNode.getSuccessorNodes()) {
-            if (!checkSuccessorForUnionNode(successor)) {
-                return false;
-            }
-        }
-        return true;
-
-    }
-
-    private boolean validateNodes(List<WorkflowNode> nodes) {
-
-        for (int i = 0; i < nodes.size(); i++) {
-            WorkflowNode node = nodes.get(i);
-            if (!node.validateNode()) {
-                return false;
-            }
-
-            if (node.getType() == WorkflowNodeTypes.AND) {
-                if (!validateAndNodeEndsInUnionNode(node)) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
     }
 
     @Override
