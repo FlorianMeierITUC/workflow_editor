@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 @Service
 public class UserService {
 
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     @Autowired
     public UserService(UserRepository userRepository) {
@@ -22,8 +22,8 @@ public class UserService {
     }
 
     public User authenticate(String username, String password) {
-        User user = userRepository.findByName(username).orElseThrow();
-        if (user.getPassword().equals(password)) {
+        User user = userRepository.findByName(username).orElse(null);
+        if (user != null && user.getPassword().equals(password)) {
             return user;
         }
         return null;
