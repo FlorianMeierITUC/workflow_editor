@@ -25,6 +25,8 @@ import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowNodeTypes;
 import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowNodeService;
 import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowScheduleService;
 import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowService;
+import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowValidation;
+
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
@@ -43,13 +45,14 @@ public class WorkflowList extends VerticalLayout implements BeforeEnterObserver 
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
-        if(UserService.getCurrentUser() == null){
+        if (UserService.getCurrentUser() == null) {
             event.forwardTo(Login.class);
         }
     }
 
     @Autowired
-    public WorkflowList(WorkflowService workflowService, WorkflowNodeService workflowNodeService, WorkflowScheduleService workflowScheduleService){
+    public WorkflowList(WorkflowService workflowService, WorkflowNodeService workflowNodeService,
+            WorkflowScheduleService workflowScheduleService, WorkflowValidation workflowValidation) {
         this.workflowService = workflowService;
         this.workflowNodeService = workflowNodeService;
         ArrayList<Workflow> workflowList = new ArrayList<>(workflowService.findAll());
@@ -61,8 +64,7 @@ public class WorkflowList extends VerticalLayout implements BeforeEnterObserver 
         wfGrid.addComponentColumn(selectedWf -> {
             Button editButton = new Button("Edit");
             editButton.addClickListener(e -> {
-                editButton.getUI().ifPresent(ui ->
-                        ui.navigate(WorkflowEditor.class, selectedWf.getId().toString()));
+                editButton.getUI().ifPresent(ui -> ui.navigate(WorkflowEditor.class, selectedWf.getId().toString()));
 
             });
             return editButton;
@@ -80,6 +82,20 @@ public class WorkflowList extends VerticalLayout implements BeforeEnterObserver 
             });
             return deleteButton;
         });
+
+        wfGrid.addComponentColumn(selectedWf -> {
+            Button validateButton = new Button("Validate");
+            validateButton.addClickListener(e -> {
+                boolean isValid = workflowValidation.validateWorkflow(workflowNodeService, selectedWf);
+                String message = isValid ? "Workflow is valid!" : "Workflow is not valid!";
+                Notification notification = Notification
+                        .show(message);
+                notification
+                        .addThemeVariants(isValid ? NotificationVariant.LUMO_SUCCESS : NotificationVariant.LUMO_ERROR);
+            });
+            return validateButton;
+        });
+
         wfGrid.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COMPACT);
         workflowView = wfGrid.setItems(workflowList);
 
@@ -99,7 +115,7 @@ public class WorkflowList extends VerticalLayout implements BeforeEnterObserver 
             addSingleClickListener(clickEvent -> {
                 Workflow wf = new Workflow();
                 wf.setName(name.getValue());
-                if(null == name.getValue() || name.getValue().isEmpty() || name.getValue().isBlank()){
+                if (null == name.getValue() || name.getValue().isEmpty() || name.getValue().isBlank()) {
                     Notification notification = Notification
                             .show("Please provide a name for the workflow!");
                     notification.addThemeVariants(NotificationVariant.LUMO_WARNING);
@@ -110,7 +126,7 @@ public class WorkflowList extends VerticalLayout implements BeforeEnterObserver 
                 wf.setCreatedBy(UserService.getCurrentUser());
                 try {
                     workflowService.save(wf);
-                    //Create start node
+                    // Create start node
                     WorkflowNode startNode = new WorkflowNode();
                     startNode.setIdWorkflow(wf.getId());
                     startNode.setTitle("Start");
@@ -118,20 +134,20 @@ public class WorkflowList extends VerticalLayout implements BeforeEnterObserver 
                     startNode.setResponsible(UserService.getSystemUser().getId());
                     workflowNodeService.save(startNode);
 
-                    //Create end node
+                    // Create end node
                     WorkflowNode endNode = new WorkflowNode();
                     endNode.setIdWorkflow(wf.getId());
                     endNode.setTitle("End");
                     endNode.setType(WorkflowNodeTypes.END);
                     endNode.setResponsible(UserService.getSystemUser().getId());
-                    //Set start node as predecessor of end node
+                    // Set start node as predecessor of end node
                     ArrayList<ObjectId> predecessors = new ArrayList<>();
                     predecessors.add(startNode.getId());
                     endNode.setPredecessorNodes(predecessors);
-                    //Save end node
+                    // Save end node
                     workflowNodeService.save(endNode);
 
-                    //Set end node as successor of start node
+                    // Set end node as successor of start node
                     ArrayList<ObjectId> successors = new ArrayList<>();
                     successors.add(endNode.getId());
                     startNode.setSuccessorNodes(successors);
