@@ -1,7 +1,7 @@
 ---
 name: "Idea/Feature Proposal template"
 about: "Propose a new idea or improvement"
-title: "IDEA"
+title: "IDEA- "
 labels: idea
 assignees: ""
 ---
