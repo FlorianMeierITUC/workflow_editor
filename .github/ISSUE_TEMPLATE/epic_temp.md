@@ -1,7 +1,7 @@
 ---
 name: Epic template
 about: Describe this issue template's purpose here.
-title: EPIC
+title: EPIC- 
 labels: 'epic'
 assignees: ''
 
