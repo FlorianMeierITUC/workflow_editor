@@ -1,3 +1,12 @@
+---
+name: Epic template
+about: Describe this issue template's purpose here.
+title: EPIC
+labels: ''
+assignees: ''
+
+---
+
 Title
     Short but descriptive title (e.g., “User Onboarding Revamp”)
 
