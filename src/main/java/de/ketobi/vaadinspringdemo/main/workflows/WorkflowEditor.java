@@ -190,7 +190,8 @@ public class WorkflowEditor extends VerticalLayout implements HasUrlParameter<St
         scheduleInfo.setText("Scheduled: " + workflowScheduleService.get(workFlow.getId()).getPattern().toString());
     }
 
-    public void refreshEditNodeSelectItems() {
+    public void refreshEditNodeSelectItems(){
         editNodeSelect.setItems(wfNodeService.getAllWithoutStartAndEnd(workFlow.getId()));
     }
+
 }
