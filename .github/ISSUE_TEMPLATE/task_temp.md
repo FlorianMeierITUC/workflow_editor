@@ -1,3 +1,12 @@
+---
+name: Task template
+about: Describe this issue template's purpose here.
+title: Task
+labels: 'task'
+assignees: ''
+
+---
+
 Title
     A short, descriptive title of the task (e.g., “Implement Login Button”).
 
