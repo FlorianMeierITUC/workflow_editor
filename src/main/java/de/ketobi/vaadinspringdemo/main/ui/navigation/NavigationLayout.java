@@ -1,5 +1,6 @@
 package de.ketobi.vaadinspringdemo.main.ui.navigation;
 
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.orderedlayout.Scroller;
@@ -15,6 +16,7 @@ import de.ketobi.vaadinspringdemo.main.ui.navigation.components.AddTargetButton;
 import de.ketobi.vaadinspringdemo.main.ui.navigation.services.NavigationService;
 import de.ketobi.vaadinspringdemo.main.user.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+
 
 @SpringComponent
 @UIScope
@@ -47,6 +49,11 @@ public class NavigationLayout extends VerticalLayout implements BeforeEnterObser
             container.add(addTargetButton);
             navigationDiv.add(container);
         });
+        Button goToAuschreibung = new Button("Go to Auschreibung", 
+            e -> e.getSource().getUI().ifPresent(ui -> ui.navigate("auschreibung"))
+        );
+
+        add(goToAuschreibung);
 
         Scroller scroller = new Scroller(navigationDiv);
         scroller.setScrollDirection(Scroller.ScrollDirection.VERTICAL);
