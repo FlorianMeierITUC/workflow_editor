@@ -5,11 +5,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 
+import de.ketobi.vaadinspringdemo.main.workflows.repositories.WorkflowRepository;
+
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 class VaadinspringdemoApplicationTests {
+
+	@Autowired
+	WorkflowRepository workflowRepository;
 
 	@Autowired
 	ApplicationContext applicationContext;
@@ -24,7 +29,12 @@ class VaadinspringdemoApplicationTests {
 	}
 
 	@Test
+	void workflowRepositoryInjected() {
+		assertNotNull(workflowRepository);
+	}
+
+	@Test
 	void contextContainsBeans() {
-		assertTrue(applicationContext.containsBean("WorkflowRepository"));
+		assertTrue(applicationContext.containsBean("workflowRepository"));
 	}
 }
