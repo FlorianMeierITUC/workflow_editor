@@ -1,0 +1,61 @@
+name: Build and Push Docker Images
+
+on:
+    push:
+        branches: 
+            - develop
+jobs:
+    build-and-push:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            packages: write
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Log in to GitHub Container Registry
+              run: echo "${{ secrets.GITHUB_TOKEN}}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            
+            - name: Build image
+              working-directory: ./
+              run: |
+                echo "Builing ITUKI App"
+
+                # Convert repository owner to lowercase
+                REPO_OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+
+                IMAGE_NAME="ghcr.io/${REPO_OWNER}/ituki-app:latest"
+                docker build -t "$IMAGE_NAME" .
+            - name: Start container and wait their are healthy
+              run: |
+                # Convert repository owner to lowercase
+                REPO_OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+                
+                IMAGE_NAME="ghcr.io/${REPO_OWNER}/ituki-app:latest"
+                CONTAINER_NAME="${ituki-app}_test"
+                echo "Starting container: $CONTAINER_NAME"
+                docker run -d --rm --name "$CONTAINER_NAME" "$IMAGE_NAME"
+
+                sleep 5
+                docker ps --filter "health=unhealthy" --format "{{.Names}}" | tee unhealthy.txt
+
+                if [ -s unhealthy.txt ]; then
+                    echo "Container is unhealthy"
+                    exit 1
+                else
+                    echo "Container is healthy"
+                fi
+              continue-on-error: false
+            
+            - name: Push image
+              run: |
+                # Convert repository owner to lowercase
+                REPO_OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+
+                IMAGE_NAME="ghcr.io/${REPO_OWNER}/ituki-app:latest"
+                docker push "$IMAGE_NAME"
+
+    
+
+
