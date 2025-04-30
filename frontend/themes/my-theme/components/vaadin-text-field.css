@@ -13,7 +13,7 @@
 }
 
 :host(.form-field) [part="input-field"] {
-  background-color: var(--ituc-analog-color-2);
+  background-color: var(--ituc-base-2);
   border-radius: 2px;
   box-shadow: inset 0 0 0 1px var(--lumo-contrast-30pct);
 }

@@ -1,13 +1,18 @@
 package de.ketobi.vaadinspringdemo.apps.auschreibung.views;
 
+import java.io.InputStream;
+
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
-import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.upload.Upload;
+import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
+import com.vaadin.flow.component.notification.Notification;
+
+import de.ketobi.vaadinspringdemo.apps.auschreibung.components.AusschreibungSummaryGrid;
 import de.ketobi.vaadinspringdemo.apps.auschreibung.entities.Ausschreibung;
 
 public class AusschreibungDokumenteUploadForm extends VerticalLayout {
@@ -15,48 +20,35 @@ public class AusschreibungDokumenteUploadForm extends VerticalLayout {
     public AusschreibungDokumenteUploadForm(Ausschreibung ausschreibung) {
         setSpacing(true);
         setPadding(true);
+        setWidthFull();
 
-        add(new H2("Schritt 2: Kriterien definieren"));
+        add(new H3("Grundinformations Übersicht"));
 
-        H3 infoTitle = new H3("Eingetragene Projektinformationen");
-        VerticalLayout infoCard = new VerticalLayout();
-        infoCard.getStyle()
-            .set("background-color", "#f4f5f7")
-            .set("padding", "1rem")
-            .set("border-radius", "8px")
-            .set("box-shadow", "0 1px 3px rgba(0,0,0,0.05)");
-        infoCard.setSpacing(false);
+        add(new AusschreibungSummaryGrid(ausschreibung));
 
-        infoCard.add(
-            createInfoRow("📄 Ausschreibungs Nr.", ausschreibung.getAusschreibungsNumber()),
-            createInfoRow("🆔 ITUC Nr.", ausschreibung.getITUCNumber()),
-            createInfoRow("🏢 PartnerFirma", ausschreibung.getPartnerFirma()),
-            createInfoRow("👤 Projektkontakt", ausschreibung.getProjectkKontakt()),
-            createInfoRow("✉️ Projektkontakt E-Mail", ausschreibung.getProjectkKontaktEmail()),
-            createInfoRow("🏦 Kunde", ausschreibung.getKunde()),
-            createInfoRow("🏷️ Branche", ausschreibung.getBranche()),
-            createInfoRow("📝 Titel", ausschreibung.getTitel()),
-            createInfoRow("🗒️ Notizen", ausschreibung.getNotizen())
-        );
+        // Placeholder for upload
+        add(new H3("Dokumenten Upload"));
+        add(new H4("Checkliste für ein erfolgreiches Ausschreibungsprojekt"));
 
-        TextArea uploadArea = new TextArea("Kriterien (noch leer)");
-        uploadArea.setWidthFull();
+        // File upload module
+        MemoryBuffer buffer = new MemoryBuffer();
+        Upload upload = new Upload(buffer);
+        upload.setWidthFull();
+        upload.setDropLabel(new Div(new Text("Datei hierher ziehen oder klicken zum Auswählen")));
+        upload.setAcceptedFileTypes(".pdf", ".docx", ".xlsx", ".txt");
 
-        add(infoTitle, infoCard, uploadArea);
-    }
+        upload.addSucceededListener(event -> {
+            String fileName = event.getFileName();
+            ausschreibung.addDokument(fileName);
+            InputStream fileData = buffer.getInputStream();
+            Notification.show("Datei hochgeladen: " + fileName, 3000, Notification.Position.MIDDLE);
+            // You could now store fileData
+        });
 
-    private Component createInfoRow(String label, String value) {
-        HorizontalLayout row = new HorizontalLayout();
-        row.setWidthFull();
-        row.setJustifyContentMode(JustifyContentMode.BETWEEN);
+        upload.addFailedListener(event -> {
+            Notification.show("Fehler beim Hochladen: " + event.getFileName(), 3000, Notification.Position.MIDDLE);
+        });
 
-        Div labelDiv = new Div(new Text(label));
-        labelDiv.getStyle().set("font-weight", "600");
-
-        Div valueDiv = new Div(new Text(value != null ? value : "-"));
-        valueDiv.getStyle().set("color", "#555");
-
-        row.add(labelDiv, valueDiv);
-        return row;
+        add(upload);
     }
 }

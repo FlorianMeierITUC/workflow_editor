@@ -31,14 +31,6 @@ public class LabeledField extends VerticalLayout {
             ((HasPlaceholder) field).setPlaceholder(placeholder);
         }
 
-        // Styling the field
-        // field.getElement().getStyle()
-        //         .set("background-color", "#e3f2fd") // light blue
-        //         // .set("border-radius", "1px")
-        //         // .set("padding", "0.5rem")
-        //         // .set("min-height", "3rem") 
-        //         .set("font-size", "1rem");
-
         if (field instanceof HasStyle) {
             ((HasStyle) field).addClassName("form-field");
         }

@@ -14,6 +14,7 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import de.ketobi.vaadinspringdemo.apps.auschreibung.entities.Ausschreibung;
 import de.ketobi.vaadinspringdemo.apps.auschreibung.services.AusschreibungService;
+import de.ketobi.vaadinspringdemo.apps.auschreibung.components.AusschreibungActionButtons;
 import de.ketobi.vaadinspringdemo.apps.auschreibung.components.LabeledField;
 
 public class AusschreibungBasicInfoForm extends VerticalLayout {
@@ -34,7 +35,6 @@ public class AusschreibungBasicInfoForm extends VerticalLayout {
         form.setResponsiveSteps(
             new FormLayout.ResponsiveStep("0", 3) // 3 equal columns
         );
-
 
         TextField ausschreibungsNumberField = new TextField();
         TextField ITUCNumberField = new TextField();
@@ -82,25 +82,31 @@ public class AusschreibungBasicInfoForm extends VerticalLayout {
         form.setColspan(titleComponent, 2);
         form.add(new Div());
 
-        Component notizenComponent = new LabeledField("Kurznotizen", notizenField, "Projekthintergrund, Ziele usw.");
+        notizenField.setWidthFull();
+        notizenField.setHeight("200px"); // or more, depending on your need
+        notizenField.addClassName("form-field");
+
+        Component notizenComponent = new LabeledField("Kurznotizen", notizenField, "In dieses Feld können projektspezifische Informationen eingetragen werden, zum Beispiel Hintergründe zum Projekt, Zielsetzungen, Besonderheiten des Kunden, gewünschte Tonalität sowie stilistische Vorgaben (Duzen/Siezen), formelle oder informelle Sprache, Designpräferenzen, funktionale Anforderungen oder technische Rahmenbedingungen. Ebenfalls hilfreich sind Hinweise zur Zielgruppe, zur gewünschten Wirkung, oder Markenwerten, die bei der Ausschreibung berücksichtigt werden sollen.");
         form.add(notizenComponent);
         form.setColspan(notizenComponent, 2);
 
+
         // Action buttons
-        Button deleteButton = new Button("Löschen", e -> Notification.show("Noch nicht implementiert"));
-        Button cancelButton = new Button("Abbrechen", e -> getUI().ifPresent(ui -> ui.navigate("auschreibung")));
-        Button saveButton = new Button("Speichern & Weiter", e -> {
-            ausschreibungService.save(ausschreibung);
-            tabs.setSelectedIndex(1);
-            Notification.show("Gespeichert");
-        });
+        AusschreibungActionButtons buttonLayout = new AusschreibungActionButtons(
+            ausschreibung,
+            ausschreibungService,
+            tabs,
+            () -> {
+                // Optional: additional logic after save (e.g., refresh view)
+            }
+        );
 
-        HorizontalLayout buttonLayout = new HorizontalLayout(deleteButton, cancelButton, saveButton);
-        buttonLayout.setWidthFull();
-        buttonLayout.getStyle().set("margin-top", "2rem");
-        buttonLayout.setJustifyContentMode(HorizontalLayout.JustifyContentMode.BETWEEN);
 
-        add(new H3("Grundinformationen für das Projekt"), form, buttonLayout);
+        H3 sectionTitle = new H3("Grundinformationen für das Projekt");
+        sectionTitle.getStyle().set("margin-top", "1em");
+
+        add(sectionTitle, form, buttonLayout);
+
         setFlexGrow(1, form);
     }
 }

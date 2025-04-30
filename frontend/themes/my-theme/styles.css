@@ -40,6 +40,7 @@
       --ituc-balance-color-2:  	hsl(17, 40%, 33%);
       --ituc-base-1:  	hsl(209, 76%, 15%);
       --ituc-base-2:  	hsl(225, 4%, 36%);
+      --ituc-field-bg:  	hsl(251, 55%, 30%, 0.4);
     }
 
     [theme~="dark"] {

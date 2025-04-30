@@ -1,5 +1,8 @@
 package de.ketobi.vaadinspringdemo.apps.auschreibung.entities;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -108,4 +111,19 @@ public class Ausschreibung {
     public void setNotizen(String notizen) {
         this.notizen = notizen;
     }
+
+    private List<String> dokumente = new ArrayList<>();
+
+    public List<String> getDokumente() {
+        return dokumente;
+    }
+
+    public void setDokumente(List<String> dokumente) {
+        this.dokumente = dokumente;
+    }
+
+    public void addDokument(String filename) {
+        this.dokumente.add(filename);
+    }
+
 }
