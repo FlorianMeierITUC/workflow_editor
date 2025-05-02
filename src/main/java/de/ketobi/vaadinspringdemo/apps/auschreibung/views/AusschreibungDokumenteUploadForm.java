@@ -12,15 +12,19 @@ import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import com.vaadin.flow.component.notification.Notification;
 
+import de.ketobi.vaadinspringdemo.apps.auschreibung.components.AusschreibungActionButtons;
 import de.ketobi.vaadinspringdemo.apps.auschreibung.components.AusschreibungSummaryGrid;
 import de.ketobi.vaadinspringdemo.apps.auschreibung.entities.Ausschreibung;
+import com.vaadin.flow.component.tabs.Tabs;
+import de.ketobi.vaadinspringdemo.apps.auschreibung.services.AusschreibungService;
 
 public class AusschreibungDokumenteUploadForm extends VerticalLayout {
 
-    public AusschreibungDokumenteUploadForm(Ausschreibung ausschreibung) {
+    public AusschreibungDokumenteUploadForm(Ausschreibung ausschreibung, AusschreibungService ausschreibungService, Tabs tabs) {
         setSpacing(true);
         setPadding(true);
         setWidthFull();
+        setSizeFull();
 
         add(new H3("Grundinformations Übersicht"));
 
@@ -49,6 +53,18 @@ public class AusschreibungDokumenteUploadForm extends VerticalLayout {
             Notification.show("Fehler beim Hochladen: " + event.getFileName(), 3000, Notification.Position.MIDDLE);
         });
 
+        AusschreibungActionButtons buttonLayout = new AusschreibungActionButtons(
+            ausschreibung,
+            ausschreibungService,
+            tabs,
+            () -> {
+                // Optional: additional logic after save (e.g., refresh view)
+            }
+        );
+
         add(upload);
+
+        add(buttonLayout);
+        setFlexGrow(1, upload);
     }
 }

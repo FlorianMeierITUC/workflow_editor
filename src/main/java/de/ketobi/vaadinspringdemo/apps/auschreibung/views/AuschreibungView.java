@@ -22,6 +22,14 @@ public class AuschreibungView extends VerticalLayout {
         createButton.getElement().setAttribute("theme", "neue-auschreibung");
         add(createButton);
 
+        add(new H1("Archiv"));
+        add(new H1("Favorisierte Einträge"));
+
+        
+
+
+        add(new H1("Alle Archiv Einträge"));
+
     
     }
 }

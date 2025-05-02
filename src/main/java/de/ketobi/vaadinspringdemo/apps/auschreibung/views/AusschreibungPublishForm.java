@@ -6,22 +6,32 @@ import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.ListItem;
 import com.vaadin.flow.component.html.UnorderedList;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+
+import de.ketobi.vaadinspringdemo.apps.auschreibung.components.AusschreibungActionButtons;
 import de.ketobi.vaadinspringdemo.apps.auschreibung.components.AusschreibungSummaryGrid;
 import de.ketobi.vaadinspringdemo.apps.auschreibung.entities.Ausschreibung;
 import de.ketobi.vaadinspringdemo.apps.auschreibung.services.AusschreibungService;
+import com.vaadin.flow.component.tabs.Tabs;
 
 public class AusschreibungPublishForm extends VerticalLayout {
 
-    public AusschreibungPublishForm(AusschreibungService ausschreibungService, Ausschreibung ausschreibung) {
+    public AusschreibungPublishForm(Ausschreibung ausschreibung, AusschreibungService ausschreibungService, Tabs tabs) {
         setPadding(true);
         setSpacing(true);
+        setSizeFull(); // Make the full height of the view
 
-        add(new AusschreibungSummaryGrid(ausschreibung));
+        // Container for all upper content
+        VerticalLayout contentLayout = new VerticalLayout();
+        contentLayout.setPadding(false);
+        contentLayout.setSpacing(true);
+        contentLayout.setWidthFull();
+
+        contentLayout.add(new AusschreibungSummaryGrid(ausschreibung));
 
         // Document list section
         if (!ausschreibung.getDokumente().isEmpty()) {
-            add(new H3("Dokumenten Upload"));
-            add(new H4("Checkliste für ein erfolgreiches Ausschreibungsprojekt"));
+            contentLayout.add(new H3("Dokumenten Upload"));
+            contentLayout.add(new H4("Checkliste für ein erfolgreiches Ausschreibungsprojekt"));
 
             UnorderedList fileList = new UnorderedList();
             fileList.getStyle().set("padding-left", "1.5rem");
@@ -30,9 +40,21 @@ public class AusschreibungPublishForm extends VerticalLayout {
                 fileList.add(new ListItem(name))
             );
 
-            add(fileList);
+            contentLayout.add(fileList);
         } else {
-            add(new H4("Keine Dokumente hochgeladen."));
+            contentLayout.add(new H4("Keine Dokumente hochgeladen."));
         }
+
+        AusschreibungActionButtons buttonLayout = new AusschreibungActionButtons(
+            ausschreibung,
+            ausschreibungService,
+            tabs,
+            () -> {
+                // Optional: logic after save
+            }
+        );
+
+        add(contentLayout, buttonLayout);
+        setFlexGrow(1, contentLayout); // Ensure content grows and buttons stay at bottom
     }
 }

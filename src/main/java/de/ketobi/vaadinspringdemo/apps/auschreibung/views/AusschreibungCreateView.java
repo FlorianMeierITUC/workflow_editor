@@ -45,15 +45,19 @@ public class AusschreibungCreateView extends VerticalLayout {
         content.setSizeFull();
 
         content.add(new AusschreibungBasicInfoForm(formData, ausschreibungService, tabs));
-
+            //TODO: if come back to previous steps, change colors again
         tabs.addSelectedChangeListener(event -> {
             content.removeAll();
             if (event.getSelectedTab().equals(step1)) {
                 content.add(new AusschreibungBasicInfoForm(formData, ausschreibungService, tabs));
             } else if (event.getSelectedTab().equals(step2)) {
-                content.add(new AusschreibungDokumenteUploadForm(formData));
+                content.add(new AusschreibungDokumenteUploadForm(formData, ausschreibungService, tabs));
+                step1.getElement().getStyle().set("color", "green");
+                step1.getElement().setText("Grundinformationen ✔");
             } else {
-                content.add(new AusschreibungPublishForm( ausschreibungService, formData));
+                content.add(new AusschreibungPublishForm(formData, ausschreibungService, tabs));
+                step2.getElement().getStyle().set("color", "green");
+                step2.getElement().setText("Dokumente Upload ✔");
             }
         });
 

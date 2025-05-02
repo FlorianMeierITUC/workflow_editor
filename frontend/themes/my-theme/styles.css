@@ -41,6 +41,7 @@
       --ituc-base-1:  	hsl(209, 76%, 15%);
       --ituc-base-2:  	hsl(225, 4%, 36%);
       --ituc-field-bg:  	hsl(251, 55%, 30%, 0.4);
+      --ituc-semantic-primary:  	hsl(214, 100%, 48%, 1);
     }
 
     [theme~="dark"] {
@@ -55,4 +56,32 @@
       --my-yellow-bg: #fff9c4;
       --my-border-radius: 6px;
       --my-form-shadow: inset 0 0 0 1px var(--lumo-contrast-30pct);
+    }
+
+    vaadin-dialog-overlay::part(overlay) {
+      border-radius: 3px; 
+    }
+
+    vaadin-dialog-header::part(header) {
+      /* background-color: var(--ituc-primary-color);
+      color: var(--lumo-base-color);
+      font-size: var(--lumo-font-size-l);
+      font-weight: 600; */
+      align-items: center;
+    }
+
+  vaadin-tab::before { 
+      background-color: var(--ituc-semantic-primary);
+    } /*colors the line under the tab*/
+
+    /* vaadin-tab[disabled] {
+      color: red !important;
+    }
+
+    vaadin-tab[active] {
+      color: red !important;
+    } */
+
+    vaadin-tab[selected] {
+      color: var(--ituc-semantic-primary);
     }
