@@ -15,21 +15,15 @@ public class AuschreibungView extends VerticalLayout {
     public AuschreibungView() {
 
         //add(new Button("Hello from Auschreibung Page!"));
-        add(new H1("Neues Auschreinungs-Projekt anlegen"));
+        add(new H1("Neues Auschreibungs-Projekt anlegen"));
         Button createButton = new Button("+ Klick hier, um ein neues Auschreibungprojekt anzulegen",
             e -> getUI().ifPresent(ui -> ui.navigate("auschreibung/create"))
         );
         createButton.getElement().setAttribute("theme", "neue-auschreibung");
         add(createButton);
-
+        
         add(new H1("Archiv"));
         add(new H1("Favorisierte Einträge"));
-
-        
-
-
         add(new H1("Alle Archiv Einträge"));
-
-    
     }
 }
