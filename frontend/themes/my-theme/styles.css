@@ -93,3 +93,14 @@
   vaadin-combo-box-overlay::part(content) {
     background-color: transparent;
   }
+
+    /* Apply to all vaadin-grid selection checkboxes */
+    vaadin-grid > vaadin-checkbox::part(checkbox) {
+      /* override the “checked” color */
+      --lumo-primary-color: #006edc; /* your blue */
+    }
+
+    /* Apply to the “select all” header checkbox */
+    vaadin-grid > #selectAllCheckbox::part(checkbox) {
+      --lumo-primary-color: #006edc;
+    }
