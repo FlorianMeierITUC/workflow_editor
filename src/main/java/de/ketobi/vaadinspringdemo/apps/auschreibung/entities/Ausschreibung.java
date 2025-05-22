@@ -1,5 +1,6 @@
 package de.ketobi.vaadinspringdemo.apps.auschreibung.entities;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,15 +13,14 @@ import lombok.Data;
 public class Ausschreibung {
     @Id
     private String id;
-    private String titel;
+    private String title;
     private String beschreibung;
     private String ausschreibungsNumber;
     private String ITUCNumber;
     private String partnerFirma;
     private String kunde;
     private String branche;
-    private String projectkKontakt;
-    private String projectkKontaktEmail;
-    private String title;
+    private String projectKontakt;
+    private String projectKontaktEmail;
     private String notizen;
 }
