@@ -1,5 +1,6 @@
 package de.ketobi.vaadinspringdemo.apps.auschreibung.entities;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,35 +11,43 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Ausschreibung {
     @Id
     private String id;
-    private String titel;
+    private String title;
     private String beschreibung;
     private String ausschreibungsNumber;
     private String ITUCNumber;
     private String partnerFirma;
     private String kunde;
     private String branche;
-    private String projectkKontakt;
-    private String projectkKontaktEmail;
-    private String title;
+    private String projectKontakt;
+    private String projectKontaktEmail;
     private String notizen;
+    private LocalDate date;
+    private boolean favorite;
+    private boolean archived;
+    private String status;
 
-    
     public Ausschreibung() {}
-    public Ausschreibung(String titel, String beschreibung) {
-        this.titel = titel;
+    public Ausschreibung(String title, String beschreibung) {
+        this.title = title;
         this.beschreibung = beschreibung;
+    }
+
+        // inside your class, alongside the no-arg constructor:
+    public Ausschreibung(String title, LocalDate date, boolean archived) {
+        this.title    = title;
+        this.date     = date;
+        this.archived = archived;
+        this.favorite = false;
     }
 
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 
-    public String getTitel() { return titel; }
-    public void setTitel(String titel) { this.titel = titel; }
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
 
     public String getBeschreibung() { return beschreibung; }
     public void setBeschreibung(String beschreibung) { this.beschreibung = beschreibung; }
-
-    
 
     public String getAusschreibungsNumber() {
         return ausschreibungsNumber;
@@ -80,28 +89,20 @@ public class Ausschreibung {
         this.branche = branche;
     }
 
-    public String getProjectkKontakt() {
-        return projectkKontakt;
+    public String getProjectKontakt() {
+        return projectKontakt;
     }
 
-    public void setProjectkKontakt(String projectkKontakt) {
-        this.projectkKontakt = projectkKontakt;
+    public void setProjectKontakt(String projectKontakt) {
+        this.projectKontakt = projectKontakt;
     }
 
-    public String getProjectkKontaktEmail() {
-        return projectkKontaktEmail;
+    public String getProjectKontaktEmail() {
+        return projectKontaktEmail;
     }
 
-    public void setProjectkKontaktEmail(String projectkKontaktEmail) {
-        this.projectkKontaktEmail = projectkKontaktEmail;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
+    public void setProjectKontaktEmail(String projectKontaktEmail) {
+        this.projectKontaktEmail = projectKontaktEmail;
     }
 
     public String getNotizen() {
@@ -126,4 +127,31 @@ public class Ausschreibung {
         this.dokumente.add(filename);
     }
 
+    public LocalDate getDate() {
+        return date;
+    }
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+
+    public boolean isFavorite() {
+        return favorite;
+    }
+    public void setFavorite(boolean favorite) {
+        this.favorite = favorite;
+    }
+
+    public boolean isArchived() {
+        return archived;
+    }
+    public void setArchived(boolean archived) {
+        this.archived = archived;
+    }
+    public String getStatus() {
+        return this.status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 }

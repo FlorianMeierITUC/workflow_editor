@@ -2,10 +2,8 @@ package de.ketobi.vaadinspringdemo.apps.auschreibung.components;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tabs;
@@ -59,7 +57,7 @@ public class AusschreibungActionButtons extends HorizontalLayout {
 
     private void showConfirmationDialog(Ausschreibung ausschreibung, AusschreibungService service) {
         Dialog dialog = new Dialog();
-        dialog.setHeaderTitle("Das Ausschreibungsprojekt " + ausschreibung.getTitel() + " wurde erfolgreich angelegt.");
+        dialog.setHeaderTitle("Das Ausschreibungsprojekt " + ausschreibung.getTitle() + " wurde erfolgreich angelegt.");
         // Make dialog half-width and center its content
         dialog.setWidth("null");
         dialog.setHeight("null");

@@ -1,27 +1,24 @@
-// File: AusschreibungCreateView.java
 package de.ketobi.vaadinspringdemo.apps.auschreibung.views;
 
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.*;
 import de.ketobi.vaadinspringdemo.apps.auschreibung.entities.Ausschreibung;
 import de.ketobi.vaadinspringdemo.apps.auschreibung.services.AusschreibungService;
-import de.ketobi.vaadinspringdemo.apps.auschreibung.views.AusschreibungBasicInfoForm;
-import de.ketobi.vaadinspringdemo.apps.auschreibung.views.AusschreibungDokumenteUploadForm;
-import de.ketobi.vaadinspringdemo.apps.auschreibung.views.AusschreibungPublishForm;
+import de.ketobi.vaadinspringdemo.main.ui.MainLayout;
 
-@Route("auschreibung/create")
-@PageTitle("Neue Ausschreibung")
-public class AusschreibungCreateView extends VerticalLayout {
+@Route(value = "auschreibung/create", layout = MainLayout.class)
+@PageTitle("Create / Edit Ausschreibung")
+public class AusschreibungCreateView extends VerticalLayout implements HasUrlParameter<String> {
 
     private final AusschreibungService ausschreibungService;
-    private final Ausschreibung formData = new Ausschreibung();
-    private Tabs tabs;
+    private Ausschreibung formData;
+    private final H2 pageTitle;
+    private final Tabs tabs;
+    private final Div content;
 
     public AusschreibungCreateView(AusschreibungService ausschreibungService) {
         this.ausschreibungService = ausschreibungService;
@@ -31,8 +28,10 @@ public class AusschreibungCreateView extends VerticalLayout {
         setSpacing(true);
         setSizeFull();
 
-        H2 pageTitle = new H2("Neue Ausschreibung anlegen");
+        // Title will be updated in setParameter
+        pageTitle = new H2("Create / Edit Ausschreibung");
 
+        // Setup steps
         Tab step1 = new Tab("Grundinformationen");
         Tab step2 = new Tab("Dokumente Upload");
         Tab step3 = new Tab("Zusammenfassung");
@@ -40,12 +39,11 @@ public class AusschreibungCreateView extends VerticalLayout {
         tabs = new Tabs(step1, step2, step3);
         tabs.setWidthFull();
 
-        Div content = new Div();
+        content = new Div();
         content.setWidthFull();
         content.setSizeFull();
 
-        content.add(new AusschreibungBasicInfoForm(formData, ausschreibungService, tabs));
-            //TODO: if come back to previous steps, change colors again
+        // Handle tab changes
         tabs.addSelectedChangeListener(event -> {
             content.removeAll();
             if (event.getSelectedTab().equals(step1)) {
@@ -53,15 +51,43 @@ public class AusschreibungCreateView extends VerticalLayout {
             } else if (event.getSelectedTab().equals(step2)) {
                 content.add(new AusschreibungDokumenteUploadForm(formData, ausschreibungService, tabs));
                 step1.getElement().getStyle().set("color", "green");
-                step1.getElement().setText("Grundinformationen ✔");
+                step1.setLabel("Grundinformationen ✔");
             } else {
                 content.add(new AusschreibungPublishForm(formData, ausschreibungService, tabs));
                 step2.getElement().getStyle().set("color", "green");
-                step2.getElement().setText("Dokumente Upload ✔");
+                step2.setLabel("Dokumente Upload ✔");
             }
         });
 
         add(pageTitle, tabs, content);
         setFlexGrow(1, content);
+    }
+
+    /** Handle optional :id parameter for edit vs create */
+    @Override
+    public void setParameter(BeforeEvent event, @OptionalParameter String id) {
+        System.out.println("AusschreibungCreateView.setParameter() called with id: " + id);
+        if (id != null) {
+            ausschreibungService.findById(id).ifPresentOrElse(
+                a -> {
+                    formData = a;
+                    System.out.println("Ausschreibung found: " + a);
+                    pageTitle.setText("Edit Ausschreibung");
+                },
+                () -> {
+                    formData = new Ausschreibung();
+                    System.out.println("Ausschreibung NOT FOUND");
+                    pageTitle.setText("Create New Ausschreibung");
+                }
+            );
+        } else {
+            formData = new Ausschreibung();
+            System.out.println("Ausschreibung NOT NOT FOUND");
+            pageTitle.setText("Create New Ausschreibung");
+        }
+        // load the first step form
+        tabs.setSelectedIndex(0);
+        content.removeAll();
+        content.add(new AusschreibungBasicInfoForm(formData, ausschreibungService, tabs));
     }
 }
