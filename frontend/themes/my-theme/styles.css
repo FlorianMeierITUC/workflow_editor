@@ -34,6 +34,7 @@
       --ituc-analog-color-2:  	hsl(229, 55%, 56%);
       --ituc-grau: hsl(60, 1%, 62%);
       --ituc-grau-2: hsl(0, 0%, 50%, 0.3);
+      --ituc-grau-2: hsl(0, 0%, 50%, 0.3);
       --ituc-body-text:  	hsl(216, 100%, 98%);
       --ituc-complementary-color-1:  	hsl(27, 87%, 67%);
       --ituc-complementary-color-2:  	hsl(12, 76%, 61%);
@@ -92,3 +93,14 @@
   vaadin-combo-box-overlay::part(content) {
     background-color: transparent;
   }
+
+    /* Apply to all vaadin-grid selection checkboxes */
+    vaadin-grid > vaadin-checkbox::part(checkbox) {
+      /* override the “checked” color */
+      --lumo-primary-color: #006edc; /* your blue */
+    }
+
+    /* Apply to the “select all” header checkbox */
+    vaadin-grid > #selectAllCheckbox::part(checkbox) {
+      --lumo-primary-color: #006edc;
+    }
