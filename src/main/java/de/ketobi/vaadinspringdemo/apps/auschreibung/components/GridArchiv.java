@@ -157,6 +157,7 @@ public class GridArchiv extends VerticalLayout {
     private Component buildFavoriteIcon(Ausschreibung a) {
         Icon star = a.isFavorite() ? VaadinIcon.STAR.create() : VaadinIcon.STAR_O.create();
         star.getStyle().set("cursor", "pointer");
+        star.setColor(a.isFavorite() ? "gold" : "red");
         star.addClickListener(e -> {
             a.setFavorite(!a.isFavorite());
             ausschreibungService.save(a);

@@ -76,25 +76,7 @@
       background-color: var(--ituc-semantic-primary);
     } /*colors the line under the tab*/
 
-    /* vaadin-tab[disabled] {
-      color: red !important;
-    }
-
-    vaadin-tab[active] {
-      color: red !important;
-    } */
-
-    vaadin-tab[selected] {
-      color: var(--ituc-semantic-primary);
-    }
-
-    /* Apply to all vaadin-grid selection checkboxes */
-    vaadin-grid > vaadin-checkbox::part(checkbox) {
-      /* override the “checked” color */
-      --lumo-primary-color: #006edc; /* your blue */
-    }
-
-    /* Apply to the “select all” header checkbox */
-    vaadin-grid > #selectAllCheckbox::part(checkbox) {
-      --lumo-primary-color: #006edc;
-    }
+  vaadin-checkbox[checked] {
+    color: var( --ituc-analog-color-2);
+    --lumo-primary-color: var( --ituc-analog-color-2);
+  }

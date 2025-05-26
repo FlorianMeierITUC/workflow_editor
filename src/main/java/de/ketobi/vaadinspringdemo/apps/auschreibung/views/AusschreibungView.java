@@ -50,7 +50,6 @@ public class AusschreibungView extends VerticalLayout {
             e -> getUI().ifPresent(ui -> ui.navigate("auschreibung/create"))
         );
         createButton.addClassName("neue-auschreibung");
-        //createButton.getElement().setAttribute("theme", "primary");
         add(createButton);
 
         add(new H1("Archiv"));
