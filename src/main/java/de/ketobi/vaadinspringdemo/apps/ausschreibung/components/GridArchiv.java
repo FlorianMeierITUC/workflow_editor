@@ -1,4 +1,3 @@
-<<<<<<< HEAD:src/main/java/de/ketobi/vaadinspringdemo/apps/ausschreibung/components/GridArchiv.java
 package de.ketobi.vaadinspringdemo.apps.ausschreibung.components;
 
 import de.ketobi.vaadinspringdemo.apps.ausschreibung.entities.Ausschreibung;
@@ -26,8 +25,6 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.RouteParameters;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.component.combobox.ComboBox;
-=======
->>>>>>> eb243f9 (archiv page):src/main/java/de/ketobi/vaadinspringdemo/apps/auschreibung/components/GridArchiv.java
 
 import java.util.function.Consumer;
 import java.util.ArrayList;
@@ -47,10 +44,6 @@ public class GridArchiv extends VerticalLayout {
     private final TextField brancheFilter;
     private final TextField statusFilter;
     private final boolean showFavoritesOnly;
-<<<<<<< HEAD:src/main/java/de/ketobi/vaadinspringdemo/apps/ausschreibung/components/GridArchiv.java
-=======
-
->>>>>>> eb243f9 (archiv page):src/main/java/de/ketobi/vaadinspringdemo/apps/auschreibung/components/GridArchiv.java
     private final List<Consumer<Ausschreibung>> favoriteListeners = new ArrayList<>();
 
     public GridArchiv(AusschreibungService ausschreibungService, boolean showFavoritesOnly) {
@@ -65,7 +58,6 @@ public class GridArchiv extends VerticalLayout {
         brancheFilter = createFilterTextField();
         statusFilter  = createFilterTextField();
 
-<<<<<<< HEAD:src/main/java/de/ketobi/vaadinspringdemo/apps/ausschreibung/components/GridArchiv.java
         
         // Grid setup
         this.grid = new Grid<>(Ausschreibung.class, false);
@@ -126,33 +118,6 @@ public class GridArchiv extends VerticalLayout {
         .setFlexGrow(0)
         .setWidth("150px"); // adjust as needed
 
-=======
-        // Grid setup
-        this.grid = new Grid<>(Ausschreibung.class, false);
-        grid.addThemeVariants(
-            GridVariant.LUMO_NO_BORDER,
-            GridVariant.LUMO_NO_ROW_BORDERS
-        );
-        grid.getElement().getStyle()
-            .set("overflow", "hidden")
-            .set("border", "none");
-        grid.setSelectionMode(Grid.SelectionMode.MULTI);
-
-        var nrCol      = grid.addColumn(Ausschreibung::getAusschreibungsNumber)
-                             .setHeader("Auschreib. Nr.");
-        var itucCol    = grid.addColumn(Ausschreibung::getITUCNumber)
-                             .setHeader("ITUC Nr.");
-        var titleCol   = grid.addColumn(Ausschreibung::getTitle)
-                             .setHeader("Titel");
-        var dateCol    = grid.addColumn(Ausschreibung::getDate)
-                             .setHeader("Datum");
-        var kundeCol   = grid.addColumn(Ausschreibung::getKunde)
-                             .setHeader("Kunde");
-        var brancheCol = grid.addColumn(Ausschreibung::getBranche)
-                             .setHeader("Branche");
-        var statusCol  = grid.addColumn(Ausschreibung::getStatus)
-                             .setHeader("Status");
->>>>>>> eb243f9 (archiv page):src/main/java/de/ketobi/vaadinspringdemo/apps/auschreibung/components/GridArchiv.java
         grid.addComponentColumn(this::buildFavoriteIcon)
             .setHeader("")
             .setAutoWidth(true)
@@ -176,14 +141,6 @@ public class GridArchiv extends VerticalLayout {
         filterRow.getCell(statusCol) .setComponent(statusFilter);
         
         // Data provider
-<<<<<<< HEAD:src/main/java/de/ketobi/vaadinspringdemo/apps/ausschreibung/components/GridArchiv.java
-=======
-        List<Ausschreibung> items = ausschreibungService.findAll();
-        this.dataProvider = DataProvider.ofCollection(items);
-        grid.setDataProvider(dataProvider);
-        grid.setAllRowsVisible(true);
-        
->>>>>>> eb243f9 (archiv page):src/main/java/de/ketobi/vaadinspringdemo/apps/auschreibung/components/GridArchiv.java
         // Assemble view
         HorizontalLayout topBar = new HorizontalLayout();
         topBar.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.END);
@@ -234,18 +191,11 @@ public class GridArchiv extends VerticalLayout {
     private Component buildFavoriteIcon(Ausschreibung a) {
         Icon star = a.isFavorite() ? VaadinIcon.STAR.create() : VaadinIcon.STAR_O.create();
         star.getStyle().set("cursor", "pointer");
-<<<<<<< HEAD:src/main/java/de/ketobi/vaadinspringdemo/apps/ausschreibung/components/GridArchiv.java
         star.setColor(a.isFavorite() ? "gold" : "");
-=======
->>>>>>> eb243f9 (archiv page):src/main/java/de/ketobi/vaadinspringdemo/apps/auschreibung/components/GridArchiv.java
         star.addClickListener(e -> {
             a.setFavorite(!a.isFavorite());
             ausschreibungService.save(a);
             dataProvider.refreshAll();
-<<<<<<< HEAD:src/main/java/de/ketobi/vaadinspringdemo/apps/ausschreibung/components/GridArchiv.java
-=======
-            // notify listeners
->>>>>>> eb243f9 (archiv page):src/main/java/de/ketobi/vaadinspringdemo/apps/auschreibung/components/GridArchiv.java
             favoriteListeners.forEach(l -> l.accept(a));
         });
         return star;
@@ -257,11 +207,7 @@ public class GridArchiv extends VerticalLayout {
         edit.getElement().setAttribute("title", "Edit this Ausschreibung");
         edit.addClickListener(e -> {
             getUI().ifPresent(ui ->
-<<<<<<< HEAD:src/main/java/de/ketobi/vaadinspringdemo/apps/ausschreibung/components/GridArchiv.java
                 // this will navigate to /ausschreibung/create/{id}
-=======
-                // this will navigate to /auschreibung/create/{id}
->>>>>>> eb243f9 (archiv page):src/main/java/de/ketobi/vaadinspringdemo/apps/auschreibung/components/GridArchiv.java
                 ui.navigate(AusschreibungCreateView.class, a.getId())
             );
         });
@@ -276,7 +222,6 @@ public class GridArchiv extends VerticalLayout {
         applyFilters();
 
     }
-<<<<<<< HEAD:src/main/java/de/ketobi/vaadinspringdemo/apps/ausschreibung/components/GridArchiv.java
 
     private void applyStatusColor(ComboBox<String> combo, String status) {
 
@@ -303,6 +248,4 @@ public class GridArchiv extends VerticalLayout {
     }
 }
 
-=======
->>>>>>> eb243f9 (archiv page):src/main/java/de/ketobi/vaadinspringdemo/apps/auschreibung/components/GridArchiv.java
 }
