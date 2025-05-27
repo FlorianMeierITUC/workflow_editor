@@ -1,4 +1,4 @@
-package de.ketobi.vaadinspringdemo.apps.auschreibung.components;
+package de.ketobi.vaadinspringdemo.apps.ausschreibung.components;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasStyle;

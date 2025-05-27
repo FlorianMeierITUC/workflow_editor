@@ -1,7 +1,7 @@
-package de.ketobi.vaadinspringdemo.apps.auschreibung.services;
+package de.ketobi.vaadinspringdemo.apps.ausschreibung.services;
 
-import de.ketobi.vaadinspringdemo.apps.auschreibung.entities.Ausschreibung;
-import de.ketobi.vaadinspringdemo.apps.auschreibung.repositories.AusschreibungRepository;
+import de.ketobi.vaadinspringdemo.apps.ausschreibung.entities.Ausschreibung;
+import de.ketobi.vaadinspringdemo.apps.ausschreibung.repositories.AusschreibungRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

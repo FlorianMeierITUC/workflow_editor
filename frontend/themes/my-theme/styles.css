@@ -43,7 +43,10 @@
       --ituc-base-2:  	hsl(225, 4%, 36%);
       --ituc-field-bg:  	hsl(251, 55%, 30%, 0.4);
       --ituc-semantic-primary:  	hsl(214, 100%, 48%, 1);
-  
+      --ituc-success-color:  	hsl(145, 72%, 30%);
+      --ituc-bearbeitung-color:  	hsl(211, 100%, 50%);
+      --ituc-warning-color:  	hsl(48, 100%, 50%);
+      --ituc-error-color:  	hsl(3, 79%, 49%);
     }
 
     [theme~="dark"] {
@@ -79,4 +82,13 @@
   vaadin-checkbox[checked] {
     color: var( --ituc-analog-color-2);
     --lumo-primary-color: var( --ituc-analog-color-2);
+  }
+
+  vaadin-combo-box::part(input-field) {
+  background-color: transparent;
+}
+
+  /* Make the dropdown overlay’s content area transparent */
+  vaadin-combo-box-overlay::part(content) {
+    background-color: transparent;
   }

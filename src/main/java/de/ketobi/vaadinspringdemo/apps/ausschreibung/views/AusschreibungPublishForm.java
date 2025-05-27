@@ -1,4 +1,4 @@
-package de.ketobi.vaadinspringdemo.apps.auschreibung.views;
+package de.ketobi.vaadinspringdemo.apps.ausschreibung.views;
 
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
@@ -7,10 +7,10 @@ import com.vaadin.flow.component.html.ListItem;
 import com.vaadin.flow.component.html.UnorderedList;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
-import de.ketobi.vaadinspringdemo.apps.auschreibung.components.AusschreibungActionButtons;
-import de.ketobi.vaadinspringdemo.apps.auschreibung.components.AusschreibungSummaryGrid;
-import de.ketobi.vaadinspringdemo.apps.auschreibung.entities.Ausschreibung;
-import de.ketobi.vaadinspringdemo.apps.auschreibung.services.AusschreibungService;
+import de.ketobi.vaadinspringdemo.apps.ausschreibung.components.AusschreibungActionButtons;
+import de.ketobi.vaadinspringdemo.apps.ausschreibung.components.AusschreibungSummaryGrid;
+import de.ketobi.vaadinspringdemo.apps.ausschreibung.entities.Ausschreibung;
+import de.ketobi.vaadinspringdemo.apps.ausschreibung.services.AusschreibungService;
 import com.vaadin.flow.component.tabs.Tabs;
 
 public class AusschreibungPublishForm extends VerticalLayout {

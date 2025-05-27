@@ -1,36 +1,22 @@
-package de.ketobi.vaadinspringdemo.apps.auschreibung.views;
+package de.ketobi.vaadinspringdemo.apps.ausschreibung.views;
 
-import de.ketobi.vaadinspringdemo.apps.auschreibung.entities.Ausschreibung;
-import de.ketobi.vaadinspringdemo.apps.auschreibung.services.AusschreibungService;
+import de.ketobi.vaadinspringdemo.apps.ausschreibung.services.AusschreibungService;
 import de.ketobi.vaadinspringdemo.main.ui.MainLayout;
-import de.ketobi.vaadinspringdemo.apps.auschreibung.components.GridArchiv;
+import de.ketobi.vaadinspringdemo.apps.ausschreibung.components.GridArchiv;
 
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.grid.GridVariant;
-import com.vaadin.flow.component.grid.HeaderRow;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.NativeLabel;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.component.textfield.TextFieldVariant;
-import com.vaadin.flow.data.provider.DataProvider;
-import com.vaadin.flow.data.provider.ListDataProvider;
-import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.PageTitle;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.List;
 
-@Route(value = "auschreibung", layout = MainLayout.class)
+@Route(value = "ausschreibung", layout = MainLayout.class)
+@CssImport(value = "./themes/my-theme/components/vaadin-button.css", themeFor = "vaadin-button")
 @PageTitle("Ausschreibungsprojekte")
 public class AusschreibungView extends VerticalLayout {
     private final AusschreibungService ausschreibungService;
@@ -47,9 +33,9 @@ public class AusschreibungView extends VerticalLayout {
         add(new H1("Neues Ausschreibungsprojekt anlegen"));
         Button createButton = new Button(
             "+ Klicke hier, um ein neues Projekt anzulegen",
-            e -> getUI().ifPresent(ui -> ui.navigate("auschreibung/create"))
+            e -> getUI().ifPresent(ui -> ui.navigate("ausschreibung/create"))
         );
-        createButton.addClassName("neue-auschreibung");
+        createButton.getElement().setAttribute("theme", "neue-ausschreibung");
         add(createButton);
 
         add(new H1("Archiv"));

@@ -1,4 +1,4 @@
-package de.ketobi.vaadinspringdemo.apps.auschreibung.views;
+package de.ketobi.vaadinspringdemo.apps.ausschreibung.views;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -11,10 +11,10 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationException;
-import de.ketobi.vaadinspringdemo.apps.auschreibung.entities.Ausschreibung;
-import de.ketobi.vaadinspringdemo.apps.auschreibung.services.AusschreibungService;
-import de.ketobi.vaadinspringdemo.apps.auschreibung.components.AusschreibungActionButtons;
-import de.ketobi.vaadinspringdemo.apps.auschreibung.components.LabeledField;
+import de.ketobi.vaadinspringdemo.apps.ausschreibung.entities.Ausschreibung;
+import de.ketobi.vaadinspringdemo.apps.ausschreibung.services.AusschreibungService;
+import de.ketobi.vaadinspringdemo.apps.ausschreibung.components.AusschreibungActionButtons;
+import de.ketobi.vaadinspringdemo.apps.ausschreibung.components.LabeledField;
 
 public class AusschreibungBasicInfoForm extends VerticalLayout {
 

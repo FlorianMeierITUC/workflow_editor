@@ -1,8 +1,8 @@
-package de.ketobi.vaadinspringdemo.apps.auschreibung.components;
+package de.ketobi.vaadinspringdemo.apps.ausschreibung.components;
 
-import de.ketobi.vaadinspringdemo.apps.auschreibung.entities.Ausschreibung;
-import de.ketobi.vaadinspringdemo.apps.auschreibung.services.AusschreibungService;
-import de.ketobi.vaadinspringdemo.apps.auschreibung.views.AusschreibungCreateView;
+import de.ketobi.vaadinspringdemo.apps.ausschreibung.entities.Ausschreibung;
+import de.ketobi.vaadinspringdemo.apps.ausschreibung.services.AusschreibungService;
+import de.ketobi.vaadinspringdemo.apps.ausschreibung.views.AusschreibungCreateView;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.grid.Grid;
@@ -18,6 +18,7 @@ import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.component.combobox.ComboBox;
 
 import java.util.function.Consumer;
 import java.util.ArrayList;
@@ -37,7 +38,6 @@ public class GridArchiv extends VerticalLayout {
     private final TextField brancheFilter;
     private final TextField statusFilter;
     private final boolean showFavoritesOnly;
-
     private final List<Consumer<Ausschreibung>> favoriteListeners = new ArrayList<>();
 
     public GridArchiv(AusschreibungService ausschreibungService, boolean showFavoritesOnly) {
@@ -52,37 +52,59 @@ public class GridArchiv extends VerticalLayout {
         brancheFilter = createFilterTextField();
         statusFilter  = createFilterTextField();
 
+        
         // Grid setup
         this.grid = new Grid<>(Ausschreibung.class, false);
+        List<Ausschreibung> items = ausschreibungService.findAll();
+        this.dataProvider = DataProvider.ofCollection(items);
+        grid.setDataProvider(dataProvider);
+        grid.setAllRowsVisible(true);
+
         grid.addThemeVariants(
             GridVariant.LUMO_NO_BORDER,
             GridVariant.LUMO_NO_ROW_BORDERS
-        );
-        grid.getElement().getStyle()
+            );
+            grid.getElement().getStyle()
             .set("overflow", "hidden")
             .set("border", "none");
-        grid.setSelectionMode(Grid.SelectionMode.MULTI);
+            grid.setSelectionMode(Grid.SelectionMode.MULTI);
 
         var nrCol      = grid.addColumn(Ausschreibung::getAusschreibungsNumber)
                              .setHeader("Auschreib. Nr.");
-        var itucCol    = grid.addColumn(Ausschreibung::getITUCNumber)
+                             var itucCol    = grid.addColumn(Ausschreibung::getITUCNumber)
                              .setHeader("ITUC Nr.");
-        var titleCol   = grid.addColumn(Ausschreibung::getTitle)
+                             var titleCol   = grid.addColumn(Ausschreibung::getTitle)
                              .setHeader("Titel");
         var dateCol    = grid.addColumn(Ausschreibung::getDate)
                              .setHeader("Datum");
-        var kundeCol   = grid.addColumn(Ausschreibung::getKunde)
+                             var kundeCol   = grid.addColumn(Ausschreibung::getKunde)
                              .setHeader("Kunde");
-        var brancheCol = grid.addColumn(Ausschreibung::getBranche)
+                             var brancheCol = grid.addColumn(Ausschreibung::getBranche)
                              .setHeader("Branche");
-        var statusCol  = grid.addColumn(Ausschreibung::getStatus)
-                             .setHeader("Status");
+        var statusCol = grid.addComponentColumn(a -> {
+            ComboBox<String> status = new ComboBox<>();
+            status.setItems("Final", "In Bearbeitung", "In Prüfung", "Abgelehnt", "Beendet");
+            status.setValue(a.getStatus()); 
+            status.setWidth("100%");
+            applyStatusColor(status, a.getStatus());
+            status.addValueChangeListener(e -> {
+                a.setStatus(e.getValue());
+                ausschreibungService.save(a);
+                dataProvider.refreshItem(a);
+            });
+            return status;
+        })
+        .setHeader("Status")
+        .setAutoWidth(true)
+        .setFlexGrow(0)
+        .setWidth("150px"); // adjust as needed
+
         grid.addComponentColumn(this::buildFavoriteIcon)
             .setHeader("")
             .setAutoWidth(true)
             .setFlexGrow(0)
             .setWidth("24px");
-        grid.addComponentColumn(this::buildEditIcon)
+            grid.addComponentColumn(this::buildEditIcon)
             .setHeader("")
             .setAutoWidth(true)
             .setFlexGrow(0)
@@ -102,11 +124,6 @@ public class GridArchiv extends VerticalLayout {
         filterRow.getCell(statusCol) .setComponent(statusFilter);
         
         // Data provider
-        List<Ausschreibung> items = ausschreibungService.findAll();
-        this.dataProvider = DataProvider.ofCollection(items);
-        grid.setDataProvider(dataProvider);
-        grid.setAllRowsVisible(true);
-        
         // Assemble view
         HorizontalLayout topBar = new HorizontalLayout();
         topBar.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.END);
@@ -157,12 +174,11 @@ public class GridArchiv extends VerticalLayout {
     private Component buildFavoriteIcon(Ausschreibung a) {
         Icon star = a.isFavorite() ? VaadinIcon.STAR.create() : VaadinIcon.STAR_O.create();
         star.getStyle().set("cursor", "pointer");
-        star.setColor(a.isFavorite() ? "gold" : "red");
+        star.setColor(a.isFavorite() ? "gold" : "");
         star.addClickListener(e -> {
             a.setFavorite(!a.isFavorite());
             ausschreibungService.save(a);
             dataProvider.refreshAll();
-            // notify listeners
             favoriteListeners.forEach(l -> l.accept(a));
         });
         return star;
@@ -175,7 +191,7 @@ public class GridArchiv extends VerticalLayout {
         edit.getElement().setAttribute("title", "Edit this Ausschreibung");
         edit.addClickListener(e -> {
             getUI().ifPresent(ui ->
-                // this will navigate to /auschreibung/create/{id}
+                // this will navigate to /ausschreibung/create/{id}
                 ui.navigate(AusschreibungCreateView.class, a.getId())
             );
         });
@@ -192,4 +208,30 @@ public class GridArchiv extends VerticalLayout {
         applyFilters();
 
     }
+
+    private void applyStatusColor(ComboBox<String> combo, String status) {
+
+    combo.getElement().getStyle().remove("color").remove("backgroundColor");
+
+    switch (status) {
+      case "Final":
+        combo.getElement().getStyle().set("color", "var(--ituc-success-color)");
+        break;
+      case "In Bearbeitung":
+        combo.getElement().getStyle().set("color", "var(--ituc-bearbeitung-color)");
+        break;
+      case "Abgelehnt":
+        combo.getElement().getStyle().set("color", "var(--ituc-error-color)");
+        break;
+      case "In Prüfung":
+        combo.getElement().getStyle().set("color", "var(--ituc-warning-color)");
+        break;
+      case "Beendet":
+        combo.getElement().getStyle().set("color", "var(--ituc-grau)");
+        break;
+      default:
+        // leave default color
+    }
+}
+
 }

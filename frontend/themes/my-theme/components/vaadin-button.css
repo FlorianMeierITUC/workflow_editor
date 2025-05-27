@@ -15,12 +15,13 @@
 :host([theme~="primary"]) {
   text-shadow: 0 -1px 0 var(--lumo-shade-20pct);
 }
-:host([theme~="neue-auschreibung"]) {
-  background-color: var(--ituc-analog-color-1);
-  color: white;
-  border-radius: 10px;
-  font-weight: bold;
-}
-:host([theme~="neue-auschreibung"]:hover) {
+:host([theme~="neue-ausschreibung"]) {
   background-color: var(--ituc-analog-color-2);
+  color: white;
+  border-radius: 2px;
+  font-size: large;
+  padding: 1rem;
 }
+/* :host([theme~="neue-ausschreibung"]:hover) {
+  background-color: var(--ituc-analog-color-2);
+} check what is supposed to be, not yet in the figma */

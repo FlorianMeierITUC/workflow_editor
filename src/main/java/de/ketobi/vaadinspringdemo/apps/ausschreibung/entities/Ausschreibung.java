@@ -1,4 +1,4 @@
-package de.ketobi.vaadinspringdemo.apps.auschreibung.entities;
+package de.ketobi.vaadinspringdemo.apps.ausschreibung.entities;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

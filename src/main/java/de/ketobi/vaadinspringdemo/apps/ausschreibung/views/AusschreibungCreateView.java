@@ -1,4 +1,4 @@
-package de.ketobi.vaadinspringdemo.apps.auschreibung.views;
+package de.ketobi.vaadinspringdemo.apps.ausschreibung.views;
 
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
@@ -6,11 +6,11 @@ import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.*;
-import de.ketobi.vaadinspringdemo.apps.auschreibung.entities.Ausschreibung;
-import de.ketobi.vaadinspringdemo.apps.auschreibung.services.AusschreibungService;
+import de.ketobi.vaadinspringdemo.apps.ausschreibung.entities.Ausschreibung;
+import de.ketobi.vaadinspringdemo.apps.ausschreibung.services.AusschreibungService;
 import de.ketobi.vaadinspringdemo.main.ui.MainLayout;
 
-@Route(value = "auschreibung/create", layout = MainLayout.class)
+@Route(value = "ausschreibung/create", layout = MainLayout.class)
 @PageTitle("Create / Edit Ausschreibung")
 public class AusschreibungCreateView extends VerticalLayout implements HasUrlParameter<String> {
 

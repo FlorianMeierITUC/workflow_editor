@@ -1,10 +1,10 @@
-package de.ketobi.vaadinspringdemo.apps.auschreibung.components;
+package de.ketobi.vaadinspringdemo.apps.ausschreibung.components;
 
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import de.ketobi.vaadinspringdemo.apps.auschreibung.entities.Ausschreibung;
+import de.ketobi.vaadinspringdemo.apps.ausschreibung.entities.Ausschreibung;
 
 public class AusschreibungSummaryGrid extends VerticalLayout {
 
