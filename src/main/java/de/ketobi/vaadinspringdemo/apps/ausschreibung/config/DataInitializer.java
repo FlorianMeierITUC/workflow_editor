@@ -1,7 +1,7 @@
-package de.ketobi.vaadinspringdemo.apps.auschreibung.config;
+package de.ketobi.vaadinspringdemo.apps.ausschreibung.config;
 
-import de.ketobi.vaadinspringdemo.apps.auschreibung.services.AusschreibungService;
-import de.ketobi.vaadinspringdemo.apps.auschreibung.util.SampleData;
+import de.ketobi.vaadinspringdemo.apps.ausschreibung.services.AusschreibungService;
+import de.ketobi.vaadinspringdemo.apps.ausschreibung.util.SampleData;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;

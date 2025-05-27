@@ -6,7 +6,11 @@ import java.util.List;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+<<<<<<< HEAD
 import lombok.Data
+=======
+import lombok.Data;
+>>>>>>> e3afe61 (correction of the add button css)
 
 import lombok.Data;
 
@@ -25,6 +29,7 @@ public class Ausschreibung {
     private String projectKontakt;
     private String projectKontaktEmail;
     private String notizen;
+<<<<<<< HEAD
 <<<<<<< HEAD:src/main/java/de/ketobi/vaadinspringdemo/apps/ausschreibung/entities/Ausschreibung.java
     private LocalDate date;
     private boolean favorite;
@@ -66,4 +71,11 @@ public class Ausschreibung {
     }
 =======
 >>>>>>> 92c89a0 (Update src/main/java/de/ketobi/vaadinspringdemo/apps/auschreibung/entities/Ausschreibung.java):src/main/java/de/ketobi/vaadinspringdemo/apps/auschreibung/entities/Ausschreibung.java
+=======
+    private List<String> dokumente = new ArrayList<>();
+
+    public void addDokument(String filename) {
+        this.dokumente.add(filename);
+    }
+>>>>>>> e3afe61 (correction of the add button css)
 }
