@@ -1,89 +1,124 @@
 package de.ketobi.vaadinspringdemo.views;
+
 import de.ketobi.vaadinspringdemo.main.workflows.WorkflowEditor;
 import de.ketobi.vaadinspringdemo.main.workflows.entities.Workflow;
-import de.ketobi.vaadinspringdemo.main.user.repositories.UserRepository;
-import de.ketobi.vaadinspringdemo.main.workflows.repositories.WorkflowNodeRepository;
-import de.ketobi.vaadinspringdemo.main.workflows.repositories.WorkflowRepository;
+import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowNode;
+import de.ketobi.vaadinspringdemo.main.workflows.entities.WorkflowNodeTypes;
+import de.ketobi.vaadinspringdemo.main.user.services.UserService;
+import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowNodeService;
+import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowScheduleService;
+import de.ketobi.vaadinspringdemo.main.workflows.services.WorkflowService;
+
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest
-@EnableMongoRepositories(basePackages = "de.ketobi.vaadinspringdemo.repositories")
+@ExtendWith(MockitoExtension.class)
 class WorkflowEditorTest {
 
-    @InjectMocks
     private WorkflowEditor workflowEditor;
 
     @Mock
-    private WorkflowRepository wfRepository;
+    private WorkflowService wfService;
 
     @Mock
-    private WorkflowNodeRepository wfNodeRepository;
+    private WorkflowNodeService wfNodeService;
 
     @Mock
-    private UserRepository userRepository;
+    private WorkflowScheduleService wfScheduleService;
+
+    @Mock
+    private UserService userService;
+
+    private Workflow workflow;
 
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
+        workflow = new Workflow();
+
+        workflowEditor = new WorkflowEditor(wfService, wfNodeService, userService, wfScheduleService);
+
+        workflow.setId(new ObjectId());
+        workflow.setName("Test Workflow");
+        workflow.setDescription("Test Description");
+        workflow.setActive(true);
+
+        WorkflowNode startNode = new WorkflowNode();
+        startNode.setIdWorkflow(workflow.getId());
+        startNode.setId(new ObjectId());
+        startNode.setTitle("Start");
+        startNode.setType(WorkflowNodeTypes.START);
+        startNode.setResponsible(UserService.getSystemUser().getId());
+
+        WorkflowNode intermediateNode = new WorkflowNode();
+        intermediateNode.setIdWorkflow(workflow.getId());
+        intermediateNode.setId(new ObjectId());
+        intermediateNode.setTitle("Mocked Node");
+        intermediateNode.setType(WorkflowNodeTypes.USER_ACTION);
+
+        // Create end node
+        WorkflowNode endNode = new WorkflowNode();
+        endNode.setIdWorkflow(workflow.getId());
+        endNode.setId(new ObjectId());
+        endNode.setTitle("End");
+        endNode.setType(WorkflowNodeTypes.END);
+        endNode.setResponsible(UserService.getSystemUser().getId());
+
+        lenient().when(wfNodeService.getStartNode(any())).thenReturn(startNode);
+        lenient().when(wfNodeService.getEndNode(any())).thenReturn(endNode);
+        lenient().when(wfNodeService.getAll(any()))
+                .thenReturn(new ArrayList<WorkflowNode>(List.of(startNode, intermediateNode, endNode)));
+
     }
 
     @Test
     public void shouldFillNodeDivWhenWorkflowExists() {
-        Workflow workflow = new Workflow();
-        workflow.setId(new ObjectId());
-        workflow.setName("Test Workflow");
-        workflow.setDescription("Test Description");
-        workflow.setActive(true);
 
-        when(wfRepository.findById(any())).thenReturn(Optional.of(workflow));
-
+        when(wfService.getById(any(String.class))).thenReturn(workflow);
         workflowEditor.setParameter(null, "1");
 
-        verify(wfRepository, times(1)).findById(any());
+        verify(wfService, times(1)).getById(any(String.class));
+        assertTrue(workflowEditor.getNodeDiv().getComponentCount() > 1);
     }
 
     @Test
     public void shouldNotFillNodeDivWhenWorkflowDoesNotExist() {
-        when(wfRepository.findById(any())).thenReturn(Optional.empty());
-
+        when(wfService.getById(any(String.class))).thenReturn(null);
         workflowEditor.setParameter(null, "1");
 
-        verify(wfRepository, times(1)).findById(any());
+        verify(wfService, times(1)).getById(any(String.class));
+        assertTrue(workflowEditor.getNodeDiv().getComponentCount() == 0);
     }
 
     @Test
     public void shouldDrawWorkflowWhenWorkflowExists() {
-        Workflow workflow = new Workflow();
-        workflow.setId(new ObjectId());
-        workflow.setName("Test Workflow");
-        workflow.setDescription("Test Description");
-        workflow.setActive(true);
 
-        when(wfRepository.findById(any())).thenReturn(Optional.of(workflow));
+        when(wfService.getById(any(String.class))).thenReturn(workflow);
 
         workflowEditor.setParameter(null, "1");
 
-        verify(wfRepository, times(1)).findById(any());
+        verify(wfService, times(1)).getById(any(String.class));
+        assertTrue(workflowEditor.getTreeDiv().getComponentCount() > 0);
     }
 
     @Test
-    public void shouldNotDrawWorkflowWhenWorkflowDoesNotExist() {
-        when(wfRepository.findById(any())).thenReturn(Optional.empty());
-
+    public void shouldNotDrawWhenWorkflowDoesNotExist() {
+        when(wfService.getById(any(String.class))).thenReturn(null);
         workflowEditor.setParameter(null, "1");
 
-        verify(wfRepository, times(1)).findById(any());
+        verify(wfService, times(1)).getById(any(String.class));
+        assertTrue(workflowEditor.getTreeDiv().getComponentCount() == 0);
     }
 }

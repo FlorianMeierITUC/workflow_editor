@@ -8,11 +8,14 @@ import com.vaadin.flow.component.page.Push;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
 // Enable push
 @Push
 @SpringBootApplication
+@EnableMongoRepositories(basePackages = {"de.ketobi.vaadinspringdemo"})
+@ComponentScan(basePackages = "de.ketobi.vaadinspringdemo")
 @Theme(value = "my-theme", variant = Lumo.DARK)
 public class VaadinspringdemoApplication implements AppShellConfigurator {
 

@@ -1,9 +1,36 @@
 services:
+  app:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: app
+    ports:
+      - "8080:8080"
+    profiles:
+      - dev
+    env_file:
+      - .env
+    depends_on:
+      - mongodb
+    networks:
+      - mongodb-net
+      - app-net
+
   mongodb:
     image: 'mongo:latest'
+    container_name: mongodb
     environment:
       - 'MONGO_INITDB_DATABASE=mydatabase'
       - 'MONGO_INITDB_ROOT_PASSWORD=secretpassword'
       - 'MONGO_INITDB_ROOT_USERNAME=root'
     ports:
       - '27017:27017'
+    networks:
+      - app-net
+
+networks:
+  app-net:
+  mongodb-net:
+    external: true
+    name: mongodb-net
+    

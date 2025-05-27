@@ -18,9 +18,17 @@ public class MongoDBIndexManager {
 
     @PostConstruct
     public void initIndexes() {
-        mongoTemplate.indexOps(Workflow.class).ensureIndex(new Index().on("name", Sort.Direction.ASC).unique());
-        mongoTemplate.indexOps(User.class).ensureIndex(new Index().on("name", Sort.Direction.ASC).unique());
-        mongoTemplate.indexOps(WorkflowSchedule.class).ensureIndex(new Index().on("workflowId", Sort.Direction.ASC));
-        // Add any other necessary indexes here, ensuring no unique index on embedded documents
+        if (!mongoTemplate.collectionExists(Workflow.class)) {
+            mongoTemplate.indexOps(Workflow.class).ensureIndex(new Index().on("name", Sort.Direction.ASC).unique());
+        }
+
+        if (!mongoTemplate.collectionExists(User.class)) {
+            mongoTemplate.indexOps(User.class).ensureIndex(new Index().on("name", Sort.Direction.ASC).unique());
+        }
+
+        if (!mongoTemplate.collectionExists(WorkflowSchedule.class)) {
+            mongoTemplate.indexOps(WorkflowSchedule.class).ensureIndex(new Index().on("workflowId", Sort.Direction.ASC));
+        }
     }
 }
+
