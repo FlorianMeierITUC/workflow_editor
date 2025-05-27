@@ -29,8 +29,6 @@ public class Ausschreibung {
     private String projectKontakt;
     private String projectKontaktEmail;
     private String notizen;
-<<<<<<< HEAD
-<<<<<<< HEAD:src/main/java/de/ketobi/vaadinspringdemo/apps/ausschreibung/entities/Ausschreibung.java
     private LocalDate date;
     private boolean favorite;
     private boolean archived;
