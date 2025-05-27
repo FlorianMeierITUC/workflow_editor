@@ -1,5 +1,7 @@
 package de.ketobi.vaadinspringdemo.apps.ausschreibung.views;
 
+import java.time.LocalDate;
+
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.tabs.Tab;
@@ -66,23 +68,21 @@ public class AusschreibungCreateView extends VerticalLayout implements HasUrlPar
     /** Handle optional :id parameter for edit vs create */
     @Override
     public void setParameter(BeforeEvent event, @OptionalParameter String id) {
-        System.out.println("AusschreibungCreateView.setParameter() called with id: " + id);
         if (id != null) {
             ausschreibungService.findById(id).ifPresentOrElse(
                 a -> {
                     formData = a;
-                    System.out.println("Ausschreibung found: " + a);
                     pageTitle.setText("Edit Ausschreibung");
                 },
                 () -> {
                     formData = new Ausschreibung();
-                    System.out.println("Ausschreibung NOT FOUND");
                     pageTitle.setText("Create New Ausschreibung");
                 }
             );
         } else {
             formData = new Ausschreibung();
-            System.out.println("Ausschreibung NOT NOT FOUND");
+            formData.setStatus("In Bearbeitung");
+            formData.setDate(LocalDate.now()); // TODO: set to today for now, potentially to be changed to another date
             pageTitle.setText("Create New Ausschreibung");
         }
         // load the first step form

@@ -15,26 +15,19 @@ public class AusschreibungService {
         this.repo = repo;
     }
 
-    /** Persist any Ausschreibung (e.g. toggling favorite) */
     public Ausschreibung save(Ausschreibung ausschreibung) {
         return repo.save(ausschreibung);
     }
 
-    /** Fetch all Ausschreibungen (if you ever need them) */
     public List<Ausschreibung> findAll() {
         return repo.findAll();
     }
 
-    /** Fetch only those Ausschreibungen where archived == true */
-    // public List<Ausschreibung> findArchived() {
-    //     return repo.findByArchivedTrue();
-    // }
 
     public void deleteAll() {
         repo.deleteAll();
     }
     
-    /** (Optional) Lookup a single Ausschreibung by its ID */
     public Optional<Ausschreibung> findById(String id) {
         return repo.findById(id);
     }

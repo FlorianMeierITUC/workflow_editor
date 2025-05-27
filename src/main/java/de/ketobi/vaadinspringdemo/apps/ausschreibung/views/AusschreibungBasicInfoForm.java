@@ -61,9 +61,9 @@ public class AusschreibungBasicInfoForm extends VerticalLayout {
               .bind(Ausschreibung::getTitle, Ausschreibung::setTitle);
         binder.forField(notizenField)
               .bind(Ausschreibung::getNotizen, Ausschreibung::setNotizen);
-
+		
         // Bind bean two-way: populate fields and update bean on change
-binder.setBean(ausschreibung);
+        binder.setBean(ausschreibung);
 
 // Build form layout
         FormLayout form = new FormLayout();

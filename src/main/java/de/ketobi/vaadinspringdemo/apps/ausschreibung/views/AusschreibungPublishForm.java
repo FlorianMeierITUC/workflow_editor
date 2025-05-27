@@ -1,6 +1,5 @@
 package de.ketobi.vaadinspringdemo.apps.ausschreibung.views;
 
-import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.ListItem;

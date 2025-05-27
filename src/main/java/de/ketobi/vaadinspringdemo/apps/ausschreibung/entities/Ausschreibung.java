@@ -32,7 +32,6 @@ public class Ausschreibung {
         this.beschreibung = beschreibung;
     }
 
-        // inside your class, alongside the no-arg constructor:
     public Ausschreibung(String title, LocalDate date, boolean archived) {
         this.title    = title;
         this.date     = date;
