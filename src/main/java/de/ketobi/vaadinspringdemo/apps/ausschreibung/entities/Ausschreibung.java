@@ -63,4 +63,11 @@ public class Ausschreibung {
     }
 =======
 >>>>>>> 92c89a0 (Update src/main/java/de/ketobi/vaadinspringdemo/apps/auschreibung/entities/Ausschreibung.java):src/main/java/de/ketobi/vaadinspringdemo/apps/auschreibung/entities/Ausschreibung.java
+=======
+    private List<String> dokumente = new ArrayList<>();
+
+    public void addDokument(String filename) {
+        this.dokumente.add(filename);
+    }
+>>>>>>> e3afe61 (correction of the add button css)
 }
