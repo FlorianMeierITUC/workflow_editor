@@ -1,6 +1,6 @@
-package de.ketobi.vaadinspringdemo.apps.auschreibung.util;
+package de.ketobi.vaadinspringdemo.apps.ausschreibung.util;
 
-import de.ketobi.vaadinspringdemo.apps.auschreibung.entities.Ausschreibung;
+import de.ketobi.vaadinspringdemo.apps.ausschreibung.entities.Ausschreibung;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
@@ -16,7 +16,7 @@ public class SampleData {
         a1.setDate(LocalDate.of(2023, 7, 10));
         a1.setKunde("Stadt München");
         a1.setBranche("Verkehr");
-        a1.setStatus("Completed");
+        a1.setStatus("Final");
         a1.setArchived(true);
         a1.setFavorite(true);
 
@@ -28,7 +28,7 @@ public class SampleData {
         a2.setDate(LocalDate.of(2022, 11, 22));
         a2.setKunde("Hamburg University Hospital");
         a2.setBranche("Gesundheitswesen");
-        a2.setStatus("Awarded");
+        a2.setStatus("In Prüfung");
         a2.setArchived(true);
         a2.setFavorite(false);
 
@@ -40,7 +40,7 @@ public class SampleData {
         a3.setDate(LocalDate.of(2024, 1, 15));
         a3.setKunde("Berliner Öffentliche Bibliotheken");
         a3.setBranche("Bildung");
-        a3.setStatus("Completed");
+        a3.setStatus("In Bearbeitung");
         a3.setArchived(true);
         a3.setFavorite(true);
 
@@ -52,7 +52,7 @@ public class SampleData {
         a4.setDate(LocalDate.of(2023, 5, 5));
         a4.setKunde("Stadt Köln");
         a4.setBranche("Freizeit");
-        a4.setStatus("Cancelled");
+        a4.setStatus("Beendet");
         a4.setArchived(true);
         a4.setFavorite(false);
 
@@ -64,7 +64,7 @@ public class SampleData {
         a5.setDate(LocalDate.of(2022, 3, 30));
         a5.setKunde("Schulamt Frankfurt");
         a5.setBranche("Bildung");
-        a5.setStatus("Under Review");
+        a5.setStatus("Abgelehnt");
         a5.setArchived(true);
         a5.setFavorite(false);
 
