@@ -6,12 +6,15 @@ import de.ketobi.vaadinspringdemo.apps.ausschreibung.entities.Ausschreibung;
 import de.ketobi.vaadinspringdemo.apps.ausschreibung.services.AusschreibungService;
 import de.ketobi.vaadinspringdemo.apps.ausschreibung.views.AusschreibungCreateView;
 import de.ketobi.vaadinspringdemo.apps.ausschreibung.mapper.Mapper;
+import de.ketobi.vaadinspringdemo.apps.ausschreibung.views.AusschreibungDetails.AusschreibungDetailView;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.grid.HeaderRow;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -21,7 +24,10 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 //import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.ListDataProvider;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.router.RouteParameters;
+import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.component.combobox.ComboBox;
 
 import java.util.function.Consumer;
@@ -82,18 +88,31 @@ public class GridArchiv extends VerticalLayout {
                 .set("border", "none");
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
 
-        var nrCol = grid.addColumn(Ausschreibung::getAusschreibungsNumber)
-                .setHeader("Auschreib. Nr.");
-        var itucCol = grid.addColumn(Ausschreibung::getITUCNumber)
-                .setHeader("ITUC Nr.");
-        var titleCol = grid.addColumn(Ausschreibung::getTitle)
-                .setHeader("Titel");
-        var dateCol = grid.addColumn(Ausschreibung::getDate)
-                .setHeader("Datum");
-        var kundeCol = grid.addColumn(Ausschreibung::getKunde)
-                .setHeader("Kunde");
+        var nrCol = grid.addColumn(new ComponentRenderer<>(a -> {
+            Span numberSpan = new Span(a.getAusschreibungsNumber());
+            numberSpan.getStyle().set("cursor", "pointer");
+            numberSpan.getElement().setAttribute("title", "View Ausschreibung " + a.getAusschreibungsNumber());
+            
+            numberSpan.addClickListener(e -> {
+            getUI().ifPresent(ui ->
+                // this will navigate to /ausschreibung/create/{id}
+                ui.navigate(AusschreibungDetailView.class, a.getId())
+            );
+        });
+            
+            return numberSpan;
+        })).setHeader("Auschreib. Nr.");
+
+        var itucCol    = grid.addColumn(Ausschreibung::getITUCNumber)
+                             .setHeader("ITUC Nr.");
+        var titleCol   = grid.addColumn(Ausschreibung::getTitle)
+                             .setHeader("Titel");
+        var dateCol    = grid.addColumn(Ausschreibung::getDate)
+                             .setHeader("Datum");
+        var kundeCol   = grid.addColumn(Ausschreibung::getKunde)
+                             .setHeader("Kunde");
         var brancheCol = grid.addColumn(Ausschreibung::getBranche)
-                .setHeader("Branche");
+                             .setHeader("Branche");
         var statusCol = grid.addComponentColumn(a -> {
             ComboBox<String> status = new ComboBox<>();
             status.setItems("Final", "In Bearbeitung", "In Prüfung", "Abgelehnt", "Beendet");
@@ -113,17 +132,16 @@ public class GridArchiv extends VerticalLayout {
                 .setWidth("150px"); // adjust as needed
 
         grid.addComponentColumn(this::buildFavoriteIcon)
-                .setHeader("")
-                .setAutoWidth(true)
-                .setFlexGrow(0)
-                .setWidth("24px");
+            .setHeader("")
+            .setAutoWidth(true)
+            .setFlexGrow(0)
+            .setWidth("24px");
         grid.addComponentColumn(this::buildEditIcon)
-                .setHeader("")
-                .setAutoWidth(true)
-                .setFlexGrow(0)
-                .setWidth("24px");
+            .setHeader("")
+            .setAutoWidth(true)
+            .setFlexGrow(0)
+            .setWidth("24px");
 
-        // Remove default header row and add filters
         grid.getHeaderRows().clear();
 
         HeaderRow filterRow = grid.appendHeaderRow();
@@ -207,10 +225,7 @@ public class GridArchiv extends VerticalLayout {
         });
         return edit;
     }
-
-    /**
-     * Reloads grid data from the service and reapplies filters.
-     */
+    
     public void reload() {
         UI ui = UI.getCurrent();
         this.ausschreibungService.listProjects()
