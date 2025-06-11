@@ -1,74 +1,42 @@
 package de.ketobi.vaadinspringdemo.main.ui.navigation;
 
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Hr;
-import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.sidenav.SideNav;
-import com.vaadin.flow.component.sidenav.SideNavItem;
-import com.vaadin.flow.router.BeforeEnterEvent;
-import com.vaadin.flow.router.BeforeEnterObserver;
-import com.vaadin.flow.spring.annotation.SpringComponent;
+import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.spring.annotation.UIScope;
-import de.ketobi.vaadinspringdemo.main.ui.navigation.components.AddFolderButton;
-import de.ketobi.vaadinspringdemo.main.ui.navigation.components.AddTargetButton;
-import de.ketobi.vaadinspringdemo.main.ui.navigation.services.NavigationService;
-import de.ketobi.vaadinspringdemo.main.user.services.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.vaadin.flow.spring.annotation.SpringComponent;
+import com.vaadin.flow.component.html.H3;
+
+import de.ketobi.vaadinspringdemo.apps.ausschreibung.views.AusschreibungView;
+import de.ketobi.vaadinspringdemo.apps.ausschreibung.views.WelcomePage;
 
 
 @SpringComponent
 @UIScope
-public class NavigationLayout extends VerticalLayout implements BeforeEnterObserver {
-    private final NavigationService navigationService;
-    private final Div navigationDiv = new Div();
+public class NavigationLayout extends VerticalLayout {
 
-    @Autowired
-    public NavigationLayout(NavigationService navigationService) {
-        this.navigationService = navigationService;
-        setSizeUndefined();
+    public NavigationLayout() {
+        // Defer RouterLink creation until Vaadin UI is attached
+        addAttachListener(event -> buildSidebar());
     }
 
-    public void refresh(){
+    private void buildSidebar() {
+        removeAll(); // clear in case this is triggered more than once
+
+        // Add a title before the navigation links
+        H3 dashboard = new H3("Dahsboard");
+        H3 messages = new H3("Messages");
+        H3 chatBot = new H3("Chat BOT");
+
+        RouterLink chatbotLink = new RouterLink("Chat", WelcomePage.class); //TODO: Change to the chat link 
+        
+        H3 ausschreibung = new H3("Ausschreibung APP");
+        RouterLink ausschreibungLink = new RouterLink("Ausschreibungs", AusschreibungView.class);
+        
+        add(dashboard, messages, chatBot, chatbotLink, ausschreibung, ausschreibungLink);
+    }
+
+     public void refresh(){
         removeAll();
-        navigationDiv.removeAll();
-
-        navigationService.getAllNavigationFolders().forEach(folder -> {
-            SideNav folderNav = new SideNav();
-            folderNav.setLabel(folder.getLabel());
-            folderNav.setCollapsible(true);
-            navigationService.getTargetsByFolderId(folder.getId()).forEach(target -> {
-                folderNav.addItem(new SideNavItem(target.getLabel(), target.getView()));
-            });
-            VerticalLayout container = new VerticalLayout();
-            container.add(folderNav);
-            AddTargetButton addTargetButton = new AddTargetButton(folder.getId(), navigationService, this);
-            //<theme-editor-local-classname>
-            addTargetButton.addClassName("navigation-layout-button-1");
-            container.add(addTargetButton);
-            navigationDiv.add(container);
-        });
-        Button goToausschreibung = new Button("Go to ausschreibung", 
-            e -> e.getSource().getUI().ifPresent(ui -> ui.navigate("ausschreibung"))
-        );
-
-        add(goToausschreibung);
-
-        Scroller scroller = new Scroller(navigationDiv);
-        scroller.setScrollDirection(Scroller.ScrollDirection.VERTICAL);
-        add(scroller);
-        add(new Hr());
-        AddFolderButton addFolderButton = new AddFolderButton(navigationService, this);
-        //<theme-editor-local-classname>
-        addFolderButton.addClassName("navigation-layout-button-1");
-        add(addFolderButton);
-    }
-
-    @Override
-    public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
-        if (UserService.getCurrentUser() != null) {
-            refresh();
-        }
+        buildSidebar(); // Rebuild the sidebar to reflect any changes
     }
 }
