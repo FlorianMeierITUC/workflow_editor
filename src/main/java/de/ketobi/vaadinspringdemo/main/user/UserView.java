@@ -120,6 +120,5 @@ public class UserView extends VerticalLayout implements BeforeEnterObserver {
                 }
             });
         }
-
     }
 }
