@@ -1,7 +1,7 @@
 package de.ketobi.vaadinspringdemo.apps.chatdemo.services;
 
-import de.ketobi.vaadinspringdemo.apps.chatdemo.dtos.ChatRequest;
-import de.ketobi.vaadinspringdemo.apps.chatdemo.dtos.ChatResponse;
+import de.ketobi.vaadinspringdemo.main.entities.ChatRequest;
+import de.ketobi.vaadinspringdemo.main.entities.ChatResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -17,26 +17,22 @@ public class ChatService {
     private final WebClient webClient;
 
     public ChatService(WebClient.Builder webClientBuilder) {
-        this.webClient = webClientBuilder.baseUrl("http://10.0.1.236:5001").build();
+        this.webClient = webClientBuilder.baseUrl("http://localhost:5001").build();
     }
-    
-    public Mono<ChatResponse> sendMessage(ChatRequest message){
+
+    public <TRequest, TResponse> Mono<TResponse> sendMessage(ChatRequest message, Class<TResponse> responseType) {
         return this.webClient
                 .post()
                 .uri("/chat")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                .body(Mono.just(message), ChatRequest.class)
+                .bodyValue(message)
                 .retrieve()
-                .bodyToMono(String.class)
-                .flatMap(jsonString -> {
-                    try{
-                        ObjectMapper mapper = new ObjectMapper();
-                        ChatResponse response = mapper.readValue(jsonString, ChatResponse.class);
-                        return Mono.just(response);
-                    } catch (Exception e){
-                        return Mono.error(e);
-                    }
-                });
+                .onStatus(
+                        status -> status.is4xxClientError() || status.is5xxServerError(),
+                        clientResponse -> clientResponse
+                                .bodyToMono(String.class)
+                                .flatMap(errorBody -> Mono.error(new RuntimeException("Error response: " + errorBody))))
+                .bodyToMono(responseType);
     }
 }
