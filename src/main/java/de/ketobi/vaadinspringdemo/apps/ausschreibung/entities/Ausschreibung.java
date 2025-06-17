@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
 import lombok.Data;
 
 @Data
@@ -69,5 +70,4 @@ public class Ausschreibung {
     public void addDokument(String filename) {
         this.dokumente.add(filename);
     }
->>>>>>> e3afe61 (correction of the add button css)
 }
