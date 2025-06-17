@@ -1,4 +1,4 @@
-package de.ketobi.vaadinspringdemo.apps.chatdemo.dtos;
+package de.ketobi.vaadinspringdemo.main.entities;
 
 import lombok.Data;
 import java.util.List;

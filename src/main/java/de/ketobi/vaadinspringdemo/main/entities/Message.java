@@ -1,11 +1,11 @@
-package de.ketobi.vaadinspringdemo.apps.chatdemo.dtos;
+package de.ketobi.vaadinspringdemo.main.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Message{
+public class Message {
         private String role;
         private String content;
 

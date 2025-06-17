@@ -1,4 +1,5 @@
-package de.ketobi.vaadinspringdemo.apps.chatdemo.dtos;
+package de.ketobi.vaadinspringdemo.main.entities;
+
 import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -7,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CompletionRequest {
-    
+
     private String model;
     private String prompt;
     private int max_tokens;
