@@ -1,4 +1,5 @@
-package de.ketobi.vaadinspringdemo.apps.chatdemo.dtos;
+package de.ketobi.vaadinspringdemo.main.entities;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.List;
@@ -14,11 +15,10 @@ public class CompletionResponse {
     @Data
     @JsonIgnoreProperties(ignoreUnknown = true)
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public static class Choice{
+    public static class Choice {
         private String text;
         private float logprobs;
 
     }
 
-    
 }
