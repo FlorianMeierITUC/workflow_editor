@@ -23,4 +23,11 @@ public class Ausschreibung {
     private String projectKontakt;
     private String projectKontaktEmail;
     private String notizen;
+
+    private List<String> dokumente = new ArrayList<>();
+
+    public void addDokument(String filename) {
+        this.dokumente.add(filename);
+    }
+
 }
