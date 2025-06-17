@@ -29,6 +29,19 @@
       --lumo-space-s: 0.3125rem;
       --lumo-space-xs: 0.1875rem;
 
+      --ituc-primary-color: hsl(251, 55%, 30%);
+      --ituc-analog-color-1:  	hsl(218, 54%, 35%);
+      --ituc-analog-color-2:  	hsl(229, 55%, 56%);
+      --ituc-grau: hsl(60, 1%, 62%);
+      --ituc-body-text:  	hsl(216, 100%, 98%);
+      --ituc-complementary-color-1:  	hsl(27, 87%, 67%);
+      --ituc-complementary-color-2:  	hsl(12, 76%, 61%);
+      --ituc-balance-color-1: hsl(143, 51%, 31%);
+      --ituc-balance-color-2:  	hsl(17, 40%, 33%);
+      --ituc-base-1:  	hsl(209, 76%, 15%);
+      --ituc-base-2:  	hsl(225, 4%, 36%);
+      --ituc-field-bg:  	hsl(251, 55%, 30%, 0.4);
+      --ituc-semantic-primary:  	hsl(214, 100%, 48%, 1);
     }
 
     [theme~="dark"] {
@@ -37,4 +50,38 @@
       --lumo-primary-color-10pct: hsla(163, 74%, 31%, 0.1);
       --lumo-primary-text-color: hsl(214, 90%, 79%);
 
+    }
+
+    :root {
+      --my-yellow-bg: #fff9c4;
+      --my-border-radius: 6px;
+      --my-form-shadow: inset 0 0 0 1px var(--lumo-contrast-30pct);
+    }
+
+    vaadin-dialog-overlay::part(overlay) {
+      border-radius: 3px; 
+    }
+
+    vaadin-dialog-header::part(header) {
+      /* background-color: var(--ituc-primary-color);
+      color: var(--lumo-base-color);
+      font-size: var(--lumo-font-size-l);
+      font-weight: 600; */
+      align-items: center;
+    }
+
+  vaadin-tab::before { 
+      background-color: var(--ituc-semantic-primary);
+    } /*colors the line under the tab*/
+
+    /* vaadin-tab[disabled] {
+      color: red !important;
+    }
+
+    vaadin-tab[active] {
+      color: red !important;
+    } */
+
+    vaadin-tab[selected] {
+      color: var(--ituc-semantic-primary);
     }
