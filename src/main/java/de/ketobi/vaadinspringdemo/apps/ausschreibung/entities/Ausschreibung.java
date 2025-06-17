@@ -6,7 +6,9 @@ import java.util.List;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import lombok.Data
 
+@Data
 @Document("ausschreibungen")
 public class Ausschreibung {
     @Id
@@ -21,6 +23,7 @@ public class Ausschreibung {
     private String projectKontakt;
     private String projectKontaktEmail;
     private String notizen;
+<<<<<<< HEAD:src/main/java/de/ketobi/vaadinspringdemo/apps/ausschreibung/entities/Ausschreibung.java
     private LocalDate date;
     private boolean favorite;
     private boolean archived;
@@ -153,4 +156,6 @@ public class Ausschreibung {
     public void setStatus(String status) {
         this.status = status;
     }
+=======
+>>>>>>> 92c89a0 (Update src/main/java/de/ketobi/vaadinspringdemo/apps/auschreibung/entities/Ausschreibung.java):src/main/java/de/ketobi/vaadinspringdemo/apps/auschreibung/entities/Ausschreibung.java
 }
