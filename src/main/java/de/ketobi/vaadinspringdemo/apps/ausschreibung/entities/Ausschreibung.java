@@ -7,11 +7,8 @@ import java.util.UUID;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-<<<<<<< HEAD
-import lombok.Data
-=======
+
 import lombok.Data;
->>>>>>> e3afe61 (correction of the add button css)
 
 import lombok.Data;
 
