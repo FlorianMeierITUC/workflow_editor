@@ -23,6 +23,12 @@ public class Ausschreibung {
     private String projectKontakt;
     private String projectKontaktEmail;
     private String notizen;
+    private String notizen;
+    private LocalDate date;
+    private boolean favorite;
+    private boolean archived;
+    private String status;
+  
     private List<String> dokumente = new ArrayList<>();
 
     public void addDokument(String filename) {
