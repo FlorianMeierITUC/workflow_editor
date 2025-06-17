@@ -1,4 +1,4 @@
-package de.ketobi.vaadinspringdemo.apps.auschreibung.views;
+package de.ketobi.vaadinspringdemo.apps.ausschreibung.views;
 
 import java.io.InputStream;
 
@@ -7,16 +7,15 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import com.vaadin.flow.component.notification.Notification;
 
-import de.ketobi.vaadinspringdemo.apps.auschreibung.components.AusschreibungActionButtons;
-import de.ketobi.vaadinspringdemo.apps.auschreibung.components.AusschreibungSummaryGrid;
-import de.ketobi.vaadinspringdemo.apps.auschreibung.entities.Ausschreibung;
+import de.ketobi.vaadinspringdemo.apps.ausschreibung.components.AusschreibungActionButtons;
+import de.ketobi.vaadinspringdemo.apps.ausschreibung.components.AusschreibungSummaryGrid;
+import de.ketobi.vaadinspringdemo.apps.ausschreibung.entities.Ausschreibung;
 import com.vaadin.flow.component.tabs.Tabs;
-import de.ketobi.vaadinspringdemo.apps.auschreibung.services.AusschreibungService;
+import de.ketobi.vaadinspringdemo.apps.ausschreibung.services.AusschreibungService;
 
 public class AusschreibungDokumenteUploadForm extends VerticalLayout {
 

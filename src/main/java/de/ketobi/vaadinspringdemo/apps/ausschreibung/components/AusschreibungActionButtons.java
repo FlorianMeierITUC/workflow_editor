@@ -1,16 +1,14 @@
-package de.ketobi.vaadinspringdemo.apps.auschreibung.components;
+package de.ketobi.vaadinspringdemo.apps.ausschreibung.components;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tabs;
-import de.ketobi.vaadinspringdemo.apps.auschreibung.entities.Ausschreibung;
-import de.ketobi.vaadinspringdemo.apps.auschreibung.services.AusschreibungService;
+import de.ketobi.vaadinspringdemo.apps.ausschreibung.entities.Ausschreibung;
+import de.ketobi.vaadinspringdemo.apps.ausschreibung.services.AusschreibungService;
 
 public class AusschreibungActionButtons extends HorizontalLayout {
 
@@ -26,7 +24,7 @@ public class AusschreibungActionButtons extends HorizontalLayout {
                 .set("border-radius", "2px");
 
         // Cancel Button
-        Button cancelButton = new Button("Abbrechen", e -> getUI().ifPresent(ui -> ui.navigate("auschreibung")));
+        Button cancelButton = new Button("Abbrechen", e -> getUI().ifPresent(ui -> ui.navigate("ausschreibung")));
         cancelButton.getStyle().set("border-radius", "2px");
 
         // Save Button
@@ -59,7 +57,7 @@ public class AusschreibungActionButtons extends HorizontalLayout {
 
     private void showConfirmationDialog(Ausschreibung ausschreibung, AusschreibungService service) {
         Dialog dialog = new Dialog();
-        dialog.setHeaderTitle("Das Ausschreibungsprojekt " + ausschreibung.getTitel() + " wurde erfolgreich angelegt.");
+        dialog.setHeaderTitle("Das Ausschreibungsprojekt " + ausschreibung.getTitle() + " wurde erfolgreich angelegt.");
         // Make dialog half-width and center its content
         dialog.setWidth("null");
         dialog.setHeight("null");
@@ -89,7 +87,7 @@ public class AusschreibungActionButtons extends HorizontalLayout {
             service.save(ausschreibung);
             Notification.show("Ausschreibung veröffentlicht!");
             dialog.close();
-            getUI().ifPresent(ui -> ui.navigate("auschreibung"));
+            getUI().ifPresent(ui -> ui.navigate("ausschreibung"));
         });
         confirm.getStyle()
             .set("background-color", "hsla(0, 0%, 85%, 1)")

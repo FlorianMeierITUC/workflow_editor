@@ -49,11 +49,11 @@ public class NavigationLayout extends VerticalLayout implements BeforeEnterObser
             container.add(addTargetButton);
             navigationDiv.add(container);
         });
-        Button goToAuschreibung = new Button("Go to Auschreibung", 
-            e -> e.getSource().getUI().ifPresent(ui -> ui.navigate("auschreibung"))
+        Button goToausschreibung = new Button("Go to ausschreibung", 
+            e -> e.getSource().getUI().ifPresent(ui -> ui.navigate("ausschreibung"))
         );
 
-        add(goToAuschreibung);
+        add(goToausschreibung);
 
         Scroller scroller = new Scroller(navigationDiv);
         scroller.setScrollDirection(Scroller.ScrollDirection.VERTICAL);

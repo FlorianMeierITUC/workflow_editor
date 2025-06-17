@@ -1,4 +1,4 @@
-package de.ketobi.vaadinspringdemo.apps.auschreibung.entities;
+package de.ketobi.vaadinspringdemo.apps.ausschreibung.entities;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
 import lombok.Data;
 
 @Data
@@ -23,11 +24,14 @@ public class Ausschreibung {
     private String projectKontakt;
     private String projectKontaktEmail;
     private String notizen;
+    private LocalDate date;
+    private boolean favorite;
+    private boolean archived;
+    private String status;
 
     private List<String> dokumente = new ArrayList<>();
 
     public void addDokument(String filename) {
         this.dokumente.add(filename);
     }
-
 }

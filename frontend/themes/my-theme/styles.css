@@ -33,6 +33,9 @@
       --ituc-analog-color-1:  	hsl(218, 54%, 35%);
       --ituc-analog-color-2:  	hsl(229, 55%, 56%);
       --ituc-grau: hsl(60, 1%, 62%);
+      --ituc-grau-2: hsl(0, 0%, 50%, 0.3);
+      --ituc-grau-2: hsl(0, 0%, 50%, 0.3);
+      --ituc-grau-2: hsl(0, 0%, 50%, 0.3);
       --ituc-body-text:  	hsl(216, 100%, 98%);
       --ituc-complementary-color-1:  	hsl(27, 87%, 67%);
       --ituc-complementary-color-2:  	hsl(12, 76%, 61%);
@@ -42,6 +45,10 @@
       --ituc-base-2:  	hsl(225, 4%, 36%);
       --ituc-field-bg:  	hsl(251, 55%, 30%, 0.4);
       --ituc-semantic-primary:  	hsl(214, 100%, 48%, 1);
+      --ituc-success-color:  	hsl(145, 72%, 30%);
+      --ituc-bearbeitung-color:  	hsl(211, 100%, 50%);
+      --ituc-warning-color:  	hsl(48, 100%, 50%);
+      --ituc-error-color:  	hsl(3, 79%, 49%);
     }
 
     [theme~="dark"] {
@@ -74,14 +81,38 @@
       background-color: var(--ituc-semantic-primary);
     } /*colors the line under the tab*/
 
-    /* vaadin-tab[disabled] {
-      color: red !important;
+  vaadin-checkbox[checked] {
+    color: var( --ituc-analog-color-2);
+    --lumo-primary-color: var( --ituc-analog-color-2);
+  }
+
+  vaadin-combo-box::part(input-field) {
+  background-color: transparent;
+}
+
+  /* Make the dropdown overlay’s content area transparent */
+  vaadin-combo-box-overlay::part(content) {
+    background-color: transparent;
+  }
+
+    /* Apply to all vaadin-grid selection checkboxes */
+    vaadin-grid > vaadin-checkbox::part(checkbox) {
+      /* override the “checked” color */
+      --lumo-primary-color: #006edc; /* your blue */
     }
 
-    vaadin-tab[active] {
-      color: red !important;
-    } */
+    /* Apply to the “select all” header checkbox */
+    vaadin-grid > #selectAllCheckbox::part(checkbox) {
+      --lumo-primary-color: #006edc;
+    }
 
-    vaadin-tab[selected] {
-      color: var(--ituc-semantic-primary);
+    /* Apply to all vaadin-grid selection checkboxes */
+    vaadin-grid > vaadin-checkbox::part(checkbox) {
+      /* override the “checked” color */
+      --lumo-primary-color: #006edc; /* your blue */
+    }
+
+    /* Apply to the “select all” header checkbox */
+    vaadin-grid > #selectAllCheckbox::part(checkbox) {
+      --lumo-primary-color: #006edc;
     }

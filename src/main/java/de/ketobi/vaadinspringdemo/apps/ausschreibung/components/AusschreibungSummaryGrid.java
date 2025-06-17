@@ -1,10 +1,10 @@
-package de.ketobi.vaadinspringdemo.apps.auschreibung.components;
+package de.ketobi.vaadinspringdemo.apps.ausschreibung.components;
 
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import de.ketobi.vaadinspringdemo.apps.auschreibung.entities.Ausschreibung;
+import de.ketobi.vaadinspringdemo.apps.ausschreibung.entities.Ausschreibung;
 
 public class AusschreibungSummaryGrid extends VerticalLayout {
 
@@ -45,8 +45,8 @@ public class AusschreibungSummaryGrid extends VerticalLayout {
             createSummaryRow(ausschreibung.getITUCNumber()),
             createSummaryRow(ausschreibung.getKunde()),
             createSummaryRow(ausschreibung.getBranche()),
-            createSummaryRow(ausschreibung.getProjectkKontakt()),
-            createSummaryRow(ausschreibung.getProjectkKontaktEmail())
+            createSummaryRow(ausschreibung.getProjectKontakt()),
+            createSummaryRow(ausschreibung.getProjectKontaktEmail())
         );
 
         VerticalLayout rightColumnTitle = new VerticalLayout();
@@ -54,7 +54,7 @@ public class AusschreibungSummaryGrid extends VerticalLayout {
         rightColumnTitle.setSpacing(true);
         rightColumnTitle.setWidthFull();
         rightColumnTitle.add(
-            createSummaryRow("Titel:"),
+            createSummaryRow("Title:"),
             createSummaryRow("Kurznotizen:")
         );
 
@@ -63,7 +63,7 @@ public class AusschreibungSummaryGrid extends VerticalLayout {
         rightColumnInfo.setSpacing(true);
         rightColumnInfo.setWidthFull();
         rightColumnInfo.add(
-            createSummaryRow(ausschreibung.getTitel()),
+            createSummaryRow(ausschreibung.getTitle()),
             createSummaryRow(ausschreibung.getNotizen())
         );
 
