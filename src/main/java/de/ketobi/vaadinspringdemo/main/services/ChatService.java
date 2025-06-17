@@ -1,4 +1,4 @@
-package de.ketobi.vaadinspringdemo.apps.ausschreibung.services;
+package de.ketobi.vaadinspringdemo.main.services;
 
 import de.ketobi.vaadinspringdemo.apps.ausschreibung.utils.APIClientHelper;
 import de.ketobi.vaadinspringdemo.apps.ausschreibung.entities.*;
@@ -8,7 +8,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import reactor.core.publisher.Mono;
 
-@Service("NewChatService")
+@Service("MainChatService")
 public class ChatService {
 
     private final WebClient webClient;
