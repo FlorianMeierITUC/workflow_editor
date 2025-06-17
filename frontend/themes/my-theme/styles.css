@@ -117,6 +117,7 @@
       --lumo-primary-color: #006edc;
     }
 
+
     /* Apply to all vaadin-grid selection checkboxes */
     vaadin-grid > vaadin-checkbox::part(checkbox) {
       /* override the “checked” color */

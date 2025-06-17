@@ -9,8 +9,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.Data;
 
-import lombok.Data;
-
 @Data
 @Document("ausschreibungen")
 public class Ausschreibung {
