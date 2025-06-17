@@ -130,8 +130,8 @@ public class GridArchiv extends VerticalLayout {
         add(topBar, grid);
         //expand(grid);
         applyFilters();
-    }
-
+        }
+    
      private TextField createFilterTextField() {
         TextField tf = new TextField();
         tf.addClassName("filter-field");
@@ -211,27 +211,26 @@ public class GridArchiv extends VerticalLayout {
 
     private void applyStatusColor(ComboBox<String> combo, String status) {
 
-    combo.getElement().getStyle().remove("color").remove("backgroundColor");
+        combo.getElement().getStyle().remove("color").remove("backgroundColor");
 
-    switch (status) {
-      case "Final":
-        combo.getElement().getStyle().set("color", "var(--ituc-success-color)");
-        break;
-      case "In Bearbeitung":
-        combo.getElement().getStyle().set("color", "var(--ituc-bearbeitung-color)");
-        break;
-      case "Abgelehnt":
-        combo.getElement().getStyle().set("color", "var(--ituc-error-color)");
-        break;
-      case "In Prüfung":
-        combo.getElement().getStyle().set("color", "var(--ituc-warning-color)");
-        break;
-      case "Beendet":
-        combo.getElement().getStyle().set("color", "var(--ituc-grau)");
-        break;
-      default:
-        // leave default color
+        switch (status) {
+        case "Final":
+            combo.getElement().getStyle().set("color", "var(--ituc-success-color)");
+            break;
+        case "In Bearbeitung":
+            combo.getElement().getStyle().set("color", "var(--ituc-bearbeitung-color)");
+            break;
+        case "Abgelehnt":
+            combo.getElement().getStyle().set("color", "var(--ituc-error-color)");
+            break;
+        case "In Prüfung":
+            combo.getElement().getStyle().set("color", "var(--ituc-warning-color)");
+            break;
+        case "Beendet":
+            combo.getElement().getStyle().set("color", "var(--ituc-grau)");
+            break;
+        default:
+            // leave default color
+        }
     }
-}
-
 }
