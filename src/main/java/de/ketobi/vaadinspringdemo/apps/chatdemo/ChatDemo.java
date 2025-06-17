@@ -4,11 +4,11 @@ import de.ketobi.vaadinspringdemo.main.ui.MainLayout;
 import de.ketobi.vaadinspringdemo.apps.chatdemo.services.ChatService;
 import de.ketobi.vaadinspringdemo.apps.chatdemo.services.DataService;
 import de.ketobi.vaadinspringdemo.main.user.services.UserService;
-import de.ketobi.vaadinspringdemo.apps.chatdemo.dtos.ChatRequest;
-import de.ketobi.vaadinspringdemo.apps.chatdemo.dtos.ChatResponse;
-import de.ketobi.vaadinspringdemo.apps.chatdemo.dtos.Message;
-import de.ketobi.vaadinspringdemo.apps.chatdemo.dtos.ExtractImageResponse;
-import de.ketobi.vaadinspringdemo.apps.chatdemo.dtos.ExtractTextResponse;
+import de.ketobi.vaadinspringdemo.main.entities.ChatRequest;
+import de.ketobi.vaadinspringdemo.main.entities.ChatResponse;
+import de.ketobi.vaadinspringdemo.main.entities.Message;
+import de.ketobi.vaadinspringdemo.main.entities.ExtractImageResponse;
+import de.ketobi.vaadinspringdemo.main.entities.ExtractTextResponse;
 import de.ketobi.vaadinspringdemo.main.login.Login;
 
 import org.commonmark.renderer.html.HtmlRenderer;
@@ -256,6 +256,7 @@ public class ChatDemo extends VerticalLayout implements BeforeEnterObserver {
                 float temperature = temperatureField.getValue().floatValue();
 
                 List<Message> Messages = List.of(new Message("user", chatInput));
+                System.out.println("Chat input: " + chatInput);
 
                 chatRequest.setSystemPrompt(systemPrompt);
                 chatRequest.setChatHistory(Messages);
@@ -265,7 +266,7 @@ public class ChatDemo extends VerticalLayout implements BeforeEnterObserver {
 
                 addMessageWithEmoji("User", chatInput, /* isAssistant= */false, /* isMarkdown= */true);
 
-                chatService.sendMessage(chatRequest)
+                chatService.sendMessage(chatRequest, ChatResponse.class)
                         .map(ChatResponse::getResponse)
                         .defaultIfEmpty("No response")
                         .subscribe(response -> {
