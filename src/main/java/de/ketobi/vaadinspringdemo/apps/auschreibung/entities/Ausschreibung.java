@@ -1,8 +1,8 @@
 package de.ketobi.vaadinspringdemo.apps.auschreibung.entities;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -12,6 +12,7 @@ import lombok.Data;
 @Document("ausschreibungen")
 public class Ausschreibung {
     @Id
+    private UUID uuid;
     private String id;
     private String title;
     private String beschreibung;
