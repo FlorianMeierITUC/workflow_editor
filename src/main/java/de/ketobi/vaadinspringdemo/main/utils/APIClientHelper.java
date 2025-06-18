@@ -26,4 +26,20 @@ public class APIClientHelper {
                                                                                 "Error response: " + errorBody))))
                                 .bodyToMono(responseType);
         }
+
+        public <TRequest, TResponse> Mono<TResponse> getJSON(WebClient webclient, String uri,
+                        Class<TResponse> responseType) {
+                return webclient
+                                .get()
+                                .uri(uri)
+                                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                .retrieve()
+                                .onStatus(
+                                                status -> status.is4xxClientError() || status.is5xxServerError(),
+                                                res -> res.bodyToMono(String.class)
+                                                                .flatMap(errorBody -> Mono.error(new RuntimeException(
+                                                                                "Error response: " + errorBody))))
+                                .bodyToMono(responseType);
+        }
 }
