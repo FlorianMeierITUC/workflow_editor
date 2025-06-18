@@ -1,6 +1,7 @@
 package de.ketobi.vaadinspringdemo.apps.ausschreibung.views;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
@@ -67,24 +68,14 @@ public class AusschreibungCreateView extends VerticalLayout implements HasUrlPar
 
     /** Handle optional :id parameter for edit vs create */
     @Override
-    public void setParameter(BeforeEvent event, @OptionalParameter String id) {
-        if (id != null) {
-            ausschreibungService.findById(id).ifPresentOrElse(
-                a -> {
-                    formData = a;
-                    pageTitle.setText("Edit Ausschreibung");
-                },
-                () -> {
-                    formData = new Ausschreibung();
-                    pageTitle.setText("Create New Ausschreibung");
-                }
-            );
-        } else {
-            formData = new Ausschreibung();
-            formData.setStatus("In Bearbeitung");
-            formData.setDate(LocalDate.now()); // TODO: set to today for now, potentially to be changed to another date
-            pageTitle.setText("Create New Ausschreibung");
-        }
+    public void setParameter(BeforeEvent event, @OptionalParameter String uuid) {
+        System.out.println("AusschreibungCreateView setParameter called with id: " + uuid);
+        formData = new Ausschreibung();
+        // FIXME: Status not aligned between backend and frontend -> Enum?
+        formData.setStatus("Active");
+        formData.setDate(LocalDateTime.now()); // TODO: set to today for now, potentially to be changed to another
+                                               // date
+        pageTitle.setText("Create New Ausschreibung");
         // load the first step form
         tabs.setSelectedIndex(0);
         content.removeAll();
