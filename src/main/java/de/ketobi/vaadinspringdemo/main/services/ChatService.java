@@ -4,21 +4,23 @@ import de.ketobi.vaadinspringdemo.main.entities.*;
 import de.ketobi.vaadinspringdemo.main.utils.APIClientHelper;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import reactor.core.publisher.Mono;
 
-@Service("MainChatService")
+@Service
 public class ChatService {
 
     private final WebClient webClient;
     private final APIClientHelper apiHelper;
 
     @Autowired
-    public ChatService(WebClient webClient, APIClientHelper apiHelper) {
+    public ChatService(@Qualifier("chatWebClient") WebClient webClient, APIClientHelper apiHelper) {
         this.webClient = webClient;
         this.apiHelper = apiHelper;
+        System.out.println("ChatService initialized with WebClient and APIClientHelper");
     }
 
     public Mono<ChatResponse> sendMessage(ChatRequest request) {
