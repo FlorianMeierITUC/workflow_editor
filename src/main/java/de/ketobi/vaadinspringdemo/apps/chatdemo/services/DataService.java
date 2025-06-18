@@ -1,7 +1,7 @@
 package de.ketobi.vaadinspringdemo.apps.chatdemo.services;
 
-import de.ketobi.vaadinspringdemo.apps.chatdemo.dtos.ExtractImageResponse;
-import de.ketobi.vaadinspringdemo.apps.chatdemo.dtos.ExtractTextResponse;
+import de.ketobi.vaadinspringdemo.main.entities.ExtractImageResponse;
+import de.ketobi.vaadinspringdemo.main.entities.ExtractTextResponse;
 
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.MediaType;

@@ -12,7 +12,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import reactor.core.publisher.Mono;
 
-@Service
+@Service("OldChatService")
 public class ChatService {
     private final WebClient webClient;
 
