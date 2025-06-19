@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.http.client.MultipartBodyBuilder;
 
 import reactor.core.publisher.Mono;
 
@@ -25,6 +26,20 @@ public class APIClientHelper {
                                                                 .flatMap(errorBody -> Mono.error(new RuntimeException(
                                                                                 "Error response: " + errorBody))))
                                 .bodyToMono(responseType);
+        }
+
+        public <TRequest, TResponse> Mono<TResponse> postMultipartBody(WebClient webClient,
+                        MultipartBodyBuilder builder,
+                        String uri, Class<TResponse> responseType) {
+
+                return webClient
+                                .post()
+                                .uri(uri)
+                                .contentType(MediaType.MULTIPART_FORM_DATA)
+                                .bodyValue(builder.build())
+                                .retrieve()
+                                .bodyToMono(responseType)
+                                .doOnError(e -> System.err.println("Error extracting document: " + e.getMessage()));
         }
 
         public <TRequest, TResponse> Mono<TResponse> getJSON(WebClient webclient, String uri,
