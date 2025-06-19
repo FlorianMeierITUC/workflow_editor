@@ -11,7 +11,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import reactor.core.publisher.Mono;
 
-@Service
+@Service("OldDataService")
 public class DataService {
     private final WebClient webClient;
 
