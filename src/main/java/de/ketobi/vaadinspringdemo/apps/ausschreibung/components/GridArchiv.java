@@ -5,13 +5,11 @@ import de.ketobi.vaadinspringdemo.main.entities.ProjectListResponse;
 import de.ketobi.vaadinspringdemo.apps.ausschreibung.entities.Ausschreibung;
 import de.ketobi.vaadinspringdemo.apps.ausschreibung.services.AusschreibungService;
 import de.ketobi.vaadinspringdemo.apps.ausschreibung.views.AusschreibungCreateView;
-import de.ketobi.vaadinspringdemo.apps.ausschreibung.views.AusschreibungDetailView;
 import de.ketobi.vaadinspringdemo.apps.ausschreibung.mapper.Mapper;
 import de.ketobi.vaadinspringdemo.apps.ausschreibung.views.AusschreibungDetails.AusschreibungDetailView;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.grid.HeaderRow;
@@ -27,8 +25,7 @@ import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
-import com.vaadin.flow.router.RouteParameters;
-import com.vaadin.flow.router.RouterLink;
+
 import com.vaadin.flow.component.combobox.ComboBox;
 
 import java.util.function.Consumer;
@@ -56,7 +53,6 @@ public class GridArchiv extends VerticalLayout {
     private final List<Consumer<Ausschreibung>> favoriteListeners = new ArrayList<>();
     private final List<Ausschreibung> items = new ArrayList<>();
 
-    @Autowired
     public GridArchiv(AusschreibungService ausschreibungService, Mapper mapper, boolean showFavoritesOnly) {
         this.ausschreibungService = ausschreibungService;
         this.mapper = mapper;
@@ -271,6 +267,4 @@ public class GridArchiv extends VerticalLayout {
         }
     }
 
-=======
->>>>>>> eb243f9 (archiv page):src/main/java/de/ketobi/vaadinspringdemo/apps/auschreibung/components/GridArchiv.java
 }

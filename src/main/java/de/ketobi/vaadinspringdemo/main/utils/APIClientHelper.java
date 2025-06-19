@@ -4,6 +4,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.springframework.http.client.MultipartBodyBuilder;
 
 import reactor.core.publisher.Mono;
@@ -11,22 +18,42 @@ import reactor.core.publisher.Mono;
 @Component
 public class APIClientHelper {
 
-        public <TRequest, TResponse> Mono<TResponse> postJSON(WebClient webclient, String uri, TRequest message,
-                        Class<TResponse> responseType) {
-                return webclient
-                                .post()
-                                .uri(uri)
-                                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                                .bodyValue(message)
-                                .retrieve()
-                                .onStatus(
-                                                status -> status.is4xxClientError() || status.is5xxServerError(),
-                                                res -> res.bodyToMono(String.class)
-                                                                .flatMap(errorBody -> Mono.error(new RuntimeException(
-                                                                                "Error response: " + errorBody))))
-                                .bodyToMono(responseType);
+        private final ObjectMapper objectMapper;
+
+        public APIClientHelper() {
+        objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);  // Use ISO-8601 strings
         }
+  // 1. Add this field
+
+    public <TRequest, TResponse> Mono<TResponse> postJSON(WebClient webclient, String uri, TRequest message,
+                                                          Class<TResponse> responseType) {
+        // 2. Log the JSON body before sending it
+        try {
+            String json = objectMapper.writeValueAsString(message);
+            System.out.println("Sending POST request to: " + uri);
+            System.out.println("Payload:\n" + json);
+        } catch (Exception e) {
+            System.err.println("Failed to serialize request body: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        // 3. Proceed with the actual POST
+        return webclient
+                .post()
+                .uri(uri)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                .bodyValue(message)
+                .retrieve()
+                .onStatus(
+                        status -> status.is4xxClientError() || status.is5xxServerError(),
+                        res -> res.bodyToMono(String.class)
+                                .flatMap(errorBody -> Mono.error(new RuntimeException(
+                                        "Error response: " + errorBody))))
+                .bodyToMono(responseType);
+    }
 
         public <TRequest, TResponse> Mono<TResponse> postMultipartBody(WebClient webClient,
                         MultipartBodyBuilder builder,

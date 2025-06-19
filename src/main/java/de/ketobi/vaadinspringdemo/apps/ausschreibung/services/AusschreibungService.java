@@ -53,4 +53,6 @@ public class AusschreibungService {
         return indexingService.getProjectDetails(uuid.toString());
     }
 
+    
+
 }

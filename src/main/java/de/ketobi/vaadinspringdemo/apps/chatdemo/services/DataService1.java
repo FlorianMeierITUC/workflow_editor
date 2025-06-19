@@ -12,10 +12,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 @Service
-public class DataService {
+public class DataService1 {
     private final WebClient webClient;
 
-    public DataService(WebClient.Builder webClientBuilder) {
+    public DataService1(WebClient.Builder webClientBuilder) {
         webClient = webClientBuilder.baseUrl("http://10.0.1.236:5002").build();
     }
 

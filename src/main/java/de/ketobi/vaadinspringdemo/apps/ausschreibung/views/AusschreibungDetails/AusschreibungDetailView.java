@@ -3,6 +3,7 @@ package de.ketobi.vaadinspringdemo.apps.ausschreibung.views.AusschreibungDetails
 import java.time.LocalDate;
 
 import com.vaadin.flow.component.UI;
+import java.util.UUID;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -14,6 +15,7 @@ import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 
 import de.ketobi.vaadinspringdemo.apps.ausschreibung.entities.Ausschreibung;
+import de.ketobi.vaadinspringdemo.apps.ausschreibung.mapper.Mapper;
 import de.ketobi.vaadinspringdemo.apps.ausschreibung.services.AusschreibungService;
 import de.ketobi.vaadinspringdemo.apps.ausschreibung.views.AusschreibungBasicInfoForm;
 
@@ -25,10 +27,11 @@ public class AusschreibungDetailView extends VerticalLayout implements HasUrlPar
     private final AusschreibungService ausschreibungService;
     private Ausschreibung ausschreibung;
     private H1 pageTitle;
+    private final Mapper mapper;
 
     public AusschreibungDetailView(AusschreibungService ausschreibungService) {
         this.ausschreibungService = ausschreibungService;
-
+        this.mapper = new Mapper(); // Assuming you have a default constructor in Mapper
         pageTitle = new H1();
         add(pageTitle);
 
@@ -76,17 +79,31 @@ public class AusschreibungDetailView extends VerticalLayout implements HasUrlPar
             UI.getCurrent().navigate("ausschreibung/create");
             return;
         }
-        ausschreibungService.findById(id).ifPresentOrElse(
-            loaded -> {
-                ausschreibung = loaded;
-                pageTitle.setText("Ausschreibung " + loaded.getTitle());
-            },
-            () -> {
-                UI.getCurrent().navigate("ausschreibung/create");
-            }
-        );
-        tabs.setSelectedIndex(0);
-        content.removeAll();
-        content.add(new AusschreibungProjektUbersicht(ausschreibung));
+
+        try {
+            UUID uuid = UUID.fromString(id);
+
+            ausschreibungService.getProjectDetails(uuid)
+                .subscribe(response -> {
+                    UI.getCurrent().access(() -> {
+                        // Optionally convert response to Ausschreibung if needed
+                        ausschreibung = mapper.mapToAusschreibung(response);  // <-- You need this method
+                        pageTitle.setText("Ausschreibung " + ausschreibung.getTitle());
+                        tabs.setSelectedIndex(0);
+                        content.removeAll();
+                        content.add(new AusschreibungProjektUbersicht(ausschreibung));
+                    });
+                }, error -> {
+                    // Failed to load details, navigate to create
+                    UI.getCurrent().access(() -> {
+                        UI.getCurrent().navigate("ausschreibung/create");
+                    });
+                });
+
+        } catch (IllegalArgumentException e) {
+            // Invalid UUID format
+            UI.getCurrent().navigate("ausschreibung/create");
+        }
     }
+
 }
