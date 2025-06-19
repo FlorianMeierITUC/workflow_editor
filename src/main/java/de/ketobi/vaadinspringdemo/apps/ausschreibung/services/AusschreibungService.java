@@ -1,7 +1,6 @@
 package de.ketobi.vaadinspringdemo.apps.ausschreibung.services;
 
-import de.ketobi.vaadinspringdemo.main.services.ChatService;
-import de.ketobi.vaadinspringdemo.main.services.IndexingService;
+import de.ketobi.vaadinspringdemo.main.services.*;
 import de.ketobi.vaadinspringdemo.main.entities.CreateProjectRequest;
 import de.ketobi.vaadinspringdemo.main.entities.IndexingResponse;
 import de.ketobi.vaadinspringdemo.main.entities.ProjectDetailsResponse;
@@ -22,12 +21,15 @@ public class AusschreibungService {
 
     private final ChatService chatService;
     private final IndexingService indexingService;
+    private final DataService dataService;
     private final Mapper mapper;
 
     @Autowired
-    public AusschreibungService(ChatService chatService, IndexingService indexingService, Mapper mapper) {
+    public AusschreibungService(ChatService chatService, IndexingService indexingService, DataService dataService,
+            Mapper mapper) {
         this.chatService = chatService;
         this.indexingService = indexingService;
+        this.dataService = dataService;
         this.mapper = mapper;
     }
 
