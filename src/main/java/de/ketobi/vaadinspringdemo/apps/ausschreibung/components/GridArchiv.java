@@ -5,6 +5,7 @@ import de.ketobi.vaadinspringdemo.main.entities.ProjectListResponse;
 import de.ketobi.vaadinspringdemo.apps.ausschreibung.entities.Ausschreibung;
 import de.ketobi.vaadinspringdemo.apps.ausschreibung.services.AusschreibungService;
 import de.ketobi.vaadinspringdemo.apps.ausschreibung.views.AusschreibungCreateView;
+import de.ketobi.vaadinspringdemo.apps.ausschreibung.views.AusschreibungDetailView;
 import de.ketobi.vaadinspringdemo.apps.ausschreibung.mapper.Mapper;
 import de.ketobi.vaadinspringdemo.apps.ausschreibung.views.AusschreibungDetails.AusschreibungDetailView;
 
