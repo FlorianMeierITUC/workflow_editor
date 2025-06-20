@@ -14,6 +14,7 @@ public class Mapper {
         ausschreibung.setUuid(p.getUuid());
         ausschreibung.setTitle(p.getDisplayName());
         ausschreibung.setAusschreibungsNumber(p.getTenderId());
+        ausschreibung.setITUCNumber(p.getItucId());
         ausschreibung.setDate(p.getDueDate());
         // FIXME: Mocked status. Currently the response from the endpoint does not
         // provide a status.
@@ -28,13 +29,24 @@ public class Mapper {
                 .toList();
     }
 
-    public CreateProjectRequest mapToCreateProjectRequest(Ausschreibung ausschreibung) {
-        CreateProjectRequest request = new CreateProjectRequest();
+    private void fillBaseRequestFields(CreateProjectRequest request, Ausschreibung ausschreibung) {
         request.setName(ausschreibung.getTitle());
         request.setItucId(ausschreibung.getITUCNumber());
         request.setTenderId(ausschreibung.getAusschreibungsNumber());
         request.setDueDate(ausschreibung.getDate());
         request.setDisplayName(ausschreibung.getTitle());
+    }
+
+    public CreateProjectRequest mapToCreateProjectRequest(Ausschreibung ausschreibung) {
+        CreateProjectRequest request = new CreateProjectRequest();
+        fillBaseRequestFields(request, ausschreibung);
+        return request;
+    }
+
+    public UpdateProjectRequest mapToUpdateProjectRequest(Ausschreibung ausschreibung) {
+        UpdateProjectRequest request = new UpdateProjectRequest();
+        fillBaseRequestFields(request, ausschreibung);
+        request.setProjectUuid(ausschreibung.getUuid());
         return request;
     }
 
