@@ -5,10 +5,13 @@ import de.ketobi.vaadinspringdemo.main.utils.APIClientHelper;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import reactor.core.publisher.Mono;
+
+import java.util.UUID;
 
 @Service
 public class IndexingService {
@@ -22,15 +25,20 @@ public class IndexingService {
         this.apiHelper = apiHelper;
     }
 
-    public Mono<ProjectListResponse> listProjects(String userId) {
+    public Mono<ProjectListResponse> listProjects(UUID userId) {
         return apiHelper.getJSON(webClient, "/list_projects?user=" + userId, ProjectListResponse.class);
     }
 
-    public Mono<ProjectDetailsResponse> getProjectDetails(String uuid) {
-        return apiHelper.getJSON(webClient, "/get_project_details?uuid=" + uuid, ProjectDetailsResponse.class);
+    public Mono<ProjectDetailsResponse> getProjectDetails(UUID uuid) {
+        return apiHelper.getJSON(webClient, "/get_project_by_uuid?project_uuid=" + uuid, ProjectDetailsResponse.class);
     }
 
     public Mono<IndexingResponse> createProject(CreateProjectRequest request) {
         return apiHelper.postJSON(webClient, "/create_project", request, IndexingResponse.class);
     }
+
+    public Mono<IndexingResponse> updateProject(UpdateProjectRequest request) {
+        return apiHelper.postJSON(webClient, "/update_project", request, IndexingResponse.class);
+    }
+
 }
