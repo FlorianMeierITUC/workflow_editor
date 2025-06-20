@@ -2,15 +2,23 @@ package de.ketobi.vaadinspringdemo.apps.ausschreibung.services;
 
 import de.ketobi.vaadinspringdemo.main.services.*;
 import de.ketobi.vaadinspringdemo.main.entities.CreateProjectRequest;
+import de.ketobi.vaadinspringdemo.main.entities.ExtractImageResponse;
+import de.ketobi.vaadinspringdemo.main.entities.ExtractTextResponse;
 import de.ketobi.vaadinspringdemo.main.entities.IndexingResponse;
 import de.ketobi.vaadinspringdemo.main.entities.ProjectDetailsResponse;
 import de.ketobi.vaadinspringdemo.main.entities.ProjectListResponse;
+import de.ketobi.vaadinspringdemo.main.entities.IndexDocumentRequest;
+import de.ketobi.vaadinspringdemo.main.entities.IndexDocumentResponse;
 
 import de.ketobi.vaadinspringdemo.apps.ausschreibung.entities.*;
 import de.ketobi.vaadinspringdemo.apps.ausschreibung.mapper.Mapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.MediaType;
+import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.BodyInserters;
 
 import reactor.core.publisher.Mono;
 
@@ -53,6 +61,25 @@ public class AusschreibungService {
         return indexingService.getProjectDetails(uuid.toString());
     }
 
-    
+    public Mono<ExtractTextResponse> extractAusschreibungText(byte[] fileBytes, String filename) {
+        return dataService.extractText(fileBytes, filename);
+    }
+
+    public Mono<ExtractImageResponse> extractAusschreibungImage(byte[] fileBytes, String filename) {
+        return dataService.extractImage(fileBytes, filename);
+    }
+
+    public Mono<IndexDocumentResponse> indexDocument(
+        String text, Ausschreibung ausschreibung) {
+
+        IndexDocumentRequest request = new IndexDocumentRequest();
+        request.setText(text);
+        request.setProject_uuid(ausschreibung.getUuid().toString()); // Or however you store UUID
+        request.setDocument_type("ausschreibung"); // Adjust as needed
+        request.setDocument_title(ausschreibung.getTitle());
+
+        return indexingService.indexDocument(request);
+    }
+
 
 }

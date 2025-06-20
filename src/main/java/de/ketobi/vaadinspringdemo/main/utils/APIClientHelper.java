@@ -1,16 +1,14 @@
 package de.ketobi.vaadinspringdemo.main.utils;
 
 import org.springframework.stereotype.Component;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.springframework.http.client.MultipartBodyBuilder;
 
 import reactor.core.publisher.Mono;
@@ -23,13 +21,11 @@ public class APIClientHelper {
         public APIClientHelper() {
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
-        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);  // Use ISO-8601 strings
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);  
         }
-  // 1. Add this field
 
     public <TRequest, TResponse> Mono<TResponse> postJSON(WebClient webclient, String uri, TRequest message,
                                                           Class<TResponse> responseType) {
-        // 2. Log the JSON body before sending it
         try {
             String json = objectMapper.writeValueAsString(message);
             System.out.println("Sending POST request to: " + uri);
@@ -39,7 +35,6 @@ public class APIClientHelper {
             e.printStackTrace();
         }
 
-        // 3. Proceed with the actual POST
         return webclient
                 .post()
                 .uri(uri)

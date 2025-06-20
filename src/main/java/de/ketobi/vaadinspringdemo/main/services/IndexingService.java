@@ -33,4 +33,14 @@ public class IndexingService {
     public Mono<IndexingResponse> createProject(CreateProjectRequest request) {
         return apiHelper.postJSON(webClient, "/create_project", request, IndexingResponse.class);
     }
+
+    public Mono<IndexDocumentResponse> indexDocument(IndexDocumentRequest request) {
+        return apiHelper.postJSON(
+            webClient,
+            "/index_document_with_metadata",
+            request,
+            IndexDocumentResponse.class
+        );
+    }
+
 }
