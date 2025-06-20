@@ -1,6 +1,7 @@
 package de.ketobi.vaadinspringdemo.apps.ausschreibung.views.AusschreibungDetails;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.H1;
@@ -17,17 +18,23 @@ import de.ketobi.vaadinspringdemo.apps.ausschreibung.entities.Ausschreibung;
 import de.ketobi.vaadinspringdemo.apps.ausschreibung.services.AusschreibungService;
 import de.ketobi.vaadinspringdemo.apps.ausschreibung.views.AusschreibungBasicInfoForm;
 
+import de.ketobi.vaadinspringdemo.apps.ausschreibung.mapper.Mapper;
+
+import reactor.core.publisher.Mono;
+
 @Route("ausschreibungDetail")
 public class AusschreibungDetailView extends VerticalLayout implements HasUrlParameter<String> {
 
     private final Tabs tabs;
     private final Div content;
     private final AusschreibungService ausschreibungService;
+    private final Mapper mapper;
     private Ausschreibung ausschreibung;
     private H1 pageTitle;
 
-    public AusschreibungDetailView(AusschreibungService ausschreibungService) {
+    public AusschreibungDetailView(AusschreibungService ausschreibungService, Mapper mapper) {
         this.ausschreibungService = ausschreibungService;
+        this.mapper = mapper;
 
         pageTitle = new H1();
         add(pageTitle);
@@ -71,22 +78,34 @@ public class AusschreibungDetailView extends VerticalLayout implements HasUrlPar
     }
 
     @Override
-    public void setParameter(BeforeEvent event, @OptionalParameter String id) {
-        if (id == null) {
-            UI.getCurrent().navigate("ausschreibung/create");
-            return;
+    public void setParameter(BeforeEvent event, @OptionalParameter String uuid) {
+        // ToDO: Refactor. Used multiple times, should be moved to a common method
+        if (uuid != null) {
+            System.out.println("Received UUID: " + uuid);
+            UI ui = UI.getCurrent();
+            ausschreibungService.getProjectDetails(UUID.fromString(uuid)).map(mapper::mapToAusschreibung)
+                    .doOnNext(a -> {
+                        ui.access(() -> {
+                            ausschreibung = a;
+                            pageTitle.setText("Ausschreibung: " + ausschreibung.getTitle());
+                            tabs.setSelectedIndex(0);
+                            content.removeAll();
+                            content.add(new AusschreibungProjektUbersicht(ausschreibung));
+                        });
+                    }).switchIfEmpty(Mono.fromRunnable(() -> {
+                        ui.access(() -> {
+                            ausschreibung = new Ausschreibung();
+                            ausschreibung.setStatus("Active");
+                            ausschreibung.setDate(LocalDateTime.now()); // TODO: set to today for now, potentially to be
+                                                                        // changed
+                            // to another date
+                            pageTitle.setText("Create New Ausschreibung");
+                            tabs.setSelectedIndex(0);
+                            content.removeAll();
+                            content.add(new AusschreibungProjektUbersicht(ausschreibung));
+                        });
+                    })).subscribe();
+
         }
-        ausschreibungService.findById(id).ifPresentOrElse(
-            loaded -> {
-                ausschreibung = loaded;
-                pageTitle.setText("Ausschreibung " + loaded.getTitle());
-            },
-            () -> {
-                UI.getCurrent().navigate("ausschreibung/create");
-            }
-        );
-        tabs.setSelectedIndex(0);
-        content.removeAll();
-        content.add(new AusschreibungProjektUbersicht(ausschreibung));
     }
 }
