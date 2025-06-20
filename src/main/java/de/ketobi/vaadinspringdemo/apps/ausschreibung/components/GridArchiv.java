@@ -10,7 +10,6 @@ import de.ketobi.vaadinspringdemo.apps.ausschreibung.mapper.Mapper;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.grid.HeaderRow;
@@ -26,8 +25,6 @@ import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
-import com.vaadin.flow.router.RouteParameters;
-import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.component.combobox.ComboBox;
 
 import java.util.function.Consumer;
@@ -232,14 +229,12 @@ public class GridArchiv extends VerticalLayout {
                 .map(this.mapper::mapAll)
                 .defaultIfEmpty(Collections.emptyList())
                 .subscribe(ausschreibungen -> {
-                    if (ui != null) {
-                        ui.access(() -> {
-                            this.items.clear();
-                            this.items.addAll(ausschreibungen);
-                            this.dataProvider.refreshAll();
-                            applyFilters();
-                        });
-                    }
+                    ui.access(() -> {
+                        this.items.clear();
+                        this.items.addAll(ausschreibungen);
+                        this.dataProvider.refreshAll();
+                        applyFilters();
+                    });
                 });
 
     }
