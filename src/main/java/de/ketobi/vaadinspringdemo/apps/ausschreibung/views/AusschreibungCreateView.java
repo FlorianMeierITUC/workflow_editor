@@ -1,30 +1,38 @@
 package de.ketobi.vaadinspringdemo.apps.ausschreibung.views;
 
-import java.time.LocalDateTime;
-import java.util.UUID;
-
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.*;
+
 import de.ketobi.vaadinspringdemo.apps.ausschreibung.entities.Ausschreibung;
 import de.ketobi.vaadinspringdemo.apps.ausschreibung.services.AusschreibungService;
+import de.ketobi.vaadinspringdemo.apps.ausschreibung.mapper.Mapper;
+
 import de.ketobi.vaadinspringdemo.main.ui.MainLayout;
+
+import reactor.core.publisher.Mono;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Route(value = "ausschreibung/create", layout = MainLayout.class)
 @PageTitle("Create / Edit Ausschreibung")
 public class AusschreibungCreateView extends VerticalLayout implements HasUrlParameter<String> {
 
     private final AusschreibungService ausschreibungService;
+    private final Mapper mapper;
     private Ausschreibung formData;
     private final H2 pageTitle;
     private final Tabs tabs;
     private final Div content;
 
-    public AusschreibungCreateView(AusschreibungService ausschreibungService) {
+    public AusschreibungCreateView(AusschreibungService ausschreibungService, Mapper mapper) {
         this.ausschreibungService = ausschreibungService;
+        this.mapper = mapper;
 
         setWidth("800px");
         setPadding(true);
@@ -69,16 +77,44 @@ public class AusschreibungCreateView extends VerticalLayout implements HasUrlPar
     /** Handle optional :id parameter for edit vs create */
     @Override
     public void setParameter(BeforeEvent event, @OptionalParameter String uuid) {
-        System.out.println("AusschreibungCreateView setParameter called with id: " + uuid);
-        formData = new Ausschreibung();
-        // FIXME: Status not aligned between backend and frontend -> Enum?
-        formData.setStatus("Active");
-        formData.setDate(LocalDateTime.now()); // TODO: set to today for now, potentially to be changed to another
-                                               // date
-        pageTitle.setText("Create New Ausschreibung");
-        // load the first step form
-        tabs.setSelectedIndex(0);
-        content.removeAll();
-        content.add(new AusschreibungBasicInfoForm(formData, ausschreibungService, tabs));
+
+        if (uuid != null) {
+            UI ui = UI.getCurrent();
+            ausschreibungService.getProjectDetails(UUID.fromString(uuid)).map(mapper::mapToAusschreibung)
+                    .doOnNext(ausschreibung -> {
+                        ui.access(() -> {
+                            formData = ausschreibung;
+                            System.out.println("Received Ausschreibung: " + ausschreibung);
+                            pageTitle.setText("Edit Ausschreibung: " + ausschreibung.getTitle());
+                            content.removeAll();
+                            content.add(new AusschreibungBasicInfoForm(formData, ausschreibungService, tabs));
+                            // load the first step form
+                            tabs.setSelectedIndex(0);
+                        });
+                    }).switchIfEmpty(Mono.fromRunnable(() -> {
+                        ui.access(() -> {
+                            formData = new Ausschreibung();
+                            formData.setStatus("Active");
+                            formData.setDate(LocalDateTime.now()); // TODO: set to today for now, potentially to be
+                                                                   // changed
+                                                                   // to another date
+                            pageTitle.setText("Create New Ausschreibung");
+                            content.removeAll();
+                            content.add(new AusschreibungBasicInfoForm(formData, ausschreibungService, tabs));
+                            // load the first step form
+                            tabs.setSelectedIndex(0);
+                        });
+                    })).subscribe();
+
+        } else {
+            formData = new Ausschreibung();
+            formData.setStatus("Active");
+            formData.setDate(LocalDateTime.now()); // TODO: set to today for now,
+            pageTitle.setText("Create New Ausschreibung");
+            content.removeAll();
+            content.add(new AusschreibungBasicInfoForm(formData, ausschreibungService, tabs));
+            // load the first step form
+            tabs.setSelectedIndex(0);
+        }
     }
 }
