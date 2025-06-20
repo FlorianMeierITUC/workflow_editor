@@ -45,15 +45,15 @@ public class AusschreibungView extends VerticalLayout {
         favorite.getElement().getStyle().set("margin-top", "1em");
         add(favorite);
 
-        GridArchiv gridArchivFav = new GridArchiv(ausschreibungService, mapper, true);
+        GridArchiv gridArchivFav = new GridArchiv(this.ausschreibungService, this.mapper, true);
         add(gridArchivFav);
 
         H2 all = new H2("Alle Einträge");
         all.getElement().getStyle().set("margin-top", "1em");
         add(all);
 
-        GridArchiv gridArchivAll = new GridArchiv(ausschreibungService, mapper, false);
-        gridArchivAll.addFavoriteToggleListener(a -> gridArchivFav.reload());
+        GridArchiv gridArchivAll = new GridArchiv(this.ausschreibungService, this.mapper, false);
+        gridArchivAll.addFavoriteToggleListener(a -> gridArchivFav.reload_projects());
         add(gridArchivAll);
 
     }
