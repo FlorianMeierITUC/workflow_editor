@@ -1,7 +1,9 @@
 package de.ketobi.vaadinspringdemo.apps.ausschreibung.components;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -9,14 +11,25 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tabs;
 import de.ketobi.vaadinspringdemo.apps.ausschreibung.entities.Ausschreibung;
 import de.ketobi.vaadinspringdemo.apps.ausschreibung.services.AusschreibungService;
+import de.ketobi.vaadinspringdemo.main.entities.IndexingResponse;
+import reactor.core.publisher.Mono;
 
 public class AusschreibungActionButtons extends HorizontalLayout {
+        private final Div spinner = new Div();
 
         public AusschreibungActionButtons(Ausschreibung ausschreibung, AusschreibungService ausschreibungService,
                         Tabs tabs,
                         Runnable afterSave) {
                 setWidthFull();
                 getStyle().set("margin-top", "2rem");
+
+                spinner.setText("Lade...");
+                spinner.getStyle().set("position", "fixed").set("top", "0").set("left", "0").set("width", "100%")
+                                .set("height", "100%").set("background", "rgba(0, 0, 0, 0.4)").set("color", "white")
+                                .set("display", "flex").set("align-items", "center").set("justify-content", "center")
+                                .set("z-index", "9999").set("font-size", "1.5rem").set("visibility", "hidden");
+
+                add(this.spinner);
 
                 // Delete Button
                 Button deleteButton = new Button("Löschen...", e -> Notification.show("Noch nicht implementiert"));
@@ -32,9 +45,28 @@ public class AusschreibungActionButtons extends HorizontalLayout {
 
                 // Save Button
                 Button saveButton = new Button("Speichern & Weiter", e -> {
+                        UI ui = UI.getCurrent();
                         if (tabs.getSelectedIndex() == 2) {
-                                ausschreibungService.createProject(ausschreibung).subscribe();
-                                showConfirmationDialog(ausschreibung, ausschreibungService);
+                                Mono<IndexingResponse> requestMono;
+
+                                if (ausschreibung.getUuid() != null) {
+                                        requestMono = ausschreibungService.updateProject(ausschreibung);
+                                } else {
+                                        requestMono = ausschreibungService.createProject(ausschreibung);
+                                }
+                                requestMono.doOnTerminate(() -> {
+                                        ui.access(() -> spinner.getStyle().set("visibility", "hidden"));
+                                }).subscribe(result -> {
+                                        ui.access(() -> {
+                                                showConfirmationDialog(ausschreibung, ausschreibungService);
+                                        });
+                                }, error -> {
+                                        ui.access(() -> {
+                                                Notification.show("Error: " + error.getMessage(), 5000,
+                                                                Notification.Position.MIDDLE);
+                                        });
+                                });
+
                         } else {
                                 tabs.setSelectedIndex(tabs.getSelectedIndex() + 1);
                                 Notification.show("Gespeichert");
@@ -42,17 +74,18 @@ public class AusschreibungActionButtons extends HorizontalLayout {
                                         afterSave.run();
                         }
                 });
-                saveButton.getStyle()
-                                .set("background-color", "hsla(145, 72%, 30%, 1)")
-                                .set("color", "white")
+
+                saveButton.getStyle().set("background-color", "hsla(145, 72%, 30%, 1)").set("color", "white")
                                 .set("border-radius", "2px");
 
                 // Layouts for alignment
-                HorizontalLayout leftSide = new HorizontalLayout(deleteButton);
+                HorizontalLayout leftSide = new HorizontalLayout(
+                                deleteButton);
                 leftSide.setWidthFull();
                 leftSide.setJustifyContentMode(JustifyContentMode.START);
 
-                HorizontalLayout rightSide = new HorizontalLayout(cancelButton, saveButton);
+                HorizontalLayout rightSide = new HorizontalLayout(cancelButton,
+                                saveButton);
                 rightSide.setWidthFull();
                 rightSide.setJustifyContentMode(JustifyContentMode.END);
 
