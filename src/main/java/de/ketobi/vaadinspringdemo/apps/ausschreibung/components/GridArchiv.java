@@ -71,7 +71,7 @@ public class GridArchiv extends VerticalLayout {
 
         this.dataProvider = new ListDataProvider<>(items);
 
-        reload();
+        reload_projects();
 
         // this.dataProvider = DataProvider.ofCollection(items);
         grid.setDataProvider(dataProvider);
@@ -93,7 +93,7 @@ public class GridArchiv extends VerticalLayout {
             numberSpan.addClickListener(e -> {
                 getUI().ifPresent(ui ->
                 // this will navigate to /ausschreibung/create/{id}
-                ui.navigate(AusschreibungDetailView.class, a.getId()));
+                ui.navigate(AusschreibungDetailView.class, a.getUuid().toString()));
             });
 
             return numberSpan;
@@ -222,7 +222,7 @@ public class GridArchiv extends VerticalLayout {
         return edit;
     }
 
-    public void reload() {
+    public void reload_projects() {
         UI ui = UI.getCurrent();
         this.ausschreibungService.listProjects()
                 .map(ProjectListResponse::getProjects)
