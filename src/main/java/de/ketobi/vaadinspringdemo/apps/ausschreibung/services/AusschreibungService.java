@@ -2,6 +2,7 @@ package de.ketobi.vaadinspringdemo.apps.ausschreibung.services;
 
 import de.ketobi.vaadinspringdemo.main.services.*;
 import de.ketobi.vaadinspringdemo.main.entities.CreateProjectRequest;
+import de.ketobi.vaadinspringdemo.main.entities.UpdateProjectRequest;
 import de.ketobi.vaadinspringdemo.main.entities.IndexingResponse;
 import de.ketobi.vaadinspringdemo.main.entities.ProjectDetailsResponse;
 import de.ketobi.vaadinspringdemo.main.entities.ProjectListResponse;
@@ -35,22 +36,27 @@ public class AusschreibungService {
 
     public Mono<IndexingResponse> createProject(Ausschreibung ausschreibung) {
         CreateProjectRequest request = this.mapper.mapToCreateProjectRequest(ausschreibung);
-        System.out.println("Creating project with request: " + request);
 
         return indexingService.createProject(request);
 
     }
 
-    public Mono<ProjectListResponse> listProjects() {
-        return this.listProjects("");
+    public Mono<IndexingResponse> updateProject(Ausschreibung ausschreibung) {
+        UpdateProjectRequest reqest = this.mapper.mapToUpdateProjectRequest(ausschreibung);
+        return indexingService.updateProject(reqest);
     }
 
-    public Mono<ProjectListResponse> listProjects(String userId) {
+    public Mono<ProjectListResponse> listProjects() {
+        // FIXME: For now, we use a random UUID for the user ID.
+        return this.listProjects(UUID.randomUUID());
+    }
+
+    public Mono<ProjectListResponse> listProjects(UUID userId) {
         return indexingService.listProjects(userId);
     }
 
     public Mono<ProjectDetailsResponse> getProjectDetails(UUID uuid) {
-        return indexingService.getProjectDetails(uuid.toString());
+        return indexingService.getProjectDetails(uuid);
     }
 
 }
