@@ -6,10 +6,13 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
+import java.util.UUID;
 
 //ToDo: Add missing fields -> fields also missing in indexing service
 @Data
 public class CreateProjectRequest {
+    @JsonProperty("project_uuid")
+    private UUID projectUuid;
     private String name;
     @JsonProperty("ituc_id")
     private String itucId;
