@@ -15,7 +15,7 @@ import reactor.core.publisher.Mono;
 public class DataService {
     private final WebClient webClient;
 
-    public DataService1(WebClient.Builder webClientBuilder) {
+    public DataService(WebClient.Builder webClientBuilder) {
         webClient = webClientBuilder.baseUrl("http://10.0.1.236:5002").build();
     }
 
