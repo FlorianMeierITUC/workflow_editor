@@ -1,11 +1,18 @@
 package de.ketobi.vaadinspringdemo.main.entities;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Data;
+
+import java.util.UUID;
 
 @Data
 public class IndexDocumentRequest {
     private String text;
-    private String project_uuid;
-    private String document_type;
-    private String document_title;
+    @JsonProperty("project_uuid")
+    private UUID projectUuid;
+    @JsonProperty("document_type")
+    private String documentType;
+    @JsonProperty("document_title")
+    private String documentTitle;
 }
