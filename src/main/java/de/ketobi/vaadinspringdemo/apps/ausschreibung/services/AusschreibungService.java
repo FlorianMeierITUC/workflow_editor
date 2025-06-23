@@ -13,6 +13,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.UUID;
 import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class AusschreibungService {
@@ -75,6 +76,24 @@ public class AusschreibungService {
         return indexingService.getOnepagerDocuments(projectUuid)
                 .flatMap(chatService::generateOnePager)
                 .flatMap(dataService::getOnepager);
+    }
+
+    public Mono<RAGChatResponse> chatWithDocuments(List<Message> chatHistory, Ausschreibung ausschreibung) {
+        RetrieveDocumentsRequest request = this.mapper.mapToRetrieveDocumentsRequest(ausschreibung, chatHistory);
+        return indexingService.retrieveDocuments(request)
+                .flatMap(documentsResponse -> {
+                    System.out.println("Documents retrieved: " + documentsResponse);
+                    // if (documentsResponse.getCombinedText().isEmpty()) {
+                    // System.out.println("No context found for the given question.");
+                    // documentsResponse.setCombinedText("No context found for the given
+                    // question.");
+                    // System.out.println("Documents retrieved: " + documentsResponse);
+                    // }
+                    RAGChatRequest RAGChatrequest = this.mapper.mapToRAGChatRequest(documentsResponse, chatHistory);
+
+                    return chatService.sendRAGMessage(RAGChatrequest);
+                });
+
     }
 
 }
