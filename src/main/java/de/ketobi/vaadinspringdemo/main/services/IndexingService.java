@@ -40,12 +40,23 @@ public class IndexingService {
         return apiHelper.postJSON(webClient, "/update_project", request, ProjectResponse.class);
     }
 
+    public Mono<DocumentResponse> retrieveDocuments(RetrieveDocumentsRequest request) {
+        return apiHelper.postJSON(webClient, "/retrieve_documents", request, DocumentResponse.class);
+
+    }
+
     public Mono<IndexDocumentResponse> indexDocument(IndexDocumentRequest request) {
         return apiHelper.postJSON(
                 webClient,
                 "/index_document_with_metadata",
                 request,
                 IndexDocumentResponse.class);
+    }
+
+    public Mono<OnepagerDocumentsResponse> getOnepagerDocuments(UUID projectUuid) {
+        RetrieveOnepagerDocuments request = new RetrieveOnepagerDocuments(projectUuid);
+        return apiHelper.postJSON(webClient, "/retrieve_onepager_documents", request,
+                OnepagerDocumentsResponse.class);
     }
 
 }
