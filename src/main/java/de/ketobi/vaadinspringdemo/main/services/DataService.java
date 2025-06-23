@@ -53,4 +53,9 @@ public class DataService {
         MultipartBodyBuilder builder = getBuilder(byteArray, filename);
         return apiHelper.postMultipartBody(webClient, builder, "/extract_image", ExtractImageResponse.class);
     }
+
+    public Mono<byte[]> getOnepager(OnepagerResponse onepagerResponse) {
+        return apiHelper.getBinary(webClient, "/generate_onepager_document", onepagerResponse);
+    }
+
 }
