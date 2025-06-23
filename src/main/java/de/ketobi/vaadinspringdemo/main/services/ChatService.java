@@ -27,4 +27,12 @@ public class ChatService {
         return apiHelper.postJSON(webClient, "/chat", request, ChatResponse.class);
     }
 
+    public Mono<RAGChatResponse> sendRAGMessage(RAGChatRequest request) {
+        return apiHelper.postJSON(webClient, "/rag_chat", request, RAGChatResponse.class);
+    }
+
+    public Mono<OnepagerResponse> generateOnePager(OnepagerDocumentsResponse OnepagerDocuments) {
+        return apiHelper.postJSON(webClient, "/generate_onepager_answers", OnepagerDocuments, OnepagerResponse.class);
+    }
+
 }
