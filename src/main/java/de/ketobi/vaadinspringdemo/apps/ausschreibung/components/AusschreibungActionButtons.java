@@ -10,8 +10,10 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tabs;
 import de.ketobi.vaadinspringdemo.apps.ausschreibung.entities.Ausschreibung;
+import de.ketobi.vaadinspringdemo.apps.ausschreibung.entities.PendingDocument;
 import de.ketobi.vaadinspringdemo.apps.ausschreibung.services.AusschreibungService;
 import de.ketobi.vaadinspringdemo.main.entities.IndexingResponse;
+import de.ketobi.vaadinspringdemo.main.entities.ProjectResponse;
 import reactor.core.publisher.Mono;
 
 public class AusschreibungActionButtons extends HorizontalLayout {
@@ -47,7 +49,7 @@ public class AusschreibungActionButtons extends HorizontalLayout {
                 Button saveButton = new Button("Speichern & Weiter", e -> {
                         UI ui = UI.getCurrent();
                         if (tabs.getSelectedIndex() == 2) {
-                                Mono<IndexingResponse> requestMono;
+                                Mono<ProjectResponse> requestMono;
 
                                 if (ausschreibung.getUuid() != null) {
                                         requestMono = ausschreibungService.updateProject(ausschreibung);
@@ -57,6 +59,26 @@ public class AusschreibungActionButtons extends HorizontalLayout {
                                 requestMono.doOnTerminate(() -> {
                                         ui.access(() -> spinner.getStyle().set("visibility", "hidden"));
                                 }).subscribe(result -> {
+                                        // Set UUID if not already set
+                                        if (ausschreibung.getUuid() == null) {
+                                                ausschreibung.setUuid(result.getProjectUuid());
+                                                System.out.println("Ausschreibung UUID: " + ausschreibung.getUuid());
+                                        }
+
+                                        for (PendingDocument doc : ausschreibung.getPendingDocuments()) {
+                                                String fileName = doc.getFilename();
+                                                String extractedText = doc.getExtractedText();
+                                                ausschreibungService
+                                                                .indexDocument(extractedText, fileName, ausschreibung)
+                                                                .subscribe(indexResponse -> {
+                                                                        System.out.println("Indexed document: "
+                                                                                        + indexResponse.getDocument_uuid());
+                                                                }, error -> {
+                                                                        System.err.println("Error indexing document: "
+                                                                                        + error.getMessage());
+                                                                });
+                                        }
+
                                         ui.access(() -> {
                                                 showConfirmationDialog(ausschreibung, ausschreibungService);
                                         });
@@ -66,6 +88,24 @@ public class AusschreibungActionButtons extends HorizontalLayout {
                                                                 Notification.Position.MIDDLE);
                                         });
                                 });
+
+                                // ausschreibungService.extractAusschreibungText(fileBytes, fileName)
+                                // .flatMap(response -> {
+                                // String extractedText = response.getText();
+                                // return ausschreibungService.indexDocument(extractedText, ausschreibung);
+                                // })
+                                // .subscribe(indexResponse -> {
+                                // getUI().ifPresent(ui -> ui.access(() -> {
+                                // Notification.show("Dokument indexiert. UUID: " +
+                                // indexResponse.getDocument_uuid(), 5000,
+                                // Notification.Position.TOP_CENTER);
+                                // }));
+                                // }, error -> {
+                                // getUI().ifPresent(ui -> ui.access(() -> {
+                                // Notification.show("Fehler beim Indexieren: " + error.getMessage(), 5000,
+                                // Notification.Position.TOP_CENTER);
+                                // }));
+                                // });
 
                         } else {
                                 tabs.setSelectedIndex(tabs.getSelectedIndex() + 1);
