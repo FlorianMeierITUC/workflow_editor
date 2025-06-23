@@ -1,11 +1,7 @@
 package de.ketobi.vaadinspringdemo.apps.ausschreibung.services;
 
 import de.ketobi.vaadinspringdemo.main.services.*;
-import de.ketobi.vaadinspringdemo.main.entities.CreateProjectRequest;
-import de.ketobi.vaadinspringdemo.main.entities.UpdateProjectRequest;
-import de.ketobi.vaadinspringdemo.main.entities.IndexingResponse;
-import de.ketobi.vaadinspringdemo.main.entities.ProjectDetailsResponse;
-import de.ketobi.vaadinspringdemo.main.entities.ProjectListResponse;
+import de.ketobi.vaadinspringdemo.main.entities.*;
 
 import de.ketobi.vaadinspringdemo.apps.ausschreibung.entities.*;
 import de.ketobi.vaadinspringdemo.apps.ausschreibung.mapper.Mapper;
@@ -44,11 +40,37 @@ public class AusschreibungService {
     public Mono<IndexingResponse> updateProject(Ausschreibung ausschreibung) {
         UpdateProjectRequest reqest = this.mapper.mapToUpdateProjectRequest(ausschreibung);
         return indexingService.updateProject(reqest);
+
+
+    public Mono<ProjectDetailsResponse> getProjectDetails(UUID uuid) {
+        return indexingService.getProjectDetails(uuid.toString());
+    }
+
+    public Mono<ExtractTextResponse> extractAusschreibungText(byte[] fileBytes, String filename) {
+        return dataService.extractText(fileBytes, filename);
+    }
+
+    public Mono<ExtractImageResponse> extractAusschreibungImage(byte[] fileBytes, String filename) {
+        return dataService.extractImage(fileBytes, filename);
+    }
+
+    public Mono<IndexDocumentResponse> indexDocument(
+        String text, Ausschreibung ausschreibung) {
+
+        //ToDo: Add mapper logic to convert Ausschreibung to IndexDocumentRequest
+        IndexDocumentRequest request = this.mapper.mapToIndexDocumentRequest(text, ausschreibung);
+        IndexDocumentRequest request = new IndexDocumentRequest();
+        request.setText(text);
+        request.setProject_uuid(ausschreibung.getUuid().toString()); // Or however you store UUID
+        request.setDocument_type("ausschreibung"); // Adjust as needed
+        request.setDocument_title(ausschreibung.getTitle());
+
+        return indexingService.indexDocument(request);
     }
 
     public Mono<ProjectListResponse> listProjects() {
-        // FIXME: For now, we use a random UUID for the user ID.
-        return this.listProjects(UUID.randomUUID());
+        // FIXME: For now, we use a fixed user ID
+        return this.listProjects(UUID.fromString());
     }
 
     public Mono<ProjectListResponse> listProjects(UUID userId) {

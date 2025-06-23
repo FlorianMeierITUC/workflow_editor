@@ -5,7 +5,6 @@ import de.ketobi.vaadinspringdemo.main.utils.APIClientHelper;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -39,6 +38,14 @@ public class IndexingService {
 
     public Mono<IndexingResponse> updateProject(UpdateProjectRequest request) {
         return apiHelper.postJSON(webClient, "/update_project", request, IndexingResponse.class);
+
+    public Mono<IndexDocumentResponse> indexDocument(IndexDocumentRequest request) {
+        return apiHelper.postJSON(
+            webClient,
+            "/index_document_with_metadata",
+            request,
+            IndexDocumentResponse.class
+        );
     }
 
 }
