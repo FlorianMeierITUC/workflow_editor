@@ -50,6 +50,26 @@ public class Mapper {
         return request;
     }
 
+    public RetrieveDocumentsRequest mapToRetrieveDocumentsRequest(Ausschreibung ausschreibung,
+            List<Message> chatHistory) {
+        RetrieveDocumentsRequest request = new RetrieveDocumentsRequest();
+        Message message = chatHistory.get(chatHistory.size() - 1);
+        System.out.println("Last message content: " + message);
+        request.setProjectUuid(ausschreibung.getUuid());
+        request.setQuestion(message.getContent());
+        request.setKeywords("");
+
+        return request;
+    }
+
+    public RAGChatRequest mapToRAGChatRequest(DocumentResponse documentResponse, List<Message> chatHistory) {
+        RAGChatRequest request = new RAGChatRequest();
+        request.setChatHistory(chatHistory);
+        request.setContext(documentResponse.getCombinedText());
+
+        return request;
+    }
+
     public IndexDocumentRequest mapToIndexDocumentRequest(String text, String filename, Ausschreibung ausschreibung) {
         IndexDocumentRequest request = new IndexDocumentRequest();
         request.setText(text);
