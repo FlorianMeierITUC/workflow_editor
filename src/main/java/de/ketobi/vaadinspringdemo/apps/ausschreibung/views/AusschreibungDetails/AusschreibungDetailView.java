@@ -59,7 +59,7 @@ public class AusschreibungDetailView extends VerticalLayout implements HasUrlPar
             if (selected.equals(projektUbersicht)) {
                 content.add(new AusschreibungProjektUbersicht(ausschreibung, this.ausschreibungService));
             } else if (selected.equals(KIChat)) {
-                content.add(new AusschreibungKIChat(ausschreibung));
+                content.add(new AusschreibungKIChat(ausschreibung, this.ausschreibungService));
             } else if (selected.equals(dokManagement)) {
                 content.add(new AusschreibungDokManagement(ausschreibung));
             } else if (selected.equals(questions)) {
