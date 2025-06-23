@@ -50,4 +50,13 @@ public class Mapper {
         return request;
     }
 
+    public IndexDocumentRequest mapToIndexDocumentRequest(String text, String filename, Ausschreibung ausschreibung) {
+        IndexDocumentRequest request = new IndexDocumentRequest();
+        request.setText(text);
+        request.setProjectUuid(ausschreibung.getUuid());
+        request.setDocumentTitle(filename);
+        request.setDocumentType("pdf");
+        return request;
+    }
+
 }
