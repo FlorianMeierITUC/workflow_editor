@@ -57,7 +57,7 @@ public class AusschreibungDetailView extends VerticalLayout implements HasUrlPar
             Tab selected = event.getSelectedTab();
 
             if (selected.equals(projektUbersicht)) {
-                content.add(new AusschreibungProjektUbersicht(ausschreibung));
+                content.add(new AusschreibungProjektUbersicht(ausschreibung, this.ausschreibungService));
             } else if (selected.equals(KIChat)) {
                 content.add(new AusschreibungKIChat(ausschreibung));
             } else if (selected.equals(dokManagement)) {
@@ -90,7 +90,7 @@ public class AusschreibungDetailView extends VerticalLayout implements HasUrlPar
                             pageTitle.setText("Ausschreibung: " + ausschreibung.getTitle());
                             tabs.setSelectedIndex(0);
                             content.removeAll();
-                            content.add(new AusschreibungProjektUbersicht(ausschreibung));
+                            content.add(new AusschreibungProjektUbersicht(ausschreibung, this.ausschreibungService));
                         });
                     }).switchIfEmpty(Mono.fromRunnable(() -> {
                         ui.access(() -> {
@@ -102,7 +102,7 @@ public class AusschreibungDetailView extends VerticalLayout implements HasUrlPar
                             pageTitle.setText("Create New Ausschreibung");
                             tabs.setSelectedIndex(0);
                             content.removeAll();
-                            content.add(new AusschreibungProjektUbersicht(ausschreibung));
+                            content.add(new AusschreibungProjektUbersicht(ausschreibung, this.ausschreibungService));
                         });
                     })).subscribe();
 
