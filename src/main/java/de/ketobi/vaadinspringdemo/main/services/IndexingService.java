@@ -32,20 +32,20 @@ public class IndexingService {
         return apiHelper.getJSON(webClient, "/get_project_by_uuid?project_uuid=" + uuid, ProjectDetailsResponse.class);
     }
 
-    public Mono<IndexingResponse> createProject(CreateProjectRequest request) {
-        return apiHelper.postJSON(webClient, "/create_project", request, IndexingResponse.class);
+    public Mono<ProjectResponse> createProject(CreateProjectRequest request) {
+        return apiHelper.postJSON(webClient, "/create_project", request, ProjectResponse.class);
     }
 
-    public Mono<IndexingResponse> updateProject(UpdateProjectRequest request) {
-        return apiHelper.postJSON(webClient, "/update_project", request, IndexingResponse.class);
+    public Mono<ProjectResponse> updateProject(UpdateProjectRequest request) {
+        return apiHelper.postJSON(webClient, "/update_project", request, ProjectResponse.class);
+    }
 
     public Mono<IndexDocumentResponse> indexDocument(IndexDocumentRequest request) {
         return apiHelper.postJSON(
-            webClient,
-            "/index_document_with_metadata",
-            request,
-            IndexDocumentResponse.class
-        );
+                webClient,
+                "/index_document_with_metadata",
+                request,
+                IndexDocumentResponse.class);
     }
 
 }
