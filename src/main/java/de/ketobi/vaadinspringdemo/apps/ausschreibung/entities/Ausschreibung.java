@@ -5,16 +5,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-
 import lombok.Data;
 
 @Data
-@Document("ausschreibungen")
 public class Ausschreibung {
     private UUID uuid;
-    @Id
     private String id;
     private String title;
     private String beschreibung;
@@ -31,9 +26,10 @@ public class Ausschreibung {
     private boolean archived;
     private String status;
 
-    private List<String> dokumente = new ArrayList<>();
+    private List<PendingDocument> pendingDocuments = new ArrayList<>();
 
-    public void addDokument(String filename) {
-        this.dokumente.add(filename);
+    public void addPendingDocument(String filename, String extractedText) {
+        this.pendingDocuments.add(new PendingDocument(filename, extractedText));
     }
+
 }
