@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.util.UUID;
+import java.util.ArrayList;
 
 @Service
 public class AusschreibungService {
@@ -30,20 +31,14 @@ public class AusschreibungService {
         this.mapper = mapper;
     }
 
-    public Mono<IndexingResponse> createProject(Ausschreibung ausschreibung) {
+    public Mono<ProjectResponse> createProject(Ausschreibung ausschreibung) {
         CreateProjectRequest request = this.mapper.mapToCreateProjectRequest(ausschreibung);
-
         return indexingService.createProject(request);
-
     }
 
-    public Mono<IndexingResponse> updateProject(Ausschreibung ausschreibung) {
+    public Mono<ProjectResponse> updateProject(Ausschreibung ausschreibung) {
         UpdateProjectRequest reqest = this.mapper.mapToUpdateProjectRequest(ausschreibung);
         return indexingService.updateProject(reqest);
-
-
-    public Mono<ProjectDetailsResponse> getProjectDetails(UUID uuid) {
-        return indexingService.getProjectDetails(uuid.toString());
     }
 
     public Mono<ExtractTextResponse> extractAusschreibungText(byte[] fileBytes, String filename) {
@@ -55,22 +50,17 @@ public class AusschreibungService {
     }
 
     public Mono<IndexDocumentResponse> indexDocument(
-        String text, Ausschreibung ausschreibung) {
+            String text, Ausschreibung ausschreibung) {
 
-        //ToDo: Add mapper logic to convert Ausschreibung to IndexDocumentRequest
+        // ToDo: Add mapper logic to convert Ausschreibung to IndexDocumentRequest
         IndexDocumentRequest request = this.mapper.mapToIndexDocumentRequest(text, ausschreibung);
-        IndexDocumentRequest request = new IndexDocumentRequest();
-        request.setText(text);
-        request.setProject_uuid(ausschreibung.getUuid().toString()); // Or however you store UUID
-        request.setDocument_type("ausschreibung"); // Adjust as needed
-        request.setDocument_title(ausschreibung.getTitle());
 
         return indexingService.indexDocument(request);
     }
 
     public Mono<ProjectListResponse> listProjects() {
         // FIXME: For now, we use a fixed user ID
-        return this.listProjects(UUID.fromString());
+        return this.listProjects(UUID.fromString("e875950a-5417-4e1d-a05c-908a8d076da3"));
     }
 
     public Mono<ProjectListResponse> listProjects(UUID userId) {
@@ -80,5 +70,7 @@ public class AusschreibungService {
     public Mono<ProjectDetailsResponse> getProjectDetails(UUID uuid) {
         return indexingService.getProjectDetails(uuid);
     }
+
+    // public Mono<byte[]> generateOnepager(UUID projectUUID) {
 
 }
