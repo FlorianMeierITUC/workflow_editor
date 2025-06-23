@@ -1,6 +1,7 @@
 package de.ketobi.vaadinspringdemo.main.utils;
 
 import org.springframework.stereotype.Component;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -58,11 +59,12 @@ public class APIClientHelper {
                                 .bodyToMono(responseType);
         }
 
-        public Mono<byte[]> getBinary(WebClient webclient, String uri) {
+        public <TRequest> Mono<byte[]> getBinary(WebClient webclient, String uri, TRequest request) {
                 return webclient
-                                .get()
+                                .post()
                                 .uri(uri)
                                 .accept(MediaType.APPLICATION_PDF)
+                                .bodyValue(request)
                                 .retrieve()
                                 .onStatus(
                                                 status -> status.is4xxClientError() || status.is5xxServerError(),
