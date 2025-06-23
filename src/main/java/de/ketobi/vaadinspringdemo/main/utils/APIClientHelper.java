@@ -57,4 +57,18 @@ public class APIClientHelper {
                                                                                 "Error response: " + errorBody))))
                                 .bodyToMono(responseType);
         }
+
+        public Mono<byte[]> getBinary(WebClient webclient, String uri) {
+                return webclient
+                                .get()
+                                .uri(uri)
+                                .accept(MediaType.APPLICATION_PDF)
+                                .retrieve()
+                                .onStatus(
+                                                status -> status.is4xxClientError() || status.is5xxServerError(),
+                                                res -> res.bodyToMono(String.class)
+                                                                .flatMap(errorBody -> Mono.error(new RuntimeException(
+                                                                                "Error response: " + errorBody))))
+                                .bodyToMono(byte[].class);
+        }
 }
