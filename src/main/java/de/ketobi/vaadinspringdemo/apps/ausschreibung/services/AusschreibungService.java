@@ -71,6 +71,10 @@ public class AusschreibungService {
         return indexingService.getProjectDetails(uuid);
     }
 
-    // public Mono<byte[]> generateOnepager(UUID projectUUID) {
+    public Mono<byte[]> getOnepager(UUID projectUuid) {
+        return indexingService.getOnepagerDocuments(projectUuid)
+                .flatMap(chatService::generateOnePager)
+                .flatMap(dataService::getOnepager);
+    }
 
 }
