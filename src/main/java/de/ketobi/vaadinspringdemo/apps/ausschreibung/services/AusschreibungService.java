@@ -50,10 +50,10 @@ public class AusschreibungService {
     }
 
     public Mono<IndexDocumentResponse> indexDocument(
-            String text, Ausschreibung ausschreibung) {
+            String text, String filename, Ausschreibung ausschreibung) {
 
         // ToDo: Add mapper logic to convert Ausschreibung to IndexDocumentRequest
-        IndexDocumentRequest request = this.mapper.mapToIndexDocumentRequest(text, ausschreibung);
+        IndexDocumentRequest request = this.mapper.mapToIndexDocumentRequest(text, filename, ausschreibung);
 
         return indexingService.indexDocument(request);
     }
