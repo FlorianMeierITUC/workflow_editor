@@ -94,6 +94,7 @@ public class AusschreibungCreateView extends VerticalLayout implements HasUrlPar
                     }).switchIfEmpty(Mono.fromRunnable(() -> {
                         ui.access(() -> {
                             formData = new Ausschreibung();
+                            formData.setUuid(UUID.randomUUID());
                             formData.setStatus("Active");
                             formData.setDate(LocalDateTime.now()); // TODO: set to today for now, potentially to be
                                                                    // changed
