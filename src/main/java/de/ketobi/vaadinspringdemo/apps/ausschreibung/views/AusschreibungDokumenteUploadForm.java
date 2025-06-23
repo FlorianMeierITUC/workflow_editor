@@ -19,10 +19,10 @@ import de.ketobi.vaadinspringdemo.apps.ausschreibung.entities.Ausschreibung;
 import com.vaadin.flow.component.tabs.Tabs;
 import de.ketobi.vaadinspringdemo.apps.ausschreibung.services.AusschreibungService;
 
-
 public class AusschreibungDokumenteUploadForm extends VerticalLayout {
 
-    public AusschreibungDokumenteUploadForm(Ausschreibung ausschreibung, AusschreibungService ausschreibungService, Tabs tabs) {
+    public AusschreibungDokumenteUploadForm(Ausschreibung ausschreibung, AusschreibungService ausschreibungService,
+            Tabs tabs) {
         setSpacing(true);
         setPadding(true);
         setWidthFull();
@@ -43,49 +43,49 @@ public class AusschreibungDokumenteUploadForm extends VerticalLayout {
         upload.setDropLabel(new Div(new Text("Datei hierher ziehen oder klicken zum Auswählen")));
         upload.setAcceptedFileTypes(".pdf", ".docx", ".xlsx", ".txt");
         upload.setMaxFileSize(50 * 1024 * 1024); // 50 MB
+        upload.setMaxFiles(100);
 
-       upload.addSucceededListener(event -> {
-        System.out.println("Trying to upload file: " + event.getFileName());
-        String fileName = event.getFileName();
-        InputStream inputStream = buffer.getInputStream();
+        upload.addSucceededListener(event -> {
+            System.out.println("Trying to upload file: " + event.getFileName());
+            String fileName = event.getFileName();
+            InputStream inputStream = buffer.getInputStream();
 
-        try {
-            byte[] fileBytes = inputStream.readAllBytes();
+            try {
+                byte[] fileBytes = inputStream.readAllBytes();
 
-            ausschreibung.addDokument(fileName);
-            ausschreibungService.extractAusschreibungText(fileBytes, fileName)
-                    .flatMap(response -> {
-                        String extractedText = response.getText();
-                        return ausschreibungService.indexDocument(extractedText, ausschreibung);
-                    })
-                    .subscribe(indexResponse -> {
-                        getUI().ifPresent(ui -> ui.access(() -> {
-                            Notification.show("Dokument indexiert. UUID: " + indexResponse.getDocument_uuid(), 5000, Notification.Position.TOP_CENTER);
-                        }));
-                    }, error -> {
-                        getUI().ifPresent(ui -> ui.access(() -> {
-                            Notification.show("Fehler beim Indexieren: " + error.getMessage(), 5000, Notification.Position.TOP_CENTER);
-                        }));
-                    });
+                ausschreibungService.extractAusschreibungText(fileBytes, fileName)
+                        .subscribe(response -> {
+                            getUI().ifPresent(ui -> ui.access(() -> {
+                                Notification.show("Dokument extrahiert" + response.getText(), 5000,
+                                        Notification.Position.TOP_CENTER);
+                                ausschreibung.addPendingDocument(fileName, response.getText());
+                                System.out.println("Extracted text: " + response.getText());
 
-                        } catch (IOException e) {
-                            Notification.show("Fehler beim Lesen der Datei: " + e.getMessage(), 5000, Notification.Position.TOP_CENTER);
-                        }
-                    });
+                            }));
+                        }, error -> {
+                            getUI().ifPresent(ui -> ui.access(() -> {
+                                Notification.show("Fehler beim Extrahieren: " + error.getMessage(), 5000,
+                                        Notification.Position.TOP_CENTER);
+                            }));
+                        });
+
+            } catch (IOException e) {
+                Notification.show("Fehler beim Lesen der Datei: " + e.getMessage(), 5000,
+                        Notification.Position.TOP_CENTER);
+            }
+        });
 
         upload.addFailedListener(event -> {
             Notification.show("Fehler beim Hochladen: " + event.getFileName(), 3000, Notification.Position.MIDDLE);
         });
 
         AusschreibungActionButtons buttonLayout = new AusschreibungActionButtons(
-            ausschreibung,
-            ausschreibungService,
-            tabs,
-            () -> {
-                // Optional: additional logic after save (e.g., refresh view)
-            }
-        );
-
+                ausschreibung,
+                ausschreibungService,
+                tabs,
+                () -> {
+                    // Optional: additional logic after save (e.g., refresh view)
+                });
 
         add(upload);
 
