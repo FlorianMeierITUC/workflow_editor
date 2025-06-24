@@ -37,6 +37,11 @@ public class AusschreibungService {
         return indexingService.createProject(request);
     }
 
+    public Mono<ProjectResponse> deleteProject(Ausschreibung ausschreibung) {
+        DeleteProjectRequest request = this.mapper.mapToDeleteProjectRequest(ausschreibung);
+        return indexingService.deleteProject(request);
+    }
+
     public Mono<ProjectResponse> updateProject(Ausschreibung ausschreibung) {
         UpdateProjectRequest reqest = this.mapper.mapToUpdateProjectRequest(ausschreibung);
         return indexingService.updateProject(reqest);
