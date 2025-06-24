@@ -50,6 +50,13 @@ public class Mapper {
         return request;
     }
 
+    public DeleteProjectRequest mapToDeleteProjectRequest(Ausschreibung ausschreibung) {
+        DeleteProjectRequest request = new DeleteProjectRequest();
+        request.setProjectUuid(ausschreibung.getUuid());
+        System.out.println("Mapping Ausschreibung to DeleteProjectRequest: " + request);
+        return request;
+    }
+
     public RetrieveDocumentsRequest mapToRetrieveDocumentsRequest(Ausschreibung ausschreibung,
             List<Message> chatHistory) {
         RetrieveDocumentsRequest request = new RetrieveDocumentsRequest();
