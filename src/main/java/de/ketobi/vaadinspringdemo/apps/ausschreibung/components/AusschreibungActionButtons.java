@@ -34,10 +34,30 @@ public class AusschreibungActionButtons extends HorizontalLayout {
                 add(this.spinner);
 
                 // Delete Button
-                Button deleteButton = new Button("Löschen...", e -> Notification.show("Noch nicht implementiert"));
-                deleteButton.getStyle()
-                                .set("background-color", "hsla(3, 85%, 48%, 1)")
-                                .set("color", "white")
+                Button deleteButton = new Button("Löschen...", e -> {
+                        if (ausschreibung.getUuid() == null) {
+                                // ToDo: call backend
+                                Notification.show("Ausschreibung kann man nicht loeschen");
+                        } else {
+                                UI ui = UI.getCurrent();
+                                ausschreibungService.deleteProject(ausschreibung)
+                                                .subscribe(response -> {
+                                                        ui.access(() -> {
+                                                                Notification.show("Ausschreibung gelöscht");
+                                                                ui.navigate("ausschreibung");
+                                                        });
+                                                }, error -> {
+                                                        ui.access(() -> {
+
+                                                                Notification.show(
+                                                                                "Fehler beim Löschen der Ausschreibung: "
+                                                                                                + error.getMessage(),
+                                                                                5000, Notification.Position.MIDDLE);
+                                                        });
+                                                });
+                        }
+                });
+                deleteButton.getStyle().set("background-color", "hsla(3, 85%, 48%, 1)").set("color", "white")
                                 .set("border-radius", "2px");
 
                 // Cancel Button
@@ -88,24 +108,6 @@ public class AusschreibungActionButtons extends HorizontalLayout {
                                                                 Notification.Position.MIDDLE);
                                         });
                                 });
-
-                                // ausschreibungService.extractAusschreibungText(fileBytes, fileName)
-                                // .flatMap(response -> {
-                                // String extractedText = response.getText();
-                                // return ausschreibungService.indexDocument(extractedText, ausschreibung);
-                                // })
-                                // .subscribe(indexResponse -> {
-                                // getUI().ifPresent(ui -> ui.access(() -> {
-                                // Notification.show("Dokument indexiert. UUID: " +
-                                // indexResponse.getDocument_uuid(), 5000,
-                                // Notification.Position.TOP_CENTER);
-                                // }));
-                                // }, error -> {
-                                // getUI().ifPresent(ui -> ui.access(() -> {
-                                // Notification.show("Fehler beim Indexieren: " + error.getMessage(), 5000,
-                                // Notification.Position.TOP_CENTER);
-                                // }));
-                                // });
 
                         } else {
                                 tabs.setSelectedIndex(tabs.getSelectedIndex() + 1);
