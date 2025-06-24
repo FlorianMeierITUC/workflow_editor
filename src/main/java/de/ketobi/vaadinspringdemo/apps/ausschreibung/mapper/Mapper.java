@@ -53,7 +53,6 @@ public class Mapper {
     public DeleteProjectRequest mapToDeleteProjectRequest(Ausschreibung ausschreibung) {
         DeleteProjectRequest request = new DeleteProjectRequest();
         request.setProjectUuid(ausschreibung.getUuid());
-        System.out.println("Mapping Ausschreibung to DeleteProjectRequest: " + request);
         return request;
     }
 
