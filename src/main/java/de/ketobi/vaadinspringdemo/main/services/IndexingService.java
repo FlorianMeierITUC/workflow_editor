@@ -36,6 +36,10 @@ public class IndexingService {
         return apiHelper.postJSON(webClient, "/create_project", request, ProjectResponse.class);
     }
 
+    public Mono<ProjectResponse> deleteProject(DeleteProjectRequest request) {
+        return apiHelper.postJSON(webClient, "/delete_project", request, ProjectResponse.class);
+    }
+
     public Mono<ProjectResponse> updateProject(UpdateProjectRequest request) {
         return apiHelper.postJSON(webClient, "/update_project", request, ProjectResponse.class);
     }
