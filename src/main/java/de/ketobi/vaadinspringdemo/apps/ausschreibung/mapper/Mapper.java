@@ -4,6 +4,7 @@ import de.ketobi.vaadinspringdemo.apps.ausschreibung.entities.*;
 import de.ketobi.vaadinspringdemo.main.entities.*;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.stereotype.Component;
 
@@ -81,7 +82,17 @@ public class Mapper {
         request.setText(text);
         request.setProjectUuid(ausschreibung.getUuid());
         request.setDocumentTitle(filename);
-        request.setDocumentType("pdf");
+        request.setDocumentType("pdf"); //FIXME: Set the document type based on the actual file type
+        return request;
+    }
+
+    public UpdateDocumentRequest mapToUpdateDocumentRequest(String text, String filename, Ausschreibung ausschreibung, UUID documentUuid ) {
+        UpdateDocumentRequest request = new UpdateDocumentRequest();
+        request.setText(text);
+        request.setProjectUuid(ausschreibung.getUuid());
+        request.setDocumentTitle(filename);
+        request.setDocumentType("pdf");//FIXME: Set the document type based on the actual file type
+        request.setDocumentUuid(documentUuid); 
         return request;
     }
 

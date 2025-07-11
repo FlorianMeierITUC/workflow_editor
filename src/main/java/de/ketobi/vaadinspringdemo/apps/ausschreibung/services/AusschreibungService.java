@@ -7,6 +7,8 @@ import de.ketobi.vaadinspringdemo.apps.ausschreibung.entities.*;
 import de.ketobi.vaadinspringdemo.apps.ausschreibung.mapper.Mapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.stereotype.Service;
 
 import reactor.core.publisher.Mono;
@@ -14,6 +16,8 @@ import reactor.core.publisher.Mono;
 import java.util.UUID;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
 
 @Service
 public class AusschreibungService {
@@ -99,6 +103,23 @@ public class AusschreibungService {
                     return chatService.sendRAGMessage(RAGChatrequest);
                 });
 
+    }
+
+    public Mono<ProjectDocumentsListResponse> listProjectDocuments(UUID projectId) {
+        return indexingService.listProjectDocuments(projectId);
+    }
+
+    // If you need WebClient, make sure it's defined and injected
+    public Mono<Void> deleteDocument(UUID documentUuid) {
+        return indexingService.deleteDocument(documentUuid);
+    }
+
+    public Mono<UpdateDocumentResponse> updateDocument(
+            String text, String filename, Ausschreibung ausschreibung, UUID documentUuid) {
+
+        UpdateDocumentRequest request = this.mapper.mapToUpdateDocumentRequest(text, filename, ausschreibung, documentUuid);
+
+        return indexingService.updateDocument(request);
     }
 
 }

@@ -32,4 +32,7 @@ public class Ausschreibung {
         this.pendingDocuments.add(new PendingDocument(filename, extractedText));
     }
 
+    public void updatePendingDocument(String filename, String extractedText, UUID documentUuid) {
+        this.pendingDocuments.add(new PendingDocument(filename, extractedText, documentUuid));
+    }
 }

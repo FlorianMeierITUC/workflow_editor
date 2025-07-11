@@ -6,6 +6,7 @@ import java.util.UUID;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.HasUrlParameter;
@@ -30,20 +31,32 @@ public class AusschreibungDetailView extends VerticalLayout implements HasUrlPar
     private final AusschreibungService ausschreibungService;
     private final Mapper mapper;
     private Ausschreibung ausschreibung;
-    private H1 pageTitle;
+    private final H1 pageTitle;
+
+    private final Tab projektUbersicht;
+    private final Tab KIChat;
+    private final Tab dokManagement;
+    private final Tab questions;
+    private final Tab angebot;
 
     public AusschreibungDetailView(AusschreibungService ausschreibungService, Mapper mapper) {
         this.ausschreibungService = ausschreibungService;
         this.mapper = mapper;
 
-        pageTitle = new H1();
+        setWidthFull();
+        setPadding(true);
+        setSpacing(true);
+        setAlignItems(Alignment.CENTER);
+
+        pageTitle = new H1("Lade Ausschreibung...");
         add(pageTitle);
 
-        Tab projektUbersicht = new Tab("Projektübersicht");
-        Tab KIChat = new Tab("KI Chat");
-        Tab dokManagement = new Tab("Dokumenten Management");
-        Tab questions = new Tab("Participant Questions");
-        Tab angebot = new Tab("Angebot erstellen und managen");
+        // Tabs initialization
+        projektUbersicht = new Tab("Projektübersicht");
+        KIChat = new Tab("KI Chat");
+        dokManagement = new Tab("Dokumenten Management");
+        questions = new Tab("Participant Questions");
+        angebot = new Tab("Angebot erstellen und managen");
 
         tabs = new Tabs(projektUbersicht, KIChat, dokManagement, questions, angebot);
         tabs.setWidthFull();
@@ -51,61 +64,101 @@ public class AusschreibungDetailView extends VerticalLayout implements HasUrlPar
         content = new Div();
         content.setWidthFull();
         content.setSizeFull();
+        content.add(new Span("Lade Inhalt..."));
 
+        // Tab listener
         tabs.addSelectedChangeListener(event -> {
-            content.removeAll();
-            Tab selected = event.getSelectedTab();
-
-            if (selected.equals(projektUbersicht)) {
-                content.add(new AusschreibungProjektUbersicht(ausschreibung, this.ausschreibungService));
-            } else if (selected.equals(KIChat)) {
-                content.add(new AusschreibungKIChat(ausschreibung, this.ausschreibungService));
-            } else if (selected.equals(dokManagement)) {
-                content.add(new AusschreibungDokManagement(ausschreibung));
-            } else if (selected.equals(questions)) {
-                content.add(new AusschreibungQuestions(ausschreibung));
-            } else if (selected.equals(angebot)) {
-                content.add(new AusschreibungAngebotErstellen(ausschreibung));
+            if (ausschreibung == null) {
+                content.removeAll();
+                content.add(new Span("Ausschreibung wird noch geladen..."));
+                return;
             }
+            showTabContent(event.getSelectedTab());
         });
-
-        setWidthFull();
-        setPadding(true);
-        setSpacing(true);
-        setAlignItems(Alignment.CENTER);
 
         add(tabs, content);
     }
 
     @Override
     public void setParameter(BeforeEvent event, @OptionalParameter String uuid) {
-        // ToDO: Refactor. Used multiple times, should be moved to a common method
         if (uuid != null) {
             System.out.println("Received UUID: " + uuid);
             UI ui = UI.getCurrent();
-            ausschreibungService.getProjectDetails(UUID.fromString(uuid)).map(mapper::mapToAusschreibung)
-                    .doOnNext(a -> {
-                        ui.access(() -> {
-                            ausschreibung = a;
-                            pageTitle.setText("Ausschreibung: " + ausschreibung.getTitle());
-                            tabs.setSelectedIndex(0);
-                            content.removeAll();
-                            content.add(new AusschreibungProjektUbersicht(ausschreibung, this.ausschreibungService));
-                        });
-                    }).switchIfEmpty(Mono.fromRunnable(() -> {
-                        ui.access(() -> {
-                            ausschreibung = new Ausschreibung();
-                            ausschreibung.setStatus("Active");
-                            ausschreibung.setDate(LocalDateTime.now()); // TODO: set to today for now, potentially to be
-                                                                        // changed
-                            // to another date
-                            pageTitle.setText("Create New Ausschreibung");
-                            tabs.setSelectedIndex(0);
-                            content.removeAll();
-                            content.add(new AusschreibungProjektUbersicht(ausschreibung, this.ausschreibungService));
-                        });
-                    })).subscribe();
 
+            ausschreibungService.getProjectDetails(UUID.fromString(uuid))
+                .map(mapper::mapToAusschreibung)
+                .doOnNext(a -> {
+                    ausschreibung = a;
+
+                    if (ausschreibung == null) {
+                        System.err.println("Ausschreibung mapping returned null!");
+                        ui.access(() -> {
+                            pageTitle.setText("Fehler: Ausschreibung konnte nicht geladen werden.");
+                            content.removeAll();
+                            content.add(new Span("Fehler: Keine Daten gefunden."));
+                        });
+                        return;
+                    }
+
+                    System.out.println("Ausschreibung geladen: " + ausschreibung.getTitle());
+
+                    ui.access(() -> {
+                        pageTitle.setText("Ausschreibung: " + ausschreibung.getTitle());
+                        content.removeAll();
+                        showTabContent(tabs.getSelectedTab());
+                    });
+                })
+                .switchIfEmpty(Mono.fromRunnable(() -> {
+                    ausschreibung = new Ausschreibung();
+                    ausschreibung.setStatus("Active");
+                    ausschreibung.setDate(LocalDateTime.now());
+                    System.out.println("Keine Ausschreibung gefunden — neues Objekt erstellt.");
+
+                    ui.access(() -> {
+                        pageTitle.setText("Neue Ausschreibung erstellen");
+                        content.removeAll();
+                        showTabContent(tabs.getSelectedTab());
+                    });
+                }))
+                .doOnError(err -> {
+                    err.printStackTrace();
+                    ui.access(() -> {
+                        pageTitle.setText("Fehler beim Laden");
+                        content.removeAll();
+                        content.add(new Span("Beim Laden der Ausschreibung ist ein Fehler aufgetreten."));
+                    });
+                })
+                .subscribe();
+        } else {
+            System.out.println("Keine UUID übergeben — keine Ausschreibung geladen.");
+            pageTitle.setText("Keine Ausschreibung angegeben");
+            content.removeAll();
+            content.add(new Span("Bitte eine gültige Ausschreibungs-ID angeben."));
+        }
+    }
+
+    private void showTabContent(Tab selected) {
+        content.removeAll();
+        System.out.println("Tab ausgewählt: " + selected.getLabel());
+
+        if (ausschreibung == null) {
+            System.err.println("Fehler: Ausschreibung ist noch null beim Rendern des Tabs!");
+            content.add(new Span("Ausschreibung wird noch geladen..."));
+            return;
+        }
+
+        if (selected.equals(projektUbersicht)) {
+            content.add(new AusschreibungProjektUbersicht(ausschreibung, ausschreibungService));
+        } else if (selected.equals(KIChat)) {
+            content.add(new AusschreibungKIChat(ausschreibung, ausschreibungService));
+        } else if (selected.equals(dokManagement)) {
+            content.add(new AusschreibungDokManagement(ausschreibung, ausschreibungService));
+        } else if (selected.equals(questions)) {
+            content.add(new AusschreibungQuestions(ausschreibung));
+        } else if (selected.equals(angebot)) {
+            content.add(new AusschreibungAngebotErstellen(ausschreibung));
+        } else {
+            content.add(new Span("Unbekannter Tab ausgewählt."));
         }
     }
 }

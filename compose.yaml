@@ -11,20 +11,20 @@ services:
     env_file:
       - .env
     depends_on:
-      - mongodb
+      - mongodb1
     networks:
       - mongodb-net
       - app-net
 
-  mongodb:
+  mongodb1:
     image: 'mongo:latest'
-    container_name: mongodb
+    container_name: mongodb1
     environment:
       - 'MONGO_INITDB_DATABASE=mydatabase'
       - 'MONGO_INITDB_ROOT_PASSWORD=secretpassword'
       - 'MONGO_INITDB_ROOT_USERNAME=root'
     ports:
-      - '27017:27017'
+      - '27018:27017'
     networks:
       - app-net
 

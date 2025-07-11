@@ -1,5 +1,6 @@
 package de.ketobi.vaadinspringdemo.main.services;
 
+import de.ketobi.vaadinspringdemo.apps.ausschreibung.entities.ProjectDocumentsListResponse;
 import de.ketobi.vaadinspringdemo.main.entities.*;
 import de.ketobi.vaadinspringdemo.main.utils.APIClientHelper;
 
@@ -11,6 +12,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.util.UUID;
+import java.util.Map;
 
 @Service
 public class IndexingService {
@@ -63,4 +65,31 @@ public class IndexingService {
                 OnepagerDocumentsResponse.class);
     }
 
+    public Mono<ProjectDocumentsListResponse> listProjectDocuments(UUID projectId) {
+        return apiHelper.getJSON(
+            webClient,
+            "/list_project_documents/" + projectId,
+            ProjectDocumentsListResponse.class
+        );
+    }
+
+    public Mono<Void> deleteDocument(UUID documentUuid) {
+        return apiHelper.postJSON(
+            webClient,
+            "/delete_document",
+            Map.of("document_uuid", documentUuid),
+            Void.class
+        );
+    }
+
+    public Mono<UpdateDocumentResponse> updateDocument(UpdateDocumentRequest request) {
+        return apiHelper.postJSON(
+                webClient,
+                "/update_document_with_metadata",
+                request,
+                UpdateDocumentResponse.class);
+    }
+
+
 }
+
