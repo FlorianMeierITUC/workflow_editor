@@ -51,6 +51,6 @@ public class AusschreibungPublishForm extends VerticalLayout {
                 });
 
         add(contentLayout, buttonLayout);
-        setFlexGrow(1, contentLayout); // Ensure content grows and buttons stay at bottom
+        setFlexGrow(1, contentLayout); 
     }
 }

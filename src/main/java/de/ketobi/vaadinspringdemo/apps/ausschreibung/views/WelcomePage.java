@@ -32,30 +32,6 @@ public class WelcomePage extends VerticalLayout {
             .set("width", "100%");
         add(welcomeHeader);
 
-        // commented out since we don't really have a usage for the chat in the welcome page
-
-        // MessageList chatHistory = new MessageList();
-        // chatHistory.setWidthFull();
-        // chatHistory.setHeight("400px"); // you can adjust height as needed
-        // add(chatHistory);
-
-        // java.util.List<MessageListItem> messages = new java.util.ArrayList<>();
-
-        // MessageInput chatbotInput = new MessageInput();
-        // chatbotInput.setTooltipText("Write your message here...");
-        // chatbotInput.setWidthFull();
-
-        // chatbotInput.addSubmitListener(submitEvent -> {
-        //     MessageListItem newMessage = new MessageListItem(
-        //             submitEvent.getValue(), Instant.now(), "Milla Sting");
-        //     newMessage.setUserColorIndex(3);
-        //     List<MessageListItem> items = new ArrayList<>(chatHistory.getItems());
-        //     items.add(newMessage);
-        //     chatHistory.setItems(items);
-        // });
-
-        // add(chatbotInput);
-
         H2 extraSectionHeader = new H2("Oder nutze unsere weiteren Dienste.");
         extraSectionHeader.getStyle()
             .set("text-align", "center")
@@ -63,7 +39,7 @@ public class WelcomePage extends VerticalLayout {
         add(extraSectionHeader);
 
         IconGalleryComponent iconGallery = new IconGalleryComponent();
-        // If you want a little spacing above/below, you can wrap it in another layout or set margins
+
         iconGallery.setWidthFull();
         add(iconGallery);
         
