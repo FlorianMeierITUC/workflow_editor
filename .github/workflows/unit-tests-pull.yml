@@ -23,8 +23,8 @@ jobs:
             - name: Set executable persimission for Maven
               run: chmod +x mvnw
 
-            - name: Start mongodb for test
-              run: docker compose -f compose.yaml up -d mongodb
+            - name: Start mongodb1 for test
+              run: docker compose -f compose.yaml up -d mongodb1
 
             - name: Exectute tests with maven
               env:
@@ -33,5 +33,5 @@ jobs:
                     MONGODB_PASSWORD: secretpassword
                     MONGODB_DATABASE: mydatabase
                     MONGODB_HOST: localhost
-                    MONGODB_PORT: 27017
+                    MONGODB_PORT: 27018
               run: ./mvnw --batch-mode clean verify -T4 -Dmaven.test.failure.ignore=false
