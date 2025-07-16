@@ -1,6 +1,6 @@
 
 [part="input-field"] {
-  box-shadow: inset 0 0 0 1px var(--lumo-contrast-30pct);
+  box-shadow: inset 0 0 0 1px transparent;
   background-color: var(--lumo-base-color);
 }
 
@@ -15,7 +15,7 @@
 :host(.form-field) [part="input-field"] {
   background-color: var(--ituc-base-2);
   border-radius: 2px;
-  box-shadow: inset 0 0 0 1px var(--lumo-contrast-30pct);
+  box-shadow: inset 0 0 0 1px transparent;
 }
 
 @apply --lumo-default-theme;
