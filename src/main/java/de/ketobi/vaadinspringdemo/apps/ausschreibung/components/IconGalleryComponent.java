@@ -59,14 +59,14 @@ public class IconGalleryComponent extends VerticalLayout {
         };
 
         String[] routes = {
-            "chatbot",           // route for Chat Bot
+            "under-construction",           // route for Chat Bot
             "ausschreibung",// route for Ausschreibungs App
-            "docVergleich",    // route for Dokumenten Vergleich
-            "generate-charts",   // route for Diagramme generieren
-            "home",         // route for Feature A
-            "home",         // route for Feature B
-            "home",         // route for Feature C
-            "home"          // route for Feature D
+            "under-construction",    // route for Dokumenten Vergleich
+            "under-construction",   // route for Diagramme generieren
+            "under-construction",         // route for Feature A
+            "under-construction",         // route for Feature B
+            "under-construction",         // route for Feature C
+            "under-construction"          // route for Feature D
         };
 
          for (int i = 0; i < icons.length; i++) {

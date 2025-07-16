@@ -1,18 +1,15 @@
 package de.ketobi.vaadinspringdemo.apps.ausschreibung.entities;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+import java.util.UUID;
 
 import lombok.Data;
 
 @Data
-@Document("ausschreibungen")
 public class Ausschreibung {
-    @Id
+    private UUID uuid;
     private String id;
     private String title;
     private String beschreibung;
@@ -24,14 +21,18 @@ public class Ausschreibung {
     private String projectKontakt;
     private String projectKontaktEmail;
     private String notizen;
-    private LocalDate date;
+    private LocalDateTime date;
     private boolean favorite;
     private boolean archived;
     private String status;
 
-    private List<String> dokumente = new ArrayList<>();
+    private List<PendingDocument> pendingDocuments = new ArrayList<>();
 
-    public void addDokument(String filename) {
-        this.dokumente.add(filename);
+    public void addPendingDocument(String filename, String extractedText) {
+        this.pendingDocuments.add(new PendingDocument(filename, extractedText));
+    }
+
+    public void updatePendingDocument(String filename, String extractedText, UUID documentUuid) {
+        this.pendingDocuments.add(new PendingDocument(filename, extractedText, documentUuid));
     }
 }

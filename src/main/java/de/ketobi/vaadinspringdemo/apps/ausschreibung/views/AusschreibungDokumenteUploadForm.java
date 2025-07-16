@@ -1,6 +1,8 @@
 package de.ketobi.vaadinspringdemo.apps.ausschreibung.views;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.html.Div;
@@ -19,7 +21,8 @@ import de.ketobi.vaadinspringdemo.apps.ausschreibung.services.AusschreibungServi
 
 public class AusschreibungDokumenteUploadForm extends VerticalLayout {
 
-    public AusschreibungDokumenteUploadForm(Ausschreibung ausschreibung, AusschreibungService ausschreibungService, Tabs tabs) {
+    public AusschreibungDokumenteUploadForm(Ausschreibung ausschreibung, AusschreibungService ausschreibungService,
+            Tabs tabs) {
         setSpacing(true);
         setPadding(true);
         setWidthFull();
@@ -39,13 +42,37 @@ public class AusschreibungDokumenteUploadForm extends VerticalLayout {
         upload.setWidthFull();
         upload.setDropLabel(new Div(new Text("Datei hierher ziehen oder klicken zum Auswählen")));
         upload.setAcceptedFileTypes(".pdf", ".docx", ".xlsx", ".txt");
+        upload.setMaxFileSize(50 * 1024 * 1024); // 50 MB
+        upload.setMaxFiles(100);
 
         upload.addSucceededListener(event -> {
+            System.out.println("Trying to upload file: " + event.getFileName());
             String fileName = event.getFileName();
-            ausschreibung.addDokument(fileName);
-            InputStream fileData = buffer.getInputStream();
-            Notification.show("Datei hochgeladen: " + fileName, 3000, Notification.Position.MIDDLE);
-            // You could now store fileData
+            InputStream inputStream = buffer.getInputStream();
+
+            try {
+                byte[] fileBytes = inputStream.readAllBytes();
+
+                ausschreibungService.extractAusschreibungText(fileBytes, fileName)
+                        .subscribe(response -> {
+                            getUI().ifPresent(ui -> ui.access(() -> {
+                                Notification.show("Dokument extrahiert" + response.getText(), 5000,
+                                        Notification.Position.TOP_CENTER);
+                                ausschreibung.addPendingDocument(fileName, response.getText());
+                                System.out.println("Extracted text: " + response.getText());
+
+                            }));
+                        }, error -> {
+                            getUI().ifPresent(ui -> ui.access(() -> {
+                                Notification.show("Fehler beim Extrahieren: " + error.getMessage(), 5000,
+                                        Notification.Position.TOP_CENTER);
+                            }));
+                        });
+
+            } catch (IOException e) {
+                Notification.show("Fehler beim Lesen der Datei: " + e.getMessage(), 5000,
+                        Notification.Position.TOP_CENTER);
+            }
         });
 
         upload.addFailedListener(event -> {
@@ -53,13 +80,12 @@ public class AusschreibungDokumenteUploadForm extends VerticalLayout {
         });
 
         AusschreibungActionButtons buttonLayout = new AusschreibungActionButtons(
-            ausschreibung,
-            ausschreibungService,
-            tabs,
-            () -> {
-                // Optional: additional logic after save (e.g., refresh view)
-            }
-        );
+                ausschreibung,
+                ausschreibungService,
+                tabs,
+                () -> {
+                    // Optional: additional logic after save (e.g., refresh view)
+                });
 
         add(upload);
 

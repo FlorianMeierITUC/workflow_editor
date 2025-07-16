@@ -26,11 +26,11 @@ public class WelcomePage extends VerticalLayout {
         Image logo = new Image("/images/logo.png", "Logo");
         logo.getStyle().set("margin", "2rem auto").set("display", "block").set("height", "10rem").set("width", "10rem");
         add(logo);
-        H2 welcomeHeader = new H2("Hey! Welche Fragen hast du heute an mich?");
-        welcomeHeader.getStyle()
-            .set("text-align", "center")
-            .set("width", "100%");
-        add(welcomeHeader);
+        // H2 welcomeHeader = new H2("Hey! Welche Fragen hast du heute an mich?");
+        // welcomeHeader.getStyle()
+        //     .set("text-align", "center")
+        //     .set("width", "100%");
+        // add(welcomeHeader);
 
         // commented out since we don't really have a usage for the chat in the welcome page
 
