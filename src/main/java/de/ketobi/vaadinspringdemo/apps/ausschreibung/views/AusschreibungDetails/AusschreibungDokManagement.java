@@ -1,6 +1,9 @@
 package de.ketobi.vaadinspringdemo.apps.ausschreibung.views.AusschreibungDetails;
 
+import com.vaadin.flow.component.Text;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
@@ -12,6 +15,7 @@ import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import de.ketobi.vaadinspringdemo.apps.ausschreibung.entities.Ausschreibung;
 import de.ketobi.vaadinspringdemo.apps.ausschreibung.entities.Document;
 import de.ketobi.vaadinspringdemo.apps.ausschreibung.services.AusschreibungService;
+import de.ketobi.vaadinspringdemo.main.entities.ExtractTextResponse;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,11 +38,56 @@ public class AusschreibungDokManagement extends VerticalLayout {
 
         add(new H2("Dokumenten Management für: " + ausschreibung.getTitle()));
 
-        Button uploadBtn = new Button("Dokument hochladen", event -> {
-            Notification.show("Upload-Logik noch nicht implementiert", 3000, Notification.Position.TOP_CENTER);
-        });
-        add(uploadBtn);
+        // File upload component
+        MemoryBuffer buffer = new MemoryBuffer();
+        Upload upload = new Upload(buffer);
+        upload.setWidthFull();
+        upload.setDropLabel(new Div(new Text("Datei hierher ziehen oder klicken zum Auswählen")));
+        upload.setAcceptedFileTypes(".pdf", ".docx", ".xlsx", ".txt");
+        upload.setMaxFileSize(50 * 1024 * 1024); // 50 MB
+        upload.setMaxFiles(1);
 
+        upload.addSucceededListener(event -> {
+            System.out.println("Trying to upload file: " + event.getFileName());
+            String fileName = event.getFileName();
+            InputStream inputStream = buffer.getInputStream();
+
+            try {
+                byte[] fileBytes = inputStream.readAllBytes();
+
+                // Extract text from the uploaded file
+                service.extractAusschreibungText(fileBytes, fileName)
+                    .flatMap((ExtractTextResponse extractResponse) -> {
+                        String extractedText = extractResponse.getText();
+
+                        // Now use indexDocument to save this new document into the database
+                        return service.indexDocument(extractedText, fileName, ausschreibung);
+                    })
+                    .subscribe(
+                        indexedDocumentResponse -> getUI().ifPresent(innerUi -> innerUi.access(() -> {
+                            Notification.show("Dokument erfolgreich hochgeladen und indexiert", 3000, Notification.Position.TOP_CENTER);
+                            UI.getCurrent().getPage().reload();
+                        })),
+                        error -> getUI().ifPresent(innerUi -> innerUi.access(() -> {
+                            error.printStackTrace();
+                            Notification.show("Fehler beim Indexieren des Dokuments", 5000, Notification.Position.TOP_CENTER);
+                        }))
+                    );
+
+            } catch (IOException e) {
+                Notification.show("Fehler beim Lesen der Datei: " + e.getMessage(), 5000,
+                        Notification.Position.TOP_CENTER);
+            }
+        });
+
+        upload.addFailedListener(event -> {
+            Notification.show("Fehler beim Hochladen: " + event.getFileName(), 3000, Notification.Position.MIDDLE);
+        });
+
+        add(upload);
+        setFlexGrow(1, upload);
+
+        // List existing documents
         service.listProjectDocuments(ausschreibung.getUuid())
             .subscribe(response -> {
                 List<Document> documents = response.getDocuments();
@@ -81,16 +130,16 @@ public class AusschreibungDokManagement extends VerticalLayout {
 
                         // Update handler - upload replacement document
                         updateBtn.addClickListener(click -> {
-                            MemoryBuffer buffer = new MemoryBuffer();
-                            Upload upload = new Upload(buffer);
-                            upload.setAcceptedFileTypes(".pdf", ".txt");
-                            upload.setMaxFiles(1);
-                            upload.setDropLabel(new Span("Neues Dokument hier ablegen oder klicken"));
-                            upload.setWidthFull();
+                            MemoryBuffer bufferUpdate = new MemoryBuffer();
+                            Upload uploadUpdate = new Upload(bufferUpdate);
+                            uploadUpdate.setAcceptedFileTypes(".pdf", ".txt");
+                            uploadUpdate.setMaxFiles(1);
+                            uploadUpdate.setDropLabel(new Span("Neues Dokument hier ablegen oder klicken"));
+                            uploadUpdate.setWidthFull();
 
-                            upload.addSucceededListener(event -> {
+                            uploadUpdate.addSucceededListener(event -> {
                                 String filename = event.getFileName();
-                                InputStream inputStream = buffer.getInputStream();
+                                InputStream inputStream = bufferUpdate.getInputStream();
 
                                 try {
                                     byte[] fileBytes = inputStream.readAllBytes();
@@ -99,21 +148,21 @@ public class AusschreibungDokManagement extends VerticalLayout {
                                         .flatMap(extractResponse -> {
                                             String extractedText = extractResponse.getText();
 
-                                            return service.updateDocument(
+                                            return service.indexDocument(
                                                 extractedText,
                                                 filename,
-                                                ausschreibung,
-                                                doc.getDocumentUuid()
+                                                ausschreibung
                                             );
                                         })
                                         .subscribe(
-                                            updated -> getUI().ifPresent(innerUi -> innerUi.access(() -> {
-                                                Notification.show("Dokument aktualisiert", 3000, Notification.Position.TOP_CENTER);
+                                            indexed -> getUI().ifPresent(innerUi -> innerUi.access(() -> {
+                                                Notification.show("Dokument aktualisiert und indexiert", 3000, Notification.Position.TOP_CENTER);
                                                 remove(upload); // remove uploader after success
+                                                UI.getCurrent().getPage().reload();
                                             })),
                                             error -> getUI().ifPresent(innerUi -> innerUi.access(() -> {
                                                 error.printStackTrace();
-                                                Notification.show("Fehler beim Aktualisieren des Dokuments", 5000, Notification.Position.TOP_CENTER);
+                                                Notification.show("Fehler beim Indexieren des Dokuments", 5000, Notification.Position.TOP_CENTER);
                                             }))
                                         );
 
@@ -123,7 +172,7 @@ public class AusschreibungDokManagement extends VerticalLayout {
                                 }
                             });
 
-                            add(upload); // show upload inline
+                            add(uploadUpdate); // show upload inline
                         });
                     }
                 }));
