@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class Mapper {
     public Ausschreibung mapToAusschreibung(ProjectDetailsResponse p) {
-        System.out.println("Response" + p);
         Ausschreibung ausschreibung = new Ausschreibung();
         ausschreibung.setUuid(p.getUuid());
         ausschreibung.setTitle(p.getDisplayName());
