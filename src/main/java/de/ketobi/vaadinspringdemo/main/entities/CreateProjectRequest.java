@@ -24,4 +24,14 @@ public class CreateProjectRequest {
     private LocalDateTime dueDate;
     @JsonProperty("display_name")
     private String displayName;
+    private String description;
+    @JsonProperty("partner_company")
+    private String partnerCompany;
+    private String customer;
+    private String sector;
+    @JsonProperty("project_contact")
+    private String projectContact;
+    @JsonProperty("project_contact_email")
+    private String projectContactEmail;
+    private String notes;
 }
