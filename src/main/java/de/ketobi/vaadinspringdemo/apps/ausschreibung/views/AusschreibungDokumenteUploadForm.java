@@ -9,6 +9,7 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.upload.SucceededEvent;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import com.vaadin.flow.component.notification.Notification;
@@ -20,6 +21,17 @@ import com.vaadin.flow.component.tabs.Tabs;
 import de.ketobi.vaadinspringdemo.apps.ausschreibung.services.AusschreibungService;
 
 public class AusschreibungDokumenteUploadForm extends VerticalLayout {
+
+    private void handleFileUpload(SucceededEvent event, Ausschreibung ausschreibung, MemoryBuffer buffer) {
+        String fileName = event.getFileName();
+        try (InputStream inputStream = buffer.getInputStream()) {
+            byte[] fileBytes = inputStream.readAllBytes();
+            ausschreibung.addPendingDocumentFileBytes(fileName, fileBytes);
+        } catch (IOException e) {
+            Notification.show("Fehler beim Lesen der Datei: " + e.getMessage(), 5000,
+                    Notification.Position.TOP_CENTER);
+        }
+    }
 
     public AusschreibungDokumenteUploadForm(Ausschreibung ausschreibung, AusschreibungService ausschreibungService,
             Tabs tabs) {
@@ -46,33 +58,7 @@ public class AusschreibungDokumenteUploadForm extends VerticalLayout {
         upload.setMaxFiles(100);
 
         upload.addSucceededListener(event -> {
-            System.out.println("Trying to upload file: " + event.getFileName());
-            String fileName = event.getFileName();
-            InputStream inputStream = buffer.getInputStream();
-
-            try {
-                byte[] fileBytes = inputStream.readAllBytes();
-
-                ausschreibungService.extractAusschreibungText(fileBytes, fileName)
-                        .subscribe(response -> {
-                            getUI().ifPresent(ui -> ui.access(() -> {
-                                Notification.show("Dokument extrahiert" + response.getText(), 5000,
-                                        Notification.Position.TOP_CENTER);
-                                ausschreibung.addPendingDocument(fileName, response.getText());
-                                System.out.println("Extracted text: " + response.getText());
-
-                            }));
-                        }, error -> {
-                            getUI().ifPresent(ui -> ui.access(() -> {
-                                Notification.show("Fehler beim Extrahieren: " + error.getMessage(), 5000,
-                                        Notification.Position.TOP_CENTER);
-                            }));
-                        });
-
-            } catch (IOException e) {
-                Notification.show("Fehler beim Lesen der Datei: " + e.getMessage(), 5000,
-                        Notification.Position.TOP_CENTER);
-            }
+            handleFileUpload(event, ausschreibung, buffer);
         });
 
         upload.addFailedListener(event -> {
