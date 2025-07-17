@@ -28,14 +28,15 @@ public class AusschreibungPublishForm extends VerticalLayout {
         contentLayout.add(new AusschreibungSummaryGrid(ausschreibung));
 
         // Document list section
-        if (!ausschreibung.getPendingDocuments().isEmpty()) {
+        if (!ausschreibung.getPendingDocumentsFileBytes().isEmpty()) {
             contentLayout.add(new H3("Dokumenten Upload"));
             contentLayout.add(new H4("Checkliste für ein erfolgreiches Ausschreibungsprojekt"));
 
             UnorderedList fileList = new UnorderedList();
             fileList.getStyle().set("padding-left", "1.5rem");
 
-            ausschreibung.getPendingDocuments().forEach(item -> fileList.add(new ListItem(item.getFilename())));
+            ausschreibung.getPendingDocumentsFileBytes()
+                    .forEach(item -> fileList.add(new ListItem(item.getFileName())));
 
             contentLayout.add(fileList);
         } else {
@@ -51,6 +52,6 @@ public class AusschreibungPublishForm extends VerticalLayout {
                 });
 
         add(contentLayout, buttonLayout);
-        setFlexGrow(1, contentLayout); 
+        setFlexGrow(1, contentLayout);
     }
 }
