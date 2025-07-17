@@ -32,14 +32,15 @@ public class AusschreibungDokManagement extends VerticalLayout {
         System.out.println("DokManagement initialized");
 
         if (ausschreibung == null || ausschreibung.getUuid() == null) {
-            add(new Span("Die Ausschreibung wurde noch nicht gespeichert. Dokumentenmanagement ist erst danach verfügbar."));
+            add(new Span(
+                    "Die Ausschreibung wurde noch nicht gespeichert. Dokumentenmanagement ist erst danach verfügbar."));
             return;
         }
 
         add(new H2("Dokumenten Management für: " + ausschreibung.getTitle()));
 
         // File upload component
-        //FIXME: change it to component + reuse it and refactoring
+        // FIXME: change it to component + reuse it and refactoring
         MemoryBuffer buffer = new MemoryBuffer();
         Upload upload = new Upload(buffer);
         upload.setWidthFull();
@@ -58,22 +59,23 @@ public class AusschreibungDokManagement extends VerticalLayout {
 
                 // Extract text from the uploaded file
                 service.extractAusschreibungText(fileBytes, fileName)
-                    .flatMap((ExtractTextResponse extractResponse) -> {
-                        String extractedText = extractResponse.getText();
+                        .flatMap((ExtractTextResponse extractResponse) -> {
+                            String extractedText = extractResponse.getText();
 
-                        // Now use indexDocument to save this new document into the database
-                        return service.indexDocument(extractedText, fileName, ausschreibung);
-                    })
-                    .subscribe(
-                        indexedDocumentResponse -> getUI().ifPresent(innerUi -> innerUi.access(() -> {
-                            Notification.show("Dokument erfolgreich hochgeladen und indexiert", 3000, Notification.Position.TOP_CENTER);
-                            UI.getCurrent().getPage().reload();
-                        })),
-                        error -> getUI().ifPresent(innerUi -> innerUi.access(() -> {
-                            error.printStackTrace();
-                            Notification.show("Fehler beim Indexieren des Dokuments", 5000, Notification.Position.TOP_CENTER);
-                        }))
-                    );
+                            // Now use indexDocument to save this new document into the database
+                            return service.indexDocument(extractedText, fileName, ausschreibung);
+                        })
+                        .subscribe(
+                                indexedDocumentResponse -> getUI().ifPresent(innerUi -> innerUi.access(() -> {
+                                    Notification.show("Dokument erfolgreich hochgeladen und indexiert", 3000,
+                                            Notification.Position.TOP_CENTER);
+                                    UI.getCurrent().getPage().reload();
+                                })),
+                                error -> getUI().ifPresent(innerUi -> innerUi.access(() -> {
+                                    error.printStackTrace();
+                                    Notification.show("Fehler beim Indexieren des Dokuments", 5000,
+                                            Notification.Position.TOP_CENTER);
+                                })));
 
             } catch (IOException e) {
                 Notification.show("Fehler beim Lesen der Datei: " + e.getMessage(), 5000,
@@ -90,99 +92,102 @@ public class AusschreibungDokManagement extends VerticalLayout {
 
         // List existing documents
         service.listProjectDocuments(ausschreibung.getUuid())
-            .subscribe(response -> {
-                List<Document> documents = response.getDocuments();
-                getUI().ifPresent(ui -> ui.access(() -> {
-                    if (documents == null || documents.isEmpty()) {
-                        add(new Span("Keine Dokumente gefunden."));
-                        return;
-                    }
+                .subscribe(response -> {
+                    List<Document> documents = response.getDocuments();
+                    getUI().ifPresent(ui -> ui.access(() -> {
+                        if (documents == null || documents.isEmpty()) {
+                            add(new Span("Keine Dokumente gefunden."));
+                            return;
+                        }
 
-                    add(new H2("Vorhandene Dokumente:"));
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+                        add(new H2("Vorhandene Dokumente:"));
+                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
 
-                    for (Document doc : documents) {
-                        String title = doc.getDocumentTitle() != null ? doc.getDocumentTitle() : "Unbenannt";
-                        String createdAt = doc.getCreatedAt() != null
-                            ? doc.getCreatedAt().format(formatter)
-                            : "Unbekanntes Datum";
+                        for (Document doc : documents) {
+                            String title = doc.getDocumentTitle() != null ? doc.getDocumentTitle() : "Unbenannt";
+                            String createdAt = doc.getCreatedAt() != null
+                                    ? doc.getCreatedAt().format(formatter)
+                                    : "Unbekanntes Datum";
 
-                        Span docEntry = new Span("📄 " + title + " (erstellt am: " + createdAt + ")");
-                        Button deleteBtn = new Button("Löschen");
-                        Button updateBtn = new Button("Aktualisieren");
+                            Span docEntry = new Span("📄 " + title + " (erstellt am: " + createdAt + ")");
+                            Button deleteBtn = new Button("Löschen");
+                            Button updateBtn = new Button("Aktualisieren");
 
-                        HorizontalLayout row = new HorizontalLayout(docEntry, deleteBtn, updateBtn);
-                        add(row);
+                            HorizontalLayout row = new HorizontalLayout(docEntry, deleteBtn, updateBtn);
+                            add(row);
 
-                        // Delete handler
-                        deleteBtn.addClickListener(click -> {
-                            UUID documentUuid = doc.getDocumentUuid();
-                            service.deleteDocument(documentUuid).subscribe(
-                                unused -> getUI().ifPresent(innerUi -> innerUi.access(() -> {
-                                    remove(row);
-                                    Notification.show("Dokument gelöscht", 3000, Notification.Position.TOP_CENTER);
-                                })),
-                                error -> getUI().ifPresent(innerUi -> innerUi.access(() -> {
-                                    error.printStackTrace();
-                                    Notification.show("Fehler beim Löschen des Dokuments", 5000, Notification.Position.TOP_CENTER);
-                                }))
-                            );
-                        });
-
-                        // Update handler - upload replacement document
-                        updateBtn.addClickListener(click -> {
-                            MemoryBuffer bufferUpdate = new MemoryBuffer();
-                            Upload uploadUpdate = new Upload(bufferUpdate);
-                            uploadUpdate.setAcceptedFileTypes(".pdf", ".txt");
-                            uploadUpdate.setMaxFiles(1);
-                            uploadUpdate.setDropLabel(new Span("Neues Dokument hier ablegen oder klicken"));
-                            uploadUpdate.setWidthFull();
-
-                            uploadUpdate.addSucceededListener(event -> {
-                                String filename = event.getFileName();
-                                InputStream inputStream = bufferUpdate.getInputStream();
-
-                                try {
-                                    byte[] fileBytes = inputStream.readAllBytes();
-
-                                    service.extractAusschreibungText(fileBytes, filename)
-                                        .flatMap(extractResponse -> {
-                                            String extractedText = extractResponse.getText();
-
-                                            return service.indexDocument(
-                                                extractedText,
-                                                filename,
-                                                ausschreibung
-                                            );
-                                        })
-                                        .subscribe(
-                                            indexed -> getUI().ifPresent(innerUi -> innerUi.access(() -> {
-                                                Notification.show("Dokument aktualisiert und indexiert", 3000, Notification.Position.TOP_CENTER);
-                                                remove(upload); // remove uploader after success
-                                                UI.getCurrent().getPage().reload();
-                                            })),
-                                            error -> getUI().ifPresent(innerUi -> innerUi.access(() -> {
-                                                error.printStackTrace();
-                                                Notification.show("Fehler beim Indexieren des Dokuments", 5000, Notification.Position.TOP_CENTER);
-                                            }))
-                                        );
-
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                    Notification.show("Fehler beim Lesen der Datei", 5000, Notification.Position.TOP_CENTER);
-                                }
+                            // Delete handler
+                            deleteBtn.addClickListener(click -> {
+                                UUID documentUuid = doc.getDocumentUuid();
+                                service.deleteDocument(documentUuid).subscribe(
+                                        unused -> getUI().ifPresent(innerUi -> innerUi.access(() -> {
+                                            remove(row);
+                                            Notification.show("Dokument gelöscht", 3000,
+                                                    Notification.Position.TOP_CENTER);
+                                        })),
+                                        error -> getUI().ifPresent(innerUi -> innerUi.access(() -> {
+                                            error.printStackTrace();
+                                            Notification.show("Fehler beim Löschen des Dokuments", 5000,
+                                                    Notification.Position.TOP_CENTER);
+                                        })));
                             });
 
-                            add(uploadUpdate); // show upload inline
-                        });
-                    }
-                }));
-            }, error -> {
-                getUI().ifPresent(ui -> ui.access(() -> {
-                    error.printStackTrace();
-                    add(new Span("Fehler beim Abrufen der Dokumente: " + error.getMessage()));
-                    Notification.show("Fehler beim Laden der Dokumente.", 5000, Notification.Position.TOP_CENTER);
-                }));
-            });
+                            // Update handler - upload replacement document
+                            updateBtn.addClickListener(click -> {
+                                MemoryBuffer bufferUpdate = new MemoryBuffer();
+                                Upload uploadUpdate = new Upload(bufferUpdate);
+                                uploadUpdate.setAcceptedFileTypes(".pdf", ".txt");
+                                uploadUpdate.setMaxFiles(1);
+                                uploadUpdate.setDropLabel(new Span("Neues Dokument hier ablegen oder klicken"));
+                                uploadUpdate.setWidthFull();
+
+                                uploadUpdate.addSucceededListener(event -> {
+                                    String filename = event.getFileName();
+                                    InputStream inputStream = bufferUpdate.getInputStream();
+
+                                    try {
+                                        byte[] fileBytes = inputStream.readAllBytes();
+
+                                        service.extractAusschreibungText(fileBytes, filename)
+                                                .flatMap(extractResponse -> {
+                                                    String extractedText = extractResponse.getText();
+
+                                                    return service.updateDocument(
+                                                            doc,
+                                                            extractedText,
+                                                            filename,
+                                                            ausschreibung);
+                                                })
+                                                .subscribe(
+                                                        indexed -> getUI().ifPresent(innerUi -> innerUi.access(() -> {
+                                                            Notification.show("Dokument aktualisiert und indexiert",
+                                                                    3000, Notification.Position.TOP_CENTER);
+                                                            remove(upload); // remove uploader after success
+                                                            UI.getCurrent().getPage().reload();
+                                                        })),
+                                                        error -> getUI().ifPresent(innerUi -> innerUi.access(() -> {
+                                                            error.printStackTrace();
+                                                            Notification.show("Fehler beim Indexieren des Dokuments",
+                                                                    5000, Notification.Position.TOP_CENTER);
+                                                        })));
+
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                        Notification.show("Fehler beim Lesen der Datei", 5000,
+                                                Notification.Position.TOP_CENTER);
+                                    }
+                                });
+
+                                add(uploadUpdate); // show upload inline
+                            });
+                        }
+                    }));
+                }, error -> {
+                    getUI().ifPresent(ui -> ui.access(() -> {
+                        error.printStackTrace();
+                        add(new Span("Fehler beim Abrufen der Dokumente: " + error.getMessage()));
+                        Notification.show("Fehler beim Laden der Dokumente.", 5000, Notification.Position.TOP_CENTER);
+                    }));
+                });
     }
 }
