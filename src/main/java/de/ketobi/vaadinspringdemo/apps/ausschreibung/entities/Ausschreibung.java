@@ -26,13 +26,10 @@ public class Ausschreibung {
     private boolean archived;
     private String status;
 
-    private List<PendingDocument> pendingDocuments = new ArrayList<>();
+    private List<PendingDocumentFileBytes> pendingDocumentsFileBytes = new ArrayList<>();
 
-    public void addPendingDocument(String filename, String extractedText) {
-        this.pendingDocuments.add(new PendingDocument(filename, extractedText));
+    public void addPendingDocumentFileBytes(String filename, byte[] fileBytes) {
+        this.pendingDocumentsFileBytes.add(new PendingDocumentFileBytes(filename, fileBytes));
     }
 
-    public void updatePendingDocument(String filename, String extractedText, UUID documentUuid) {
-        this.pendingDocuments.add(new PendingDocument(filename, extractedText, documentUuid));
-    }
 }
