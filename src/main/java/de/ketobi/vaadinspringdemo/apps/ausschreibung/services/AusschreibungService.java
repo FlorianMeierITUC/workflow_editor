@@ -63,10 +63,10 @@ public class AusschreibungService {
     }
 
     public Mono<UpdateDocumentResponse> updateDocument(
-            String text, String filename, Ausschreibung ausschreibung, UUID documentUuid) {
+            Document doc, String text, String filename, Ausschreibung ausschreibung) {
 
         UpdateDocumentRequest request = this.mapper.mapToUpdateDocumentRequest(text, filename, ausschreibung,
-                documentUuid);
+                doc.getDocumentUuid());
 
         return indexingService.updateDocument(request);
     }
