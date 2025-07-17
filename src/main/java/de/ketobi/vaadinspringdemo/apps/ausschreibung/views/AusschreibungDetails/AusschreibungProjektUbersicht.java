@@ -54,7 +54,6 @@ public class AusschreibungProjektUbersicht extends VerticalLayout {
                             downloadLink.getStyle().set("overflow", "hidden");
                             downloadLink.getStyle().set("position", "absolute");
                             downloadLink.getStyle().set("top", "-1000px");
-
                             ui.add(downloadLink);
                             ui.getPage().executeJs("document.getElementById('hidden-download-link').click();");
 

@@ -39,6 +39,7 @@ public class AusschreibungDokManagement extends VerticalLayout {
         add(new H2("Dokumenten Management für: " + ausschreibung.getTitle()));
 
         // File upload component
+        //FIXME: change it to component + reuse it and refactoring
         MemoryBuffer buffer = new MemoryBuffer();
         Upload upload = new Upload(buffer);
         upload.setWidthFull();
