@@ -11,12 +11,20 @@ import org.springframework.stereotype.Component;
 @Component
 public class Mapper {
     public Ausschreibung mapToAusschreibung(ProjectDetailsResponse p) {
+        System.out.println("Response" + p);
         Ausschreibung ausschreibung = new Ausschreibung();
         ausschreibung.setUuid(p.getUuid());
         ausschreibung.setTitle(p.getDisplayName());
+        ausschreibung.setBeschreibung(p.getDescription());
         ausschreibung.setAusschreibungsNumber(p.getTenderId());
         ausschreibung.setITUCNumber(p.getItucId());
+        ausschreibung.setPartnerFirma(p.getPartnerCompany());
+        ausschreibung.setProjectKontakt(p.getProjectContact());
+        ausschreibung.setProjectKontaktEmail(p.getProjectContactEmail());
+        ausschreibung.setNotizen(p.getNotes());
         ausschreibung.setDate(p.getDueDate());
+        ausschreibung.setKunde(p.getCustomer());
+        ausschreibung.setBranche(p.getSector());
         // FIXME: Mocked status. Currently the response from the endpoint does not
         // provide a status.
         ausschreibung.setStatus("In Bearbeitung"); // Default status, can be changed later);
@@ -36,6 +44,13 @@ public class Mapper {
         request.setTenderId(ausschreibung.getAusschreibungsNumber());
         request.setDueDate(ausschreibung.getDate());
         request.setDisplayName(ausschreibung.getTitle());
+        request.setDescription(ausschreibung.getBeschreibung());
+        request.setPartnerCompany(ausschreibung.getPartnerFirma());
+        request.setCustomer(ausschreibung.getKunde());
+        request.setSector(ausschreibung.getBranche());
+        request.setProjectContact(ausschreibung.getProjectKontakt());
+        request.setProjectContactEmail(ausschreibung.getProjectKontaktEmail());
+        request.setNotes(ausschreibung.getNotizen());
     }
 
     public CreateProjectRequest mapToCreateProjectRequest(Ausschreibung ausschreibung) {
@@ -82,17 +97,18 @@ public class Mapper {
         request.setText(text);
         request.setProjectUuid(ausschreibung.getUuid());
         request.setDocumentTitle(filename);
-        request.setDocumentType("pdf"); //FIXME: Set the document type based on the actual file type
+        request.setDocumentType("pdf"); // FIXME: Set the document type based on the actual file type
         return request;
     }
 
-    public UpdateDocumentRequest mapToUpdateDocumentRequest(String text, String filename, Ausschreibung ausschreibung, UUID documentUuid ) {
+    public UpdateDocumentRequest mapToUpdateDocumentRequest(String text, String filename, Ausschreibung ausschreibung,
+            UUID documentUuid) {
         UpdateDocumentRequest request = new UpdateDocumentRequest();
         request.setText(text);
         request.setProjectUuid(ausschreibung.getUuid());
         request.setDocumentTitle(filename);
-        request.setDocumentType("pdf");//FIXME: Set the document type based on the actual file type
-        request.setDocumentUuid(documentUuid); 
+        request.setDocumentType("pdf");// FIXME: Set the document type based on the actual file type
+        request.setDocumentUuid(documentUuid);
         return request;
     }
 
